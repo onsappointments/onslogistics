@@ -1,5 +1,5 @@
-import AppointmentHero from "../../components/AppointmentHero.jsx";
-import BookAppointment from "../../components/BookAppointment.jsx";
+import AppointmentHero from "../../Components/AppointmentHero.jsx";
+import BookAppointment from "../../Components/BookAppointment.jsx";
 
 export default function BookAppointmentPage() {
   return (

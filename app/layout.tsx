@@ -1,7 +1,7 @@
 import "./globals.css";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import SessionWrapper from "../components/SessionWrapper"; // we'll create this next
+import Navbar from "../Components/Navbar";
+import Footer from "../Components/Footer";
+import SessionWrapper from "../Components/SessionWrapper"; // we'll create this next
 
 export const metadata = {
   title: "ONS Logistics",
