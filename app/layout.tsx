@@ -5,6 +5,7 @@ import SessionWrapper from "../Components/SessionWrapper"; // we'll create this 
 import type { ReactNode } from "react";
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: "ONS Logistics",
   description: "Reliable Shipping, Logistics, and Custom Clearance Services",
 };
