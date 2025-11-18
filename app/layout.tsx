@@ -14,9 +14,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
        <head>
         <meta
-          name="google-site-verification"
-          content="<meta name="google-site-verification" content="OOAFF6RwAGGwDYe6-LM-yWnL9KXyz3vathh9KdR-UzA" />"
-        />
+  name="google-site-verification"
+  content="OOAFF6RwAGGwDYe6-LM-yWnL9KXyz3vathh9KdR-UzA"
+/>
+
       </head>
       <body className="bg-[--color-background] text-gray-900">
         <SessionWrapper>
