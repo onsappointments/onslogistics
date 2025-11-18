@@ -1,5 +1,5 @@
-import ContactHero from "../../components/ContactHero";
-import ContactForm from "../../components/ContactForm";
+import ContactHero from "../../components/ContactHero.jsx";
+import ContactForm from "../../components/ContactForm.jsx";
 
 export default function ContactPage() {
   return (

@@ -1,6 +1,6 @@
-import ServiceHero from "../../components/ServiceHero";
-import ServiceSection from "../../components/ServiceSection";
-import servicesData from "../../data/servicesData";
+import ServiceHero from "../../components/ServiceHero.jsx";
+import ServiceSection from "../../components/ServiceSection.jsx";
+import servicesData from "../../data/servicesData.js";
 
 export default function ServicesPage() {
   return (
