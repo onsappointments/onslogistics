@@ -1,7 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-productionBrowserSourceMaps: false,
+/** @type {import("next").NextConfig} */
+const nextConfig = {
+  productionBrowserSourceMaps: false,
 };
 
 export default nextConfig;
