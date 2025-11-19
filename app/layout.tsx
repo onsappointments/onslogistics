@@ -7,8 +7,7 @@ import type { ReactNode } from "react";
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: "ONS Logistics India – Global Shipping & Freight Services",
-  description: "ONS Logistics offers reliable global shipping, freight forwarding, customs clearance, and supply chain solutions. 
-  We ensure fast, secure, and transparent delivery across India and worldwide with real-time tracking and expert support.",
+  description: "ONS Logistics offers reliable global shipping, freight forwarding, customs clearance, and supply chain solutions. We ensure fast, secure, and transparent delivery across India and worldwide with real-time tracking and expert support.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
