@@ -6,8 +6,11 @@ import type { ReactNode } from "react";
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
+  alternates: {
+    canonical: "/",
+  },
   title: "ONS Logistics India – Global Shipping & Freight Services",
-  description: "ONS Logistics offers reliable global shipping, freight forwarding, customs clearance, and supply chain solutions. We ensure fast, secure and transparent delivery worldwide with expert support.",
+  description: "Reliable global shipping, freight forwarding, customs clearance, and supply chain solutions by ONS Logistics. Fast, secure, and transparent delivery worldwide.",
 openGraph: {
     title: "ONS Logistics – Global Shipping & Freight Forwarding",
     description:
@@ -61,7 +64,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       sameAs: [],
     }),
   }}
+/>   
+{/* Google Analytics */}
+<script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}></script>
+<script
+  dangerouslySetInnerHTML={{
+    __html: `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+    `,
+  }}
 />
+
 
       </head>
       <body className="bg-[--color-background] text-gray-900">
