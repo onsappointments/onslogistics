@@ -40,7 +40,7 @@ export default function Footer() {
             <Link href="https://www.facebook.com/bestcustombroker" target="_blank" aria-label="Facebook">
               <Facebook className="w-6 h-6 hover:text-blue-600 transition-colors" />
             </Link>
-            <Link href="https://www.instagram.com/onslog500/" target="_blank" aria-label="Instagram">
+            <Link href="https://www.instagram.com/onslogistics486?igsh=NXhzNTB0amY2OHl2" target="_blank" aria-label="Instagram">
               <Instagram className="w-6 h-6 hover:text-pink-500 transition-colors" />
             </Link>
             <Link href="https://www.linkedin.com/in/anil-verma-62691333?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank" aria-label="LinkedIn">

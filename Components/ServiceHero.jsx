@@ -13,12 +13,12 @@ const services = [
 
 export default function ServiceHero() {
   return (
-    <section className="relative text-center py-32 overflow-hidden">
+    <section className="relative text-center py-44 overflow-hidden">
       {/* ✅ Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: "url('/services-bg.jpg')", // <-- replace with your image
+          backgroundImage: "url('/services-bg.jpg')", 
         }}
       />
       {/* ✅ Overlay to make text/icons visible */}
