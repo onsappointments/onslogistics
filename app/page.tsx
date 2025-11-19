@@ -20,7 +20,7 @@ className="min-h-screen flex flex-col justify-top items-center text-center px-6 
       <div className="w-full h-[300px] bg-gray-200 rounded-3xl overflow-hidden">
         <img
           src="/about-photo.jpg"
-          alt="Logistics"
+          alt="Global logistics and freight forwarding operations by ONS Logistics"
           className="w-full h-full object-cover"
         />
       </div>
