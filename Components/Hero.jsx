@@ -5,9 +5,9 @@ import Link from "next/link";  //
 
 
 const images = [
-  "/hero1.jpg",
-  "/hero2.jpg",
-  "/hero3.jpg",
+  "OnsLogistics1.jpg",
+  "/OnsLogistics2.jpg",
+  "/OnsLogistics3.jpg",
 ];
 
 export default function Hero() {
@@ -34,7 +34,7 @@ export default function Hero() {
           >
             <Image
               src={src}
-              alt={`Hero ${i + 1}`}
+              alt={`Global logistics and freight forwarding services by ONS Logistics – Hero image ${i + 1}`}
               fill
               sizes="100vw"
               quality={100}

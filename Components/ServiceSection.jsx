@@ -16,7 +16,7 @@ export default function ServiceSection({ id, title, description, image, reverse 
                       hover:scale-[1.02] transition-transform duration-700 ease-out">
         <Image
           src={image}
-          alt={title}
+          alt={'${title} by ONS Logistics'}
           fill
           className="object-cover rounded-3xl transition-all duration-700 hover:brightness-110"
         />
