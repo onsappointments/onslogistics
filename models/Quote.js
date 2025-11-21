@@ -42,6 +42,15 @@ const QuoteSchema = new mongoose.Schema(
     bestTimeToCall: String,
     bestTimeToEmail: String,
     message: String,
+    status: {
+    type: String,
+    enum: ["pending", "approved"],
+    default: "pending",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
   },
   { timestamps: true }
 );

@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
 
+
   const links = [
     { name: "Search Clients", href: "/dashboard/admin" },
-    { name: "Shipments", href: "/dashboard/admin/shipments" },
-    { name: "Documents", href: "/dashboard/admin/documents" },
-    { name: "Support", href: "/dashboard/admin/support" },
   ];
 
   return (
@@ -29,8 +28,22 @@ export default function AdminSidebar() {
           >
             {link.name}
           </Link>
+          
         ))}
+        <Link href="/dashboard/admin/quotes">
+  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
+    View Quotes
+  </button>
+</Link>
+
       </nav>
+       <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="mt-8 bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 
+          transition font-medium shadow-md"
+        >
+          Logout
+        </button>
     </aside>
   );
 }
