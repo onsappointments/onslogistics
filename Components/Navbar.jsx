@@ -12,6 +12,7 @@ export default function Navbar() {
     { name: "Services", path: "/services" },
     { name: "Book Appointment", path: "/book-appointment" },
     { name: "Contact Us", path: "/contact" },
+    { name: "Request A Quote", path: "/request-quote" },
   ];
 
   return (
