@@ -13,6 +13,7 @@ export default function Navbar() {
     { name: "Book Appointment", path: "/book-appointment" },
     { name: "Contact Us", path: "/contact" },
     { name: "Request A Quote", path: "/request-quote" },
+    { name: "Toll Free No. 1800-890-7365", path: "tel:18008907365" },
   ];
 
   return (

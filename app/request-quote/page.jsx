@@ -32,7 +32,9 @@ export default function RequestQuotePage() {
     temperature: "",
     totalWeight: "",
     weightMeasure: "Kgs",
+    shipmentType: "",
 
+  
     firstName: "",
     lastName: "",
     company: "",
@@ -266,7 +268,19 @@ export default function RequestQuotePage() {
                   <option>Kgs</option>
                   <option>Lbs</option>
                 </select>
-              </div>
+               </div>
+                <select
+               name="shipmentType"
+               value={form.shipmentType}
+              onChange={handleChange}
+               className="input-box"
+              >
+              <option value="">Select Type</option>
+              <option value="import">Import</option>
+              <option value="export">Export</option>
+              <option value="courier">Courier</option>
+              </select>
+
             </div>
           </section>
 

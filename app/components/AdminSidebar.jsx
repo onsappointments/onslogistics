@@ -35,7 +35,16 @@ export default function AdminSidebar() {
     View Quotes
   </button>
 </Link>
-
+<Link href="/dashboard/admin/jobs/new">
+  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
+    New Jobs 
+  </button>
+</Link>
+<Link href="/dashboard/admin/jobs/active">
+  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
+    Active Jobs 
+  </button>
+</Link>
       </nav>
        <button
           onClick={() => signOut({ callbackUrl: "/login" })}

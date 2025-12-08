@@ -23,7 +23,10 @@ export async function GET(req) {
     timeFilter.createdAt = { $gte: new Date(now - 7 * 24 * 60 * 60 * 1000) };
   }
 
-  const quotes = await Quote.find(timeFilter).sort({ createdAt: -1 });
+const quotes = await Quote.find({
+  ...timeFilter,                    
+  status: "pending",      
+}).sort({ createdAt: -1 });
 
   return Response.json(quotes);
 }

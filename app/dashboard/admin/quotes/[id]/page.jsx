@@ -51,6 +51,7 @@ export default async function QuoteDetails({ params }) {
         <Field label="Freight Terms" value={quote.freightTerms} />
         <Field label="Purpose of Goods" value={quote.goodsPurpose} />
         <Field label="Value of Goods" value={`${quote.valueOfGoods} ${quote.currency || ""}`} />
+        <Field label="Shipmenttype" value={quote.shipmentType}  />
       </Section>
 
       {/* GOODS INFO */}

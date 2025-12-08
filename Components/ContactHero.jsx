@@ -39,7 +39,7 @@ export default function ContactHero() {
           ☎️ <strong>Phone:</strong> +91-99888-87971 ,+91-99888-86501 ,+91-99888-86500 ,+91-99888-13766
         </p>
         <p className="text-gray-700 mb-3">
-          📧 <strong>Email:</strong> info@onslogistics.com , exim@onslogistics.org
+          📧 <strong>Email:</strong> info@onslog.com , exim@onslogistics.org
         </p>
         <p className="text-gray-700">
           🕒 <strong>Working Hours:</strong> Mon – Sat: 9:00 AM – 6:00 PM

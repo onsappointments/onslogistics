@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import * as mongoose from "mongoose";
 
 const QuoteSchema = new mongoose.Schema(
   {
@@ -17,6 +17,12 @@ const QuoteSchema = new mongoose.Schema(
     freightTerms: String,
     containerType: String,
     modeOfShipment: String,
+    shipmentType: {
+  type: String,
+  enum: ["import", "export", "courier"],
+  required: true,
+},
+
     goodsPurpose: String,
     valueOfGoods: String,
     currency: String,
@@ -55,4 +61,5 @@ const QuoteSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Quote || mongoose.model("Quote", QuoteSchema);
+export default mongoose.models?.Quote ||
+  mongoose.model("Quote", QuoteSchema);
