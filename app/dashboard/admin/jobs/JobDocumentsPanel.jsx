@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+
+
 const STAGE_LABELS = {
   1: "Documentation",
   2: "Stage 2",
@@ -72,38 +74,66 @@ export default function JobDocumentsPanel({ job }) {
     currentJob.documents.length > 0 &&
     currentJob.documents.every((d) => d.isCompleted === true);
 
-  async function uploadDocument(docName, file) {
-    if (!file) return alert("Please select a file");
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("jobId", currentJob._id);
-    formData.append("documentName", docName);
-
-    try {
+    async function uploadDocument(docName, file) {
+      if (!file) return alert("Please select a file");
+    
       setUploadingDoc(docName);
-
-      const res = await fetch("/api/admin/jobs/upload-document", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) return alert(data.error);
-
-      setCurrentJob((prev) => ({
-        ...prev,
-        documents: mergeDocuments(data.job.documents, getDefaultDocs(prev)),
-      }));
-
-      alert("Document uploaded successfully");
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed");
-    } finally {
-      setUploadingDoc(null);
+    
+      try {
+        // 1️⃣ Get signed upload URL
+        const uploadUrlRes = await fetch("/api/uploadthing/url", {
+          method: "POST",
+        });
+        const { url } = await uploadUrlRes.json();
+    
+        // 2️⃣ Upload file directly to UploadThing storage
+        const uploadRes = await fetch(url, {
+          method: "POST",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+            "x-uploadthing-filename": file.name,
+          },
+        });
+    
+        const uploaded = await uploadRes.json();
+    
+        if (!uploaded || !uploaded.files || !uploaded.files[0]?.url) {
+          console.error("UploadThing response:", uploaded);
+          alert("Upload failed");
+          return;
+        }
+    
+        const fileUrl = uploaded.files[0].url;
+    
+        // 3️⃣ Save URL to database
+        const res = await fetch("/api/admin/jobs/upload-document", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jobId: currentJob._id,
+            documentName: docName,
+            fileUrl,
+          }),
+        });
+    
+        const data = await res.json();
+        if (!res.ok) return alert(data.error);
+    
+        // 4️⃣ Update UI
+        setCurrentJob((prev) => ({
+          ...prev,
+          documents: mergeDocuments(data.job.documents, getDefaultDocs(prev)),
+        }));
+    
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert("Upload failed");
+      } finally {
+        setUploadingDoc(null);
+      }
     }
-  }
+    
 
   async function confirmDocument(docName) {
     if (!window.confirm(`Confirm "${docName}" and notify client?`)) return;
@@ -133,7 +163,7 @@ export default function JobDocumentsPanel({ job }) {
       alert("Error confirming document");
     } finally {
       setConfirmingDoc(null);
-    }
+    } 
   }
 
   async function nextStageHandler() {

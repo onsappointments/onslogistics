@@ -76,7 +76,7 @@ export async function POST(req) {
     commodity: quote.natureOfGoods || null,
 
     // System fields
-    status: "active",
+    status: "new",
     stage: "Documentation",
     stages,
     documents: formattedDocs,
