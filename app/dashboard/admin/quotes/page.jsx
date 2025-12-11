@@ -23,9 +23,13 @@ export default function AdminQuotesPage() {
   };
 
   useEffect(() => {
-    fetchQuotes();
+    const loadQuotes = async () => {
+      await fetchQuotes();
+    };
+  
+    loadQuotes();
   }, [filter]);
-
+  
   return (
     <div className="p-10 max-w-6xl mx-auto">
       <h1 className="text-4xl font-semibold mb-6">Client Quotes</h1>

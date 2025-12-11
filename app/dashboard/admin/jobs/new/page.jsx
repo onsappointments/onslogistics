@@ -12,8 +12,13 @@ export default function NewJobsPage() {
     const data = await res.json(); 
     setJobs(data.jobs);
   };
-
-  useEffect(() => { fetchJobs(); }, []);
+  useEffect(() => {
+    const load = async () => {
+      await fetchJobs();
+    };
+    load();
+  }, []);
+  
 
   return (
     <div className="p-10 max-w-6xl mx-auto">
