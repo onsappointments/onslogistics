@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import SessionWrapper from "../Components/SessionWrapper";
+import Script from "next/script";
 import type { ReactNode } from "react";
 
 export const metadata = {
@@ -43,17 +44,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <SessionWrapper>
           <Navbar />
 
-          {/* Consistent spacing for fixed navbar */}
-          <main className="pt-24 min-h-screen">
+          {/* Exact spacing for fixed navbar */}
+          <main className="pt-[72px] min-h-screen">
             {children}
           </main>
 
           <Footer />
         </SessionWrapper>
 
-        {/* SEO + Analytics */}
-        <script
+        {/* LocalBusiness Schema */}
+        <Script
+          id="local-business-schema"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -76,11 +79,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           }}
         />
 
-        <script
-          async
+        {/* Google Analytics */}
+        <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+          strategy="afterInteractive"
         />
-        <script
+        <Script
+          id="ga-init"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];

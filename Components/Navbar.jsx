@@ -17,52 +17,58 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-[--color-background]/90 backdrop-blur-md shadow-sm">
-      <div className="mx-auto flex w-full items-center justify-between px-3 py-2 md:px-6">
+    <nav className="fixed top-0 left-0 z-50 w-full bg-[--color-background]/90 backdrop-blur-md border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 h-[72px] flex items-center justify-between">
+        
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/logo.png"
+            alt="ONS Logistics Logo"
+            width={48}
+            height={48}
+            priority
+          />
+          <span className="hidden sm:block font-semibold text-gray-900">
+            ONS Logistics
+          </span>
+        </Link>
 
-        {/* Logo + Nav Links */}
-        <div className="flex items-center gap-4 md:gap-6">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.png"
-              alt="ONS Logistics Logo"
-              width={60}
-              height={60}
-              priority
-              className="h-[50px] w-[50px] md:h-[60px] md:w-[60px]"
-            />
-          </Link>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-4">
-            {navItems.map((item) => (
+        {/* Nav */}
+        <div className="hidden md:flex items-center gap-6">
+          {navItems.map((item) =>
+            item.path.startsWith("tel:") ? (
+              <a
+                key={item.name}
+                href={item.path}
+                className="text-sm text-gray-700 hover:text-blue-600"
+              >
+                {item.name}
+              </a>
+            ) : (
               <Link
                 key={item.name}
                 href={item.path}
-                className={`text-sm font-medium text-gray-700 transition hover:text-blue-600 ${
+                className={`text-sm transition ${
                   pathname === item.path
                     ? "font-semibold text-blue-600"
-                    : ""
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 {item.name}
               </Link>
-            ))}
-          </div>
+            )
+          )}
         </div>
 
-        {/* Auth Buttons */}
+        {/* Auth */}
         <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-sm font-medium text-gray-700 transition hover:text-blue-600"
-          >
+          <Link href="/login" className="text-sm text-gray-700 hover:text-blue-600">
             Login
           </Link>
-
           <Link
             href="/register"
-            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+            className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
           >
             Register
           </Link>
