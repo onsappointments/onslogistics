@@ -41,6 +41,8 @@ export default function Footer() {
               <li><Link href="/services" className="hover:text-blue-600">Services</Link></li>
               <li><Link href="/book-appointment" className="hover:text-blue-600">Book Appointment</Link></li>
               <li><Link href="/contact" className="hover:text-blue-600">Contact Us</Link></li>
+              <li><Link href="/request-quote" className="hover:text-blue-600">Request A Quote</Link></li>
+              <li><Link href="tel:18008907365" className="hover:text-blue-600">Toll Free No. 1800-890-7365</Link></li>
             </ul>
           </div>
 
