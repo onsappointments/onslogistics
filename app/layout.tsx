@@ -1,6 +1,7 @@
 import "./globals.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import LiveChat from "../Components/LiveChat";
 import SessionWrapper from "../Components/SessionWrapper";
 import Script from "next/script";
 import type { ReactNode } from "react";
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
           <Footer />
         </SessionWrapper>
+        <LiveChat />
 
         {/* LocalBusiness Schema */}
         <Script
