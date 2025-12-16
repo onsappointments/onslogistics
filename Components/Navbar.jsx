@@ -17,61 +17,52 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-[--color-background] bg-opacity-90 backdrop-blur-md shadow-sm z-50">
-      {/* Reduced left/right padding */}
-      <div className="w-full mx-auto px-3 md:px-6 py-2 flex justify-between items-center">
+    <nav className="sticky top-0 z-50 w-full bg-[--color-background]/90 backdrop-blur-md shadow-sm">
+      <div className="mx-auto flex w-full items-center justify-between px-3 py-2 md:px-6">
 
-        {/* Logo + Nav */}
+        {/* Logo + Nav Links */}
         <div className="flex items-center gap-4 md:gap-6">
           <Link href="/" className="flex items-center">
             <Image
               src="/logo.png"
               alt="ONS Logistics Logo"
-              width={200}
-              height={200}
-              className="w-[50px] h-[50px] md:w-[60px] md:h-[60px]"
+              width={60}
+              height={60}
+              priority
+              className="h-[50px] w-[50px] md:h-[60px] md:w-[60px]"
             />
           </Link>
 
-          {/* ✅ Replace this part only */}
-          <div className="hidden md:flex gap-4">
-            {navItems.map((item) =>
-              item.path.startsWith("/#") ? (
-                // ✅ In-page scroll links (like About Us)
-                <a
-                  key={item.name}
-                  href={item.path.replace("/", "")} // "/#about" → "#about"
-                  className="text-gray-700 hover:text-blue-600 transition"
-                >
-                  {item.name}
-                </a>
-              ) : (
-                // ✅ Normal route links
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className={`text-gray-700 hover:text-blue-600 transition ${
-                    pathname === item.path ? "font-semibold text-blue-600" : ""
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              )
-            )}
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.path}
+                className={`text-sm font-medium text-gray-700 transition hover:text-blue-600 ${
+                  pathname === item.path
+                    ? "font-semibold text-blue-600"
+                    : ""
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
           </div>
         </div>
 
-        {/* Login / Register */}
+        {/* Auth Buttons */}
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="text-gray-700 hover:text-blue-600 font-medium transition"
+            className="text-sm font-medium text-gray-700 transition hover:text-blue-600"
           >
             Login
           </Link>
+
           <Link
             href="/register"
-            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition font-medium text-sm"
+            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
           >
             Register
           </Link>
