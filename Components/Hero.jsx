@@ -1,11 +1,11 @@
 "use client";
+
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Link from "next/link";  // 
-
+import Link from "next/link";
 
 const images = [
-  "OnsLogistics1.jpg",
+  "/OnsLogistics1.jpg",
   "/OnsLogistics2.jpg",
   "/OnsLogistics3.jpg",
 ];
@@ -14,20 +14,20 @@ export default function Hero() {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(
-      () => setIndex((prev) => (prev + 1) % images.length),
-      4000
-    );
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 4000);
+
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative w-full h-[90vh] overflow-hidden bg-[#F5F5F7]">
+    <section className="relative w-full h-screen overflow-hidden bg-[#F5F5F7]">
       {/* Background Image Slideshow */}
       <div className="absolute inset-0">
         {images.map((src, i) => (
           <div
-            key={i}
+            key={src}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
               i === index ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
@@ -37,31 +37,30 @@ export default function Hero() {
               alt={`Global logistics and freight forwarding services by ONS Logistics – Hero image ${i + 1}`}
               fill
               sizes="100vw"
-              quality={100}
-              className="object-cover object-center"
               priority={i === 0}
-              unoptimized
+              className="object-cover object-center"
             />
           </div>
         ))}
       </div>
 
-      {/* Overlay Text (Always on top) */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white bg-black/30 z-20">
-        <h1 className="text-5xl font-bold drop-shadow-xl">
+      {/* Overlay Content */}
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center bg-black/30 px-6">
+        <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-xl">
           Smart Logistics for a Smarter Future
         </h1>
-        <p className="mt-4 text-lg drop-shadow-md max-w-2xl">
+
+        <p className="mt-4 text-base md:text-lg text-white drop-shadow-md max-w-2xl">
           Efficient. Reliable. On-Time — Every Time.
         </p>
-        <Link href="/#about">
-       <button className="mt-6 bg-blue-600 px-6 py-3 rounded-full text-white hover:bg-blue-700 transition-all">
-        About Us
-      </button>
-      </Link>
 
+        <Link
+          href="#about"
+          className="mt-6 inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-white transition-all hover:bg-blue-700"
+        >
+          About Us
+        </Link>
       </div>
-    </div>
+    </section>
   );
 }
-
