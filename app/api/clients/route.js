@@ -1,8 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/authOptions";
-
+import { authOptions } from "@/lib/authOptions";
 
 export async function GET(req) {
   try {

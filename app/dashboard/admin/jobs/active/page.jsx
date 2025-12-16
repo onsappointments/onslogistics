@@ -13,12 +13,11 @@ export default function ActiveJobsPage() {
   };
 
   useEffect(() => {
-    const load = async () => {
+    const load = async () => { 
       await fetchJobs();
     };
     load();
   }, []);
-  
 
   return (
     <div className="p-10 max-w-6xl mx-auto">
