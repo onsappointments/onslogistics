@@ -14,13 +14,14 @@ export default function Home() {
         {/* Heading */}
         <h2 className="text-3xl font-semibold mb-4">About Us</h2>
         <p className="max-w-2xl text-gray-600 leading-relaxed">
-          ONS Logistics is your trusted partner in global shipping, logistics,
+          ONS Logistics India Pvt. Ltd. is your trusted partner in global shipping, logistics,
           and custom clearance. We deliver efficiency, reliability, and
           transparency across every shipment — ensuring your goods reach their
           destination safely and on time.
-        </p>
+        </p>  
 
         {/* Glass Container */}
+        
         <div className="w-full max-w-6xl bg-white/60 backdrop-blur-xl rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.06)] p-10 mt-16">
           
           {/* ROW 1 — IMAGE LEFT, TEXT RIGHT */}
@@ -40,7 +41,7 @@ export default function Home() {
                 We move the world.
               </h3>
               <p className="text-gray-700 leading-relaxed">
-                At ONS Logistics, every shipment reflects our commitment to
+                At ONS Logistics India Pvt. Ltd., every shipment reflects our commitment to
                 precision, trust, and seamless global movement. We understand
                 that in today’s fast-paced trade environment, businesses rely on
                 logistics partners who can deliver reliability, transparency,
@@ -73,9 +74,9 @@ export default function Home() {
                 unmatched accuracy.
                 <br />
                 <br />
-                At ONS Logistics, we don’t just move cargo — we move global trade
+                At ONS Logistics India Pvt. Ltd. , we don’t just move cargo — we move global trade
                 forward with reliability, expertise, and a promise of on-time
-                delivery across oceans, skies, roads, and borders.
+                delivery across oceans, skies, roads, and borders. 
               </p>
             </div>
 
@@ -91,5 +92,5 @@ export default function Home() {
         </div>
       </section>
     </main>
-  );
+  ); 
 }

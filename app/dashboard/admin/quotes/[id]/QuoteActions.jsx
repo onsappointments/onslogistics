@@ -1,53 +1,39 @@
 "use client";
 
-export default function QuoteActions({ id }) {
-  const approve = async () => {
-    await fetch("/api/admin/quotes/approve", {
+export default function QuoteActions({ id, status }) {
+  const createTechQuote = () => {
+    window.location.href = `/dashboard/admin/quotes/${id}/technical`;
+  };
+
+  const sendToClient = async () => {
+    await fetch("/api/admin/send-technical-quote", {
       method: "POST",
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ quoteId: id }),
     });
-    alert("Quote approved!");
-    window.location.reload();
+    alert("Quote sent to client");
+    location.reload();
   };
 
-  const reject = async () => {
-    if (!confirm("Are you sure you want to delete this quote permanently?")) return;
-
-    await fetch("/api/admin/quotes/delete", {
-      method: "POST",
-      body: JSON.stringify({ id }),
-    });
-
-    alert("Quote deleted!");
-    window.location.href = "/dashboard/admin/quotes";
-  };
-
-  const edit = () => {
-    window.location.href = `/dashboard/admin/quotes/${id}/edit`;
-  };
-
-  return (
-    <div className="flex gap-4 mt-6">
-      <button
-        onClick={approve}
-        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-      >
-        Approve
+  if (status === "pending") {
+    return (
+      <button onClick={createTechQuote} className="btn-primary">
+        Create Technical Quote
       </button>
+    );
+  }
 
-      <button
-        onClick={edit}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-      >
-        Edit
-      </button>
+  if (status === "tech_draft") {
+    return (
+      <div className="flex gap-3">
+        <button onClick={createTechQuote} className="btn-blue">
+          Edit Technical Quote
+        </button>
+        <button onClick={sendToClient} className="btn-green">
+          Send to Client
+        </button>
+      </div>
+    );
+  }
 
-      <button
-        onClick={reject}
-        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-      >
-        Delete
-      </button>
-    </div>
-  );
+  return null;
 }

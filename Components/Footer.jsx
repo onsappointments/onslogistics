@@ -21,7 +21,7 @@ export default function Footer() {
                 className="h-12 w-12 object-contain"
               />
               <h2 className="text-xl font-semibold text-gray-800">
-                ONS Logistics
+                ONS Logistics India Pvt. Ltd.
               </h2>
             </div>
 

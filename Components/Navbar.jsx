@@ -30,7 +30,7 @@ export default function Navbar() {
             priority
           />
           <span className="hidden sm:block font-semibold text-gray-900">
-            ONS Logistics
+            ONS Logistics India Pvt. Ltd.
           </span>
         </Link>
 

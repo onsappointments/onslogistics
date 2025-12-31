@@ -1,5 +1,6 @@
 import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
+import TechnicalQuote from "@/models/TechnicalQuote";
 
 export async function GET(req) {
   await connectDB();
@@ -8,7 +9,6 @@ export async function GET(req) {
   const filter = searchParams.get("filter");
 
   let timeFilter = {};
-
   const now = Date.now();
 
   if (filter === "24h") {
@@ -23,10 +23,23 @@ export async function GET(req) {
     timeFilter.createdAt = { $gte: new Date(now - 7 * 24 * 60 * 60 * 1000) };
   }
 
-const quotes = await Quote.find({
-  ...timeFilter,                    
-  status: "pending",      
-}).sort({ createdAt: -1 });
+  /* 🔴 STEP 1: find quotes that MUST be hidden */
+  const blockedTechQuotes = await TechnicalQuote.find({
+    status: { $in: ["sent_to_client", "client_approved"] },
+  }).select("clientQuoteId");
+
+  const blockedQuoteIds = blockedTechQuotes.map(
+    (tq) => tq.clientQuoteId.toString()
+  );
+
+  /* 🟢 STEP 2: fetch ONLY actionable client quotes */
+  const quotes = await Quote.find({
+    ...timeFilter,
+    status: "pending",             // your existing logic
+    _id: { $nin: blockedQuoteIds } // 🔑 core fix
+  })
+    .sort({ createdAt: -1 })
+    .lean();
 
   return Response.json(quotes);
 }

@@ -13,7 +13,7 @@ const services = [
 
 export default function ServiceHero() {
   return (
-    <section className="relative text-center py-44 overflow-hidden">
+    <section className="relative text-center py-44 overflow-hidden mb-28">
       {/* ✅ Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center"

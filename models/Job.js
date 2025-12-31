@@ -91,6 +91,12 @@ const JobSchema = new mongoose.Schema(
       default: "new",
     },
 
+    source: {
+      type: String,
+      enum: ["quote", "manual"],
+      default: "manual",
+    },
+
     stage: {
       type: String,
       default: "New Job",

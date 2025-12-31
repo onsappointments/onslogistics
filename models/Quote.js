@@ -49,10 +49,21 @@ const QuoteSchema = new mongoose.Schema(
     bestTimeToEmail: String,
     message: String,
     status: {
-    type: String,
-    enum: ["pending", "approved"],
-    default: "pending",
-  },
+      type: String,
+      enum: [
+        "pending",          // submitted by client
+        "reviewing",        // sales team reviewing
+        "indicative_sent",  // indicative quote sent
+        "approved",         // client approved indicative
+        "rejected",
+      ],
+      default: "pending",
+    },
+    
+    referenceNo: {
+      type: String, // RFQ-2025-00123
+    },
+    
   createdAt: {
     type: Date,
     default: Date.now,
