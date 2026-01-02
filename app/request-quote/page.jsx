@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Recaptcha from "../../Components/Recaptcha";
+import { set } from "mongoose";
 
 export default function RequestQuotePage() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  const [showCaptchaModal, setShowCaptchaModal] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
-  const [form, setForm] = useState({
+  const API_KEY = process.env.NEXT_PUBLIC_STATE_API_KEY;
+
+  const initialForm = {
+    fromCountry: "",
+    toCountry: "",
     fromCity: "",
     toCity: "",
     fromLocationType: "Port",
@@ -15,7 +23,6 @@ export default function RequestQuotePage() {
     toState: "",
     fromPostal: "",
     toPostal: "",
-
     item: "",
     modeOfTransport: "",
     estimatedShippingDate: "",
@@ -33,8 +40,6 @@ export default function RequestQuotePage() {
     totalWeight: "",
     weightMeasure: "Kgs",
     shipmentType: "",
-
-  
     firstName: "",
     lastName: "",
     company: "",
@@ -49,13 +54,105 @@ export default function RequestQuotePage() {
     bestTimeToCall: "",
     bestTimeToEmail: "",
     message: "",
-  });
+  };
+
+  const [form, setForm] = useState(initialForm);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
+  // States and Cities
+ const [fromStates, setFromStates] = useState([]);
+const [toStates, setToStates] = useState([]);
+const [fromCities, setFromCities] = useState([]);
+const [toCities, setToCities] = useState([]);
+const [countries, setCountries] = useState([]);
+
+
+// Fetch all countries once
+useEffect(() => {
+  fetch("https://api.countrystatecity.in/v1/countries", {
+    headers: { "X-CSCAPI-KEY": API_KEY },
+  })
+    .then((res) => res.json())
+    .then((data) => setCountries(data))
+    .catch((err) => console.error(err));
+}, []);
+
+// Fetch states for fromCountry
+useEffect(() => {
+  if (!form.fromCountry) return;
+  fetch(`https://api.countrystatecity.in/v1/countries/${form.fromCountry}/states/`, {
+    headers: { "X-CSCAPI-KEY": API_KEY },
+  })
+    .then((res) => res.json())
+    .then((data) => setFromStates(data))
+    .catch((err) => console.error(err));
+  setForm((prev) => ({ ...prev, fromState: "", fromCity: "" }));
+  setFromCities([]);
+}, [form.fromCountry]);
+
+// Fetch states for toCountry
+useEffect(() => {
+  if (!form.toCountry) return;
+  fetch(`https://api.countrystatecity.in/v1/countries/${form.toCountry}/states/`, {
+    headers: { "X-CSCAPI-KEY": API_KEY },
+  })
+    .then((res) => res.json())
+    .then((data) => setToStates(data))
+    .catch((err) => console.error(err));
+  setForm((prev) => ({ ...prev, toState: "", toCity: "" }));
+  setToCities([]);
+}, [form.toCountry]);
+
+  // Fetch cities when fromState changes
+  useEffect(() => {
+    if (!form.fromState) return;
+    fetch(
+      `https://api.countrystatecity.in/v1/countries/${form.fromCountry}/states/${form.fromState}/cities`,
+      { headers: { "X-CSCAPI-KEY": API_KEY } }
+    )
+      .then((res) => res.json())
+      .then((data) => setFromCities(data))
+      .catch((err) => console.error(err));
+  }, [form.fromState]);
+
+  // Fetch cities when toState changes
+  useEffect(() => {
+    if (!form.toState) return;
+    fetch(
+      `https://api.countrystatecity.in/v1/countries/${form.toCountry}/states/${form.toState}/cities`,
+      { headers: { "X-CSCAPI-KEY": API_KEY } }
+    )
+      .then((res) => res.json())
+      .then((data) => setToCities(data))
+      .catch((err) => console.error(err));
+  }, [form.toState]);
+
+  // Manual validation for required fields
+  const validateForm = () => {
+    const requiredFields = ["firstName", "email", "item"];
+    for (const field of requiredFields) {
+      if (!form[field]?.trim()) {
+        setStatus(`Please fill the ${field.replace(/([A-Z])/g, " $1")} field.`);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleSubmitClick = (e) => {
     e.preventDefault();
+    setStatus("");
+    if (!validateForm()) return;
+    setShowCaptchaModal(true);
+    setLoading(true);
+  };
+  const handleCaptchaVerify = async (token) => {
+    if (!token) return;
+
+    setCaptchaToken(token);
+    setShowCaptchaModal(false);
     setLoading(true);
     setStatus("");
 
@@ -63,13 +160,15 @@ export default function RequestQuotePage() {
       const res = await fetch("/api/quotes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, captchaToken: token }),
       });
 
       const response = await res.json();
 
       if (res.ok) {
         setStatus("Your quote request has been submitted successfully!");
+        setForm(initialForm);
+        setCaptchaToken("");
       } else {
         setStatus(response.error || "Something went wrong.");
       }
@@ -84,42 +183,135 @@ export default function RequestQuotePage() {
   return (
     <main className="bg-[#F5F5F7] min-h-screen py-16 px-6">
       <div className="max-w-5xl mx-auto">
-        
-        {/* Apple-style title */}
         <h1 className="text-5xl font-semibold text-center font-['SF Pro Display'] text-gray-900 mb-10">
           Request a Quote
         </h1>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(e) => e.preventDefault()}
           className="bg-white/80 backdrop-blur-xl shadow-xl rounded-3xl p-8 space-y-12 border border-[#e5e5e5]"
         >
-          {/* SECTION: Source & Destination */}
+          {/* Source & Destination */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4 font-['SF Pro Display']">
-              Source & Destination
-            </h2>
-
+            <h2 className="text-2xl font-semibold mb-4">Source & Destination</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                "fromCity",
-                "toCity",
-                "fromState",
-                "toState",
-                "fromPostal",
-                "toPostal",
-              ].map((field) => (
-                <input
-                  key={field}
-                  type="text"
-                  name={field}
-                  placeholder={field.replace(/([A-Z])/g, " $1")}
-                  value={form[field]}
-                  onChange={handleChange}
-                  className="input-box"
-                />
-              ))}
+              {/* From Country */}
+              <select
+                name="fromCountry"
+                value={form.fromCountry}
+                onChange={(e) =>
+                  setForm({ ...form, fromCountry: e.target.value, fromState: "", fromCity: "" })
+                }
+                className="input-box"
+              >
+                <option value="">Select From Country</option>
+                {countries.map((country) => (
+                  <option key={country.iso2} value={country.iso2}>
+                    {country.name}
+                  </option>
+                ))}
+              </select>
 
+              {/* To Country */}
+              <select
+                name="toCountry"
+                value={form.toCountry}
+                onChange={(e) =>
+                  setForm({ ...form, toCountry: e.target.value, toState: "", toCity: "" })
+                }
+                className="input-box"
+              >
+                <option value="">Select To Country</option>
+                {countries.map((country) => (
+                  <option key={country.iso2} value={country.iso2}>
+                    {country.name}
+                  </option>
+                ))}
+              </select> 
+
+              {/* From State */}
+              <select
+                name="fromState"
+                value={form.fromState}
+                onChange={(e) =>
+                  setForm({ ...form, fromState: e.target.value, fromCity: "" })
+                }
+                className="input-box"
+              >
+                <option value="">Select From State</option>
+                {fromStates.map((state) => (
+                  <option key={state.iso2} value={state.iso2}>
+                    {state.name}
+                  </option>
+                ))}
+              </select>
+
+                 {/* To State */}
+              <select
+                name="toState"
+                value={form.toState}
+                onChange={(e) =>
+                  setForm({ ...form, toState: e.target.value, toCity: "" })
+                }
+                className="input-box"
+              >
+                <option value="">Select To State</option>
+                {toStates.map((state) => (
+                  <option key={state.iso2} value={state.iso2}>
+                    {state.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* From City */}
+              <select
+                name="fromCity"
+                value={form.fromCity}
+                onChange={handleChange}
+                disabled={!form.fromState}
+                className="input-box"
+              >
+                <option value="">Select From City</option>
+                {fromCities.map((city) => (
+                  <option key={city.id} value={city.name}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* To City */}
+              <select
+                name="toCity"
+                value={form.toCity}
+                onChange={handleChange}
+                disabled={!form.toState}
+                className="input-box"
+              >
+                <option value="">Select To City</option>
+                {toCities.map((city) => (
+                  <option key={city.id} value={city.name}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Postal Codes */}
+              <input
+                name="fromPostal"
+                value={form.fromPostal}
+                onChange={handleChange}
+                placeholder="From Postal"
+                className="input-box"
+              />
+              <input
+                name="toPostal"
+                value={form.toPostal}
+                onChange={handleChange}
+                placeholder="To Postal"
+                className="input-box"
+              />
+
+              {/* Location Type */}
               <select
                 name="fromLocationType"
                 value={form.fromLocationType}
@@ -142,14 +334,10 @@ export default function RequestQuotePage() {
             </div>
           </section>
 
-          {/* SECTION: Shipment Details */}
+          {/* Shipment Details */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4 font-['SF Pro Display']">
-              Shipment Details
-            </h2>
-
+            <h2 className="text-2xl font-semibold mb-4">Shipment Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Text fields */}
               {[
                 "item",
                 "estimatedShippingDate",
@@ -161,81 +349,44 @@ export default function RequestQuotePage() {
                 <input
                   key={field}
                   name={field}
-                  placeholder={field.replace(/([A-Z])/g, " $1")}
                   value={form[field]}
                   onChange={handleChange}
+                  placeholder={field.replace(/([A-Z])/g, " $1")}
                   type={field === "estimatedShippingDate" ? "date" : "text"}
                   className="input-box"
-                  required={field === "item"}
                 />
               ))}
 
-              {/* Select fields */}
-              <select
-                name="modeOfTransport"
-                onChange={handleChange}
-                value={form.modeOfTransport}
-                className="input-box"
-              >
-                <option value="">Mode of Transport</option>
-                <option>Air</option>
-                <option>Sea</option>
-                <option>Road</option>
-              </select>
-
-              <select
-                name="freightTerms"
-                onChange={handleChange}
-                value={form.freightTerms}
-                className="input-box"
-              >
-                <option value="">Freight Terms</option>
-                <option>Paid by Shipper</option>
-                <option>Paid by Consignee</option>
-              </select>
-
-              <select
-                name="containerType"
-                onChange={handleChange}
-                value={form.containerType}
-                className="input-box"
-              >
-                <option value="">Container Type</option>
-                <option>20 FT</option>
-                <option>40 FT</option>
-                <option>LCL</option>
-              </select>
-
-              <select
-                name="modeOfShipment"
-                onChange={handleChange}
-                value={form.modeOfShipment}
-                className="input-box"
-              >
-                <option value="">Mode of Shipment</option>
-                <option>Container</option>
-                <option>Break Bulk</option>
-                <option>LCL</option>
-              </select>
-
-              <select
-                name="goodsPurpose"
-                onChange={handleChange}
-                value={form.goodsPurpose}
-                className="input-box"
-              >
-                <option value="">Goods For</option>
-                <option>Personal</option>
-                <option>Commercial</option>
-              </select>
+              {[
+                { name: "modeOfTransport", options: ["", "Air", "Sea", "Road"] },
+                { name: "freightTerms", options: ["", "Paid by Shipper", "Paid by Consignee"] },
+                { name: "containerType", options: ["", "20 FT", "40 FT", "LCL"] },
+                { name: "modeOfShipment", options: ["", "Container", "Break Bulk", "LCL"] },
+                { name: "goodsPurpose", options: ["", "Personal", "Commercial"] },
+                { name: "shipmentType", options: ["", "import", "export", "courier"] },
+              ].map((field) => (
+                <select
+                  key={field.name}
+                  name={field.name}
+                  value={form[field.name]}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  {field.options.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt || `Select ${field.name.replace(/([A-Z])/g, " $1")}`}
+                    </option>
+                  ))}
+                </select>
+              ))}
 
               {/* Value + Currency */}
               <div className="flex gap-2">
                 <input
                   name="valueOfGoods"
-                  placeholder="Value of goods"
                   value={form.valueOfGoods}
                   onChange={handleChange}
+                  placeholder="Value of goods"
                   className="input-box flex-1"
                 />
                 <select
@@ -244,9 +395,9 @@ export default function RequestQuotePage() {
                   onChange={handleChange}
                   className="input-box w-32"
                 >
-                  <option>INR</option>
-                  <option>USD</option>
-                  <option>AED</option>
+                  {["INR", "USD", "AED"].map((opt) => (
+                    <option key={opt}>{opt}</option>
+                  ))}
                 </select>
               </div>
 
@@ -254,9 +405,9 @@ export default function RequestQuotePage() {
               <div className="flex gap-2">
                 <input
                   name="totalWeight"
-                  placeholder="Total weight"
                   value={form.totalWeight}
                   onChange={handleChange}
+                  placeholder="Total weight"
                   className="input-box flex-1"
                 />
                 <select
@@ -265,31 +416,17 @@ export default function RequestQuotePage() {
                   onChange={handleChange}
                   className="input-box w-32"
                 >
-                  <option>Kgs</option>
-                  <option>Lbs</option>
+                  {["Kgs", "Lbs"].map((opt) => (
+                    <option key={opt}>{opt}</option>
+                  ))}
                 </select>
-               </div>
-                <select
-               name="shipmentType"
-               value={form.shipmentType}
-              onChange={handleChange}
-               className="input-box"
-              >
-              <option value="">Select Type</option>
-              <option value="import">Import</option>
-              <option value="export">Export</option>
-              <option value="courier">Courier</option>
-              </select>
-
+              </div>
             </div>
           </section>
 
-          {/* SECTION: Personal Details */}
+          {/* Personal Details */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4 font-['SF Pro Display']">
-              Personal Details
-            </h2>
-
+            <h2 className="text-2xl font-semibold mb-4">Personal Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 "firstName",
@@ -306,16 +443,14 @@ export default function RequestQuotePage() {
                 <input
                   key={field}
                   name={field}
-                  placeholder={field.replace(/([A-Z])/g, " $1")}
                   value={form[field]}
                   onChange={handleChange}
+                  placeholder={field.replace(/([A-Z])/g, " $1")}
                   className="input-box"
                   type={field === "email" ? "email" : "text"}
-                  required={field === "firstName" || field === "email"}
                 />
               ))}
 
-              {/* Country Code + Phone */}
               <div className="flex gap-2">
                 <input
                   name="phoneCountryCode"
@@ -325,25 +460,24 @@ export default function RequestQuotePage() {
                 />
                 <input
                   name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
                   placeholder="Phone"
                   className="input-box flex-1"
-                  onChange={handleChange}
-                  value={form.phone}
                 />
               </div>
 
-              {/* Dropdowns */}
               <select
                 name="customerType"
                 value={form.customerType}
                 onChange={handleChange}
                 className="input-box"
               >
-                <option value="">Customer Type</option>
-                <option>Exporter</option>
-                <option>Importer</option>
-                <option>Manufacturer</option>
-                <option>Individual</option>
+                {[ "Customer Type", "Exporter", "Importer", "Manufacturer", "Individual"].map(
+                  (opt) => (
+                    <option key={opt}>{opt}</option>
+                  )
+                )}
               </select>
 
               <select
@@ -352,25 +486,26 @@ export default function RequestQuotePage() {
                 onChange={handleChange}
                 className="input-box"
               >
-                <option>Phone</option>
-                <option>Email</option>
-                <option>Whatsapp</option>
+                {["Phone", "Email", "Whatsapp"].map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
               </select>
 
               <textarea
                 name="message"
-                placeholder="Message"
-                className="input-box col-span-2 h-24"
                 value={form.message}
                 onChange={handleChange}
+                placeholder="Message"
+                className="input-box col-span-2 h-24"
               />
             </div>
           </section>
 
-          {/* SUBMIT */}
+          {/* Submit Button */}
           <button
-            type="submit"
+            type="button"
             disabled={loading}
+            onClick={handleSubmitClick}
             className="px-8 py-4 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition"
           >
             {loading ? "Submitting..." : "Submit Quote Request"}
@@ -382,7 +517,24 @@ export default function RequestQuotePage() {
         </form>
       </div>
 
-      {/* Apple Input Style */}
+      {/* Captcha Modal */}
+     <div
+        className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
+          showCaptchaModal ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="bg-white p-8 rounded-2xl shadow-xl">
+          <h3 className="text-xl font-semibold mb-4">Verify Captcha</h3>
+          <Recaptcha onVerify={handleCaptchaVerify} />
+          <button
+            className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            onClick={() => setShowCaptchaModal(false)}
+          >
+            Cancel
+          </button>
+        </div>
+</div>
+
       <style jsx>{`
         .input-box {
           padding: 12px 16px;

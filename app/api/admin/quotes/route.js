@@ -29,14 +29,14 @@ export async function GET(req) {
   }).select("clientQuoteId");
 
   const blockedQuoteIds = blockedTechQuotes.map(
-    (tq) => tq.clientQuoteId.toString()
+    (tq) => tq.clientQuoteId // ✅ KEEP AS ObjectId
   );
 
   /* 🟢 STEP 2: fetch ONLY actionable client quotes */
   const quotes = await Quote.find({
     ...timeFilter,
-    status: "pending",             // your existing logic
-    _id: { $nin: blockedQuoteIds } // 🔑 core fix
+    status: "pending",
+    _id: { $nin: blockedQuoteIds },
   })
     .sort({ createdAt: -1 })
     .lean();

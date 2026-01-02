@@ -1,8 +1,4 @@
 import mongoose from "mongoose";
-import {
-  IMPORT_HEADS,
-  EXPORT_HEADS,
-} from "@/constants/expenditureHeads";
 
 /* ---------------- LINE ITEM ---------------- */
 
@@ -13,14 +9,10 @@ const LineItemSchema = new mongoose.Schema(
       required: true,
     },
 
-    serviceRequired: {
-      type: Boolean,
-      default: false,
-    },
-
-    serviceDone: {
-      type: Boolean,
-      default: false,
+    quantity: {
+      type: Number,
+      default: 1,
+      min: 0,
     },
 
     rate: {
@@ -29,15 +21,36 @@ const LineItemSchema = new mongoose.Schema(
       min: 0,
     },
 
-    quantity: {
+    currency: {
+      type: String,
+      enum: ["INR", "USD", "EUR"],
+      default: "INR",
+    },
+
+    exchangeRate: {
       type: Number,
-      default: 1,
+      default: 1, // FX → INR
       min: 0,
     },
 
+    baseAmount: {
+      type: Number,
+      default: 0, // rate * qty * exchangeRate
+      min: 0,
+    },
+
+    igstPercent: { type: Number, default: 0 },
+    igstAmount: { type: Number, default: 0 },
+
+    cgstPercent: { type: Number, default: 0 },
+    cgstAmount: { type: Number, default: 0 },
+
+    sgstPercent: { type: Number, default: 0 },
+    sgstAmount: { type: Number, default: 0 },
+
     totalAmount: {
       type: Number,
-      default: 0,
+      default: 0, // base + all taxes
       min: 0,
     },
   },
@@ -48,7 +61,6 @@ const LineItemSchema = new mongoose.Schema(
 
 const TechnicalQuoteSchema = new mongoose.Schema(
   {
-    /* 🔗 Link to client RFQ */
     clientQuoteId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Quote",
@@ -64,14 +76,12 @@ const TechnicalQuoteSchema = new mongoose.Schema(
       immutable: true,
     },
 
-    /* 🧾 Job metadata */
     jobMeta: {
       jobNo: String,
       salesPerson: String,
       accountsPerson: String,
     },
 
-    /* 🚢 Shipment info */
     shipmentDetails: {
       shipper: String,
       consignee: String,
@@ -81,31 +91,20 @@ const TechnicalQuoteSchema = new mongoose.Schema(
       modeOfShipment: String,
       fclLcl: String,
       volumeWeight: String,
-      fxRate: Number,
     },
 
     /* 💰 Charges */
     lineItems: {
       type: [LineItemSchema],
-      validate: {
-        validator: function (items) {
-          if (!items || items.length === 0) return true;
-
-          if (this.shipmentType === "export") {
-            return items.every((i) => EXPORT_HEADS.includes(i.head));
-          }
-
-          if (this.shipmentType === "import") {
-            return items.every((i) => IMPORT_HEADS.includes(i.head));
-          }
-
-          return false;
-        },
-        message: "Invalid expenditure head for shipment type",
-      },
+      default: [],
     },
 
     /* 🧮 Totals */
+    subtotal: { type: Number, default: 0 },
+    igstTotal: { type: Number, default: 0 },
+    cgstTotal: { type: Number, default: 0 },
+    sgstTotal: { type: Number, default: 0 },
+
     grandTotal: {
       type: Number,
       default: 0,
@@ -132,27 +131,41 @@ const TechnicalQuoteSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/* ✅ AUTO-CALC TOTALS ON SAVE */
+/* ---------------- AUTO TOTAL CALC ---------------- */
+
+function calculateTotals(doc) {
+  let subtotal = 0;
+  let igst = 0;
+  let cgst = 0;
+  let sgst = 0;
+
+  (doc.lineItems || []).forEach((i) => {
+    subtotal += Number(i.baseAmount || 0);
+    igst += Number(i.igstAmount || 0);
+    cgst += Number(i.cgstAmount || 0);
+    sgst += Number(i.sgstAmount || 0);
+  });
+
+  doc.subtotal = subtotal;
+  doc.igstTotal = igst;
+  doc.cgstTotal = cgst;
+  doc.sgstTotal = sgst;
+  doc.grandTotal = subtotal + igst + cgst + sgst;
+}
+
+/* SAVE */
 TechnicalQuoteSchema.pre("save", function (next) {
-  this.grandTotal = (this.lineItems || []).reduce(
-    (sum, i) => sum + Number(i.totalAmount || 0),
-    0
-  );
+  calculateTotals(this);
   next();
 });
 
-/* ✅ AUTO-CALC TOTALS ON UPDATE (CRITICAL) */
+/* UPDATE */
 TechnicalQuoteSchema.pre("findOneAndUpdate", function (next) {
   const update = this.getUpdate();
-
   if (update?.lineItems) {
-    update.grandTotal = update.lineItems.reduce(
-      (sum, i) => sum + Number(i.totalAmount || 0),
-      0
-    );
+    calculateTotals(update);
     this.setUpdate(update);
   }
-
   next();
 });
 

@@ -26,7 +26,7 @@ export default function ConvertToJobPanel({
     }
 
     alert("Job created successfully");
-    window.location.href = "/dashboard/admin/jobs";
+    window.location.href = "/dashboard/admin/jobs/new";
   };
 
   return (

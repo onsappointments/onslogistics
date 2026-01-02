@@ -23,6 +23,16 @@ export default async function ClientQuotePage({ params }) {
     return <div className="p-10">Quotation not available</div>;
   }
 
+  const {
+    lineItems = [],
+    subtotal = 0,
+    igstTotal = 0,
+    cgstTotal = 0,
+    sgstTotal = 0,
+    grandTotal = 0,
+    status,
+  } = technicalQuote;
+
   return (
     <div className="p-10 max-w-6xl mx-auto">
       {/* HEADER */}
@@ -33,7 +43,7 @@ export default async function ClientQuotePage({ params }) {
       <p className="text-gray-600 mb-6">
         Status:{" "}
         <span className="font-medium capitalize">
-          {technicalQuote.status.replaceAll("_", " ")}
+          {status.replaceAll("_", " ")}
         </span>
       </p>
 
@@ -54,29 +64,70 @@ export default async function ClientQuotePage({ params }) {
         <Field label="Mode" value={quote.modeOfShipment} />
       </Section>
 
-      {/* TECHNICAL QUOTE TABLE */}
+      {/* TECHNICAL QUOTE */}
       <div className="bg-white rounded-xl shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Quotation Breakdown</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          Quotation Breakdown
+        </h2>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm border">
             <thead className="bg-gray-100">
               <tr>
-                <th className="p-3 text-left">Service</th>
-                <th className="p-3">Rate</th>
-                <th className="p-3">Qty</th>
-                <th className="p-3">Amount</th>
+                <th className="p-2 text-left">Service</th>
+                <th className="p-2 text-right">Qty</th>
+                <th className="p-2 text-right">Rate</th>
+                <th className="p-2 text-center">Curr</th>
+                <th className="p-2 text-right">Ex. Rate</th>
+                <th className="p-2 text-right">Base (INR)</th>
+                <th className="p-2 text-right">IGST</th>
+                <th className="p-2 text-right">CGST</th>
+                <th className="p-2 text-right">SGST</th>
+                <th className="p-2 text-right">Total (INR)</th>
               </tr>
             </thead>
 
             <tbody>
-              {technicalQuote.lineItems.map((item, i) => (
+              {lineItems.map((item, i) => (
                 <tr key={i} className="border-t">
-                  <td className="p-3 font-medium">{item.head}</td>
-                  <td className="p-3">₹{item.rate}</td>
-                  <td className="p-3">{item.quantity}</td>
-                  <td className="p-3 font-semibold">
-                    ₹{item.totalAmount}
+                  <td className="p-2 font-medium">{item.head}</td>
+
+                  <td className="p-2 text-right">{item.quantity}</td>
+
+                  <td className="p-2 text-right">
+                    {item.currency} {Number(item.rate).toFixed(2)}
+                  </td>
+
+                  <td className="p-2 text-center">{item.currency}</td>
+
+                  <td className="p-2 text-right">
+                    {Number(item.exchangeRate).toFixed(4)}
+                  </td>
+
+                  <td className="p-2 text-right">
+                    ₹{Number(item.baseAmount).toFixed(2)}
+                  </td>
+
+                  <td className="p-2 text-right">
+                    {item.igstPercent > 0
+                      ? `${item.igstPercent}% ₹${item.igstAmount.toFixed(2)}`
+                      : "—"}
+                  </td>
+
+                  <td className="p-2 text-right">
+                    {item.cgstPercent > 0
+                      ? `${item.cgstPercent}% ₹${item.cgstAmount.toFixed(2)}`
+                      : "—"}
+                  </td>
+
+                  <td className="p-2 text-right">
+                    {item.sgstPercent > 0
+                      ? `${item.sgstPercent}% ₹${item.sgstAmount.toFixed(2)}`
+                      : "—"}
+                  </td>
+
+                  <td className="p-2 text-right font-semibold">
+                    ₹{Number(item.totalAmount).toFixed(2)}
                   </td>
                 </tr>
               ))}
@@ -84,13 +135,36 @@ export default async function ClientQuotePage({ params }) {
           </table>
         </div>
 
-        {/* TOTAL */}
-        <div className="text-right mt-6 text-lg font-semibold">
-          Total Amount: ₹{technicalQuote.grandTotal}
+        {/* TOTALS */}
+        <div className="mt-6 max-w-sm ml-auto text-sm space-y-1">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>₹{subtotal.toFixed(2)}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>IGST</span>
+            <span>₹{igstTotal.toFixed(2)}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>CGST</span>
+            <span>₹{cgstTotal.toFixed(2)}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>SGST</span>
+            <span>₹{sgstTotal.toFixed(2)}</span>
+          </div>
+
+          <div className="flex justify-between font-semibold text-lg border-t pt-2">
+            <span>Total Payable (INR)</span>
+            <span>₹{grandTotal.toFixed(2)}</span>
+          </div>
         </div>
       </div>
 
-      {/* MESSAGE */}
+      {/* NOTES */}
       <Section title="Additional Notes">
         <p className="text-gray-700">
           {quote.message || "No additional notes"}

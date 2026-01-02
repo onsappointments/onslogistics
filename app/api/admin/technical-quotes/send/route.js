@@ -15,12 +15,14 @@ export async function POST(req) {
       return Response.json({ error: "quoteId required" }, { status: 400 });
     }
 
-    /* ---------------- FETCH QUOTE DATA ---------------- */
+    /* ---------------- FETCH CLIENT QUOTE ---------------- */
 
-    const clientQuote = await Quote.findById(quoteId);
+    const clientQuote = await Quote.findById(quoteId).lean();
     if (!clientQuote) {
       return Response.json({ error: "Client quote not found" }, { status: 404 });
     }
+
+    /* ---------------- FETCH TECHNICAL QUOTE ---------------- */
 
     const technicalQuote = await TechnicalQuote.findOne({
       clientQuoteId: quoteId,
@@ -33,29 +35,34 @@ export async function POST(req) {
       );
     }
 
+    /* ---------------- PREVENT RESEND ---------------- */
+    if (technicalQuote.status === "sent_to_client") {
+      return Response.json({
+        message: "Quote already sent to client",
+      });
+    }
+
     /* ---------------- UPDATE STATUS ---------------- */
 
     technicalQuote.status = "sent_to_client";
     await technicalQuote.save();
 
-    /* ---------------- LINKS ---------------- */
-    const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  
-    const viewQuoteUrl = `${baseUrl}/client/quotes/${technicalQuote.clientQuoteId}`;
-  
-  const approveUrl =
-    `${baseUrl}/api/client/quotes/${technicalQuote._id}/approve`;
-  
-  const rejectUrl =
-    `${baseUrl}/api/client/quotes/${technicalQuote._id}/reject`;
-  
+    /* ---------------- BUILD LINKS ---------------- */
 
-  
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+    // ✅ VIEW uses CLIENT QUOTE ID (page expects clientQuoteId)
+    const viewQuoteUrl = `${baseUrl}/client/quotes/${quoteId}`;
+
+    // ✅ ACTIONS use TECHNICAL QUOTE ID (API updates TechnicalQuote)
+    const approveUrl = `${baseUrl}/api/client/quotes/${technicalQuote._id}/approve`;
+    const rejectUrl  = `${baseUrl}/api/client/quotes/${technicalQuote._id}/reject`;
+
     /* ---------------- SEND EMAIL ---------------- */
 
     await resend.emails.send({
-      from:  process.env.EMAIL_FROM,
+      from: process.env.EMAIL_FROM,
       to: clientQuote.email,
       subject: "Quotation from ONS Logistics",
       html: `
@@ -64,9 +71,7 @@ export async function POST(req) {
 
           <p>Hello ${clientQuote.firstName},</p>
 
-          <p>
-            Please review your quotation and choose an action below.
-          </p>
+          <p>Please review your quotation and choose an action below.</p>
 
           <div style="margin: 24px 0;">
             <a href="${viewQuoteUrl}"
@@ -121,7 +126,6 @@ export async function POST(req) {
       success: true,
       message: "Quotation sent to client",
     });
-
   } catch (error) {
     console.error("SEND TECH QUOTE ERROR:", error);
     return Response.json(

@@ -10,7 +10,7 @@ export default function TechnicalQuotePage() {
 
   const [quote, setQuote] = useState(null);
   const [charges, setCharges] = useState([]);
-  const [status, setStatus] = useState("draft"); // draft | sent_to_client
+  const [status, setStatus] = useState("draft");
   const [loading, setLoading] = useState(true);
 
   /* ---------------- FETCH DATA ---------------- */
@@ -22,7 +22,7 @@ export default function TechnicalQuotePage() {
       setQuote(data.quote);
 
       if (data.technicalQuote) {
-        setCharges(data.technicalQuote.lineItems);
+        setCharges(data.technicalQuote.lineItems || []);
         setStatus(data.technicalQuote.status);
       } else {
         const heads =
@@ -33,11 +33,21 @@ export default function TechnicalQuotePage() {
         setCharges(
           heads.map((head) => ({
             head,
-            description: "",
-            serviceRequired: false,
-            serviceDone: false,
-            rate: 0,
             quantity: 1,
+            rate: 0,
+            currency: "INR",
+            exchangeRate: 1,
+
+            igstPercent: 18,
+            igstAmount: 0,
+
+            cgstPercent: 0,
+            cgstAmount: 0,
+
+            sgstPercent: 0,
+            sgstAmount: 0,
+
+            baseAmount: 0,
             totalAmount: 0,
           }))
         );
@@ -52,29 +62,34 @@ export default function TechnicalQuotePage() {
   const isFinal = status === "sent_to_client";
 
   /* ---------------- UPDATE LINE ---------------- */
-  const updateCharge = (index, field, value) => {
+  const updateLine = (index, field, value) => {
     if (isFinal) return;
 
     const updated = [...charges];
-    updated[index] = { ...updated[index], [field]: value };
+    const row = { ...updated[index], [field]: value };
 
-    const rate = Number(updated[index].rate || 0);
-    const quantity = Number(updated[index].quantity || 0);
-    updated[index].totalAmount = rate * quantity;
+    const qty = Number(row.quantity || 0);
+    const rate = Number(row.rate || 0);
+    const fx = Number(row.exchangeRate || 1);
 
+    const base = qty * rate * fx;
+
+    row.baseAmount = base;
+    row.igstAmount = base * (Number(row.igstPercent || 0) / 100);
+    row.cgstAmount = base * (Number(row.cgstPercent || 0) / 100);
+    row.sgstAmount = base * (Number(row.sgstPercent || 0) / 100);
+
+    row.totalAmount =
+      row.baseAmount +
+      row.igstAmount +
+      row.cgstAmount +
+      row.sgstAmount;
+
+    updated[index] = row;
     setCharges(updated);
   };
 
-  /* ---------------- TOTALS ---------------- */
-  const subtotal = charges.reduce(
-    (sum, c) => sum + Number(c.totalAmount || 0),
-    0
-  );
-
-  const tax = subtotal * 0.18;
-  const total = subtotal + tax;
-
-  /* ---------------- SAVE DRAFT ---------------- */
+  /* ---------------- SAVE ---------------- */
   const saveDraft = async () => {
     await fetch("/api/admin/technical-quotes/create", {
       method: "POST",
@@ -83,20 +98,16 @@ export default function TechnicalQuotePage() {
         quoteId: id,
         shipmentType: quote.shipmentType,
         lineItems: charges,
-        status: "draft",
       }),
     });
 
-    alert("Technical quote saved as draft");
+    alert("Draft saved");
     router.push(`/dashboard/admin/quotes/${id}`);
   };
 
   /* ---------------- FINALIZE ---------------- */
   const finalizeQuote = async () => {
-    const confirm = window.confirm(
-      "Once sent to client, this quote cannot be edited. Continue?"
-    );
-    if (!confirm) return;
+    if (!confirm("After sending, quote cannot be edited. Continue?")) return;
 
     await fetch("/api/admin/technical-quotes/send", {
       method: "POST",
@@ -104,91 +115,136 @@ export default function TechnicalQuotePage() {
       body: JSON.stringify({ quoteId: id }),
     });
 
-    alert("Technical quote sent to client");
+    alert("Sent to client");
     router.push(`/dashboard/admin/quotes/${id}`);
   };
 
-  if (loading) return <p className="p-10">Loading...</p>;
+  if (loading) return <p className="p-10">Loading…</p>;
+
+  /* ---------------- TOTALS (DISPLAY ONLY) ---------------- */
+  const subtotal = charges.reduce((s, i) => s + i.baseAmount, 0);
+  const igstTotal = charges.reduce((s, i) => s + i.igstAmount, 0);
+  const cgstTotal = charges.reduce((s, i) => s + i.cgstAmount, 0);
+  const sgstTotal = charges.reduce((s, i) => s + i.sgstAmount, 0);
+  const grandTotal = subtotal + igstTotal + cgstTotal + sgstTotal;
 
   /* ---------------- UI ---------------- */
   return (
     <div className="p-10 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-semibold">
-            Technical Quote ({quote.shipmentType.toUpperCase()})
-          </h1>
-          <p className="text-gray-600">
-            {quote.company} • {quote.fromCity} → {quote.toCity}
-          </p>
-        </div>
+      <h1 className="text-3xl font-semibold mb-6">
+        Technical Quote ({quote.shipmentType.toUpperCase()})
+      </h1>
 
-        <span
-          className={`px-4 py-1 rounded-full text-sm font-medium ${
-            isFinal
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
-        >
-          {isFinal ? "Sent to Client" : "Draft"}
-        </span>
-      </div>
-
-      {/* TABLE */}
-      <div className="overflow-x-auto rounded-xl border bg-white">
+      <div className="overflow-x-auto bg-white border rounded-xl">
         <table className="w-full text-sm">
           <thead className="bg-gray-100">
             <tr>
-              <th className="p-3 text-left">Service</th>
-              <th className="p-3">Description</th>
-              <th className="p-3">Rate</th>
-              <th className="p-3">Qty</th>
-              <th className="p-3">Amount</th>
+              <th className="p-2 text-left">Service</th>
+              <th className="p-2">Qty</th>
+              <th className="p-2">Rate</th>
+              <th className="p-2">Curr</th>
+              <th className="p-2">Ex.Rate</th>
+              <th className="p-2">IGST %</th>
+              <th className="p-2">CGST %</th>
+              <th className="p-2">SGST %</th>
+              <th className="p-2">Total (INR)</th>
             </tr>
           </thead>
 
           <tbody>
             {charges.map((c, i) => (
               <tr key={i} className="border-t">
-                <td className="p-3 font-medium">{c.head}</td>
+                <td className="p-2">{c.head}</td>
 
-                <td className="p-3">
-                  <input
-                    value={c.description}
-                    disabled={isFinal}
-                    onChange={(e) =>
-                      updateCharge(i, "description", e.target.value)
-                    }
-                    className="w-full border rounded px-2 py-1 disabled:bg-gray-100"
-                  />
-                </td>
-
-                <td className="p-3">
-                  <input
-                    type="number"
-                    value={c.rate}
-                    disabled={isFinal}
-                    onChange={(e) =>
-                      updateCharge(i, "rate", e.target.value)
-                    }
-                    className="w-24 border rounded px-2 py-1 disabled:bg-gray-100"
-                  />
-                </td>
-
-                <td className="p-3">
+                <td className="p-2">
                   <input
                     type="number"
                     value={c.quantity}
-                    disabled={isFinal}
                     onChange={(e) =>
-                      updateCharge(i, "quantity", e.target.value)
+                      updateLine(i, "quantity", e.target.value)
                     }
-                    className="w-16 border rounded px-2 py-1 disabled:bg-gray-100"
+                    className="border w-16 p-1"
+                    disabled={isFinal}
                   />
                 </td>
 
-                <td className="p-3 font-semibold">
-                  ₹{Number(c.totalAmount).toFixed(2)}
+                <td className="p-2">
+                  <input
+                    type="number"
+                    value={c.rate}
+                    onChange={(e) =>
+                      updateLine(i, "rate", e.target.value)
+                    }
+                    className="border w-24 p-1"
+                    disabled={isFinal}
+                  />
+                </td>
+
+                <td className="p-2">
+                  <select
+                    value={c.currency}
+                    onChange={(e) =>
+                      updateLine(i, "currency", e.target.value)
+                    }
+                    disabled={isFinal}
+                    className="border p-1"
+                  >
+                    <option>INR</option>
+                    <option>USD</option>
+                    <option>EUR</option>
+                  </select>
+                </td>
+
+                <td className="p-2">
+                  <input
+                    type="number"
+                    value={c.exchangeRate}
+                    onChange={(e) =>
+                      updateLine(i, "exchangeRate", e.target.value)
+                    }
+                    className="border w-20 p-1"
+                    disabled={isFinal}
+                  />
+                </td>
+
+                <td className="p-2">
+                  <input
+                    type="number"
+                    value={c.igstPercent}
+                    onChange={(e) =>
+                      updateLine(i, "igstPercent", e.target.value)
+                    }
+                    className="border w-16 p-1"
+                    disabled={isFinal}
+                  />
+                </td>
+
+                <td className="p-2">
+                  <input
+                    type="number"
+                    value={c.cgstPercent}
+                    onChange={(e) =>
+                      updateLine(i, "cgstPercent", e.target.value)
+                    }
+                    className="border w-16 p-1"
+                    disabled={isFinal}
+                  />
+                </td>
+
+                <td className="p-2">
+                  <input
+                    type="number"
+                    value={c.sgstPercent}
+                    onChange={(e) =>
+                      updateLine(i, "sgstPercent", e.target.value)
+                    }
+                    className="border w-16 p-1"
+                    disabled={isFinal}
+                  />
+                </td>
+
+                <td className="p-2 font-semibold">
+                  ₹{c.totalAmount.toFixed(2)}
                 </td>
               </tr>
             ))}
@@ -197,48 +253,26 @@ export default function TechnicalQuotePage() {
       </div>
 
       {/* TOTALS */}
-      <div className="mt-8 max-w-md ml-auto bg-gray-50 p-6 rounded-xl">
-        <div className="flex justify-between mb-2">
-          <span>Subtotal</span>
-          <span>₹{subtotal.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between mb-2">
-          <span>GST (18%)</span>
-          <span>₹{tax.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-lg font-semibold border-t pt-3">
-          <span>Total</span>
-          <span>₹{total.toFixed(2)}</span>
-        </div>
+      <div className="mt-6 max-w-md ml-auto bg-gray-50 p-4 rounded">
+        <p>Subtotal: ₹{subtotal.toFixed(2)}</p>
+        <p>IGST: ₹{igstTotal.toFixed(2)}</p>
+        <p>CGST: ₹{cgstTotal.toFixed(2)}</p>
+        <p>SGST: ₹{sgstTotal.toFixed(2)}</p>
+        <p className="font-bold border-t mt-2 pt-2">
+          Grand Total: ₹{grandTotal.toFixed(2)}
+        </p>
       </div>
 
-      {/* ACTIONS */}
-      <div className="mt-10 flex gap-4">
-        {!isFinal && (
-          <>
-            <button
-              onClick={saveDraft}
-              className="px-6 py-3 rounded bg-blue-600 text-white"
-            >
-              Save Draft
-            </button>
-
-            <button
-              onClick={finalizeQuote}
-              className="px-6 py-3 rounded bg-green-600 text-white"
-            >
-              Finalize & Send to Client
-            </button>
-          </>
-        )}
-
-        <button
-          onClick={() => router.back()}
-          className="px-6 py-3 rounded border"
-        >
-          Back
-        </button>
-      </div>
+      {!isFinal && (
+        <div className="mt-8 flex gap-4">
+          <button onClick={saveDraft} className="btn-primary">
+            Save Draft
+          </button>
+          <button onClick={finalizeQuote} className="btn-success">
+            Finalize & Send
+          </button>
+        </div>
+      )}
     </div>
   );
 }
