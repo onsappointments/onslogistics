@@ -1,5 +1,6 @@
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
+import Quote from "@/models/Quote";
 import Link from "next/link";
 
 export default async function FinalizedQuotesPage() {
