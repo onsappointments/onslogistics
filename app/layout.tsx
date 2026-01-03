@@ -1,3 +1,4 @@
+// app/layout.tsx
 import "./globals.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
@@ -12,76 +13,72 @@ export const metadata = {
   title: "ONS Logistics India – Global Shipping & Freight Services",
   description:
     "Reliable global shipping, freight forwarding, customs clearance, and supply chain solutions by ONS Logistics.",
-  openGraph: {
-    title: "ONS Logistics – Global Shipping & Freight Forwarding",
-    description:
-      "Trusted logistics partner for freight forwarding, customs clearance, warehousing, and international shipping.",
-    url: process.env.NEXT_PUBLIC_SITE_URL,
-    siteName: "ONS Logistics",
-    images: [
-      {
-        url: "/ons-logistics-ludhiana.jpg",
-        width: 1200,
-        height: 630,
-        alt: "ONS Logistics - Global Shipping & Supply Chain Solutions",
-      },
-    ],
-    locale: "en_IN",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "ONS Logistics – Trusted Global Shipping Partner",
-    description:
-      "Freight forwarding, customs clearance, warehousing, and transport solutions.",
-    images: ["/ons-logistics-ludhiana.jpg"],
-  },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+interface RootLayoutProps {
+  children: ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className="bg-[--color-background] text-gray-900 antialiased">
-        <SessionWrapper>
-          <Navbar />
 
-          {/* Exact spacing for fixed navbar */}
-          <main className="pt-[72px] min-h-screen">
-            {children}
-          </main>
+        {/* 🔹 Hidden Google Translate mount point */}
+        <div
+          id="google_translate_element"
+          style={{ position: "absolute", left: "-9999px", top: 0 }}
+        />
 
-          <Footer />
-        </SessionWrapper>
-        <LiveChat />
-
-        {/* LocalBusiness Schema */}
+        {/* 🔹 Google Translate Init (CLEAN) */}
         <Script
-          id="local-business-schema"
-          type="application/ld+json"
+          id="google-translate-init"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              name: "ONS Logistics",
-              url: process.env.NEXT_PUBLIC_SITE_URL,
-              logo: `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`,
-              description:
-                "ONS Logistics provides global shipping, freight forwarding, customs clearance, and supply chain solutions.",
-              address: {
-                "@type": "PostalAddress",
-                streetAddress:
-                  "#24, Aatma Nagar, Near Radha Swami Satsang Bhawan Gate No.7, Mundian Kalan",
-                addressLocality: "Ludhiana",
-                addressRegion: "Punjab",
-                postalCode: "140015",
-                addressCountry: "IN",
-              },
-            }),
+            __html: `
+              function googleTranslateElementInit() {
+                new google.translate.TranslateElement({
+                  pageLanguage: 'en',
+                  includedLanguages: 'en,es,hi,zh-CN,ru',
+                  autoDisplay: false
+                }, 'google_translate_element');
+              }
+
+              // Observe language change via HTML class
+              const observer = new MutationObserver(() => {
+                const navbar = document.getElementById('site-navbar');
+                if (!navbar) return;
+
+                const isTranslated =
+                  document.documentElement.classList.contains('translated-ltr') ||
+                  document.documentElement.classList.contains('translated-rtl');
+
+                navbar.style.top = isTranslated ? '40px' : '0px';
+              });
+
+              observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class']
+              });
+            `,
           }}
         />
 
-        {/* Google Analytics */}
+        {/* 🔹 Google Translate Script */}
+        <Script
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          strategy="afterInteractive"
+        />
+
+        <SessionWrapper>
+          <Navbar />
+          <main className="pt-[72px] min-h-screen">{children}</main>
+          <Footer />
+        </SessionWrapper>
+
+        <LiveChat />
+
+        {/* 🔹 Google Analytics */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
           strategy="afterInteractive"
