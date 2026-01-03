@@ -1,6 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import ConvertToJobPanel from "./ConvertToJobPanel";
+import Quote from "@/models/Quote";
 
 export default async function FinalizedQuoteDetails({ params }) {
   const { id } = await params;
