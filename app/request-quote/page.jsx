@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Recaptcha from "../../Components/Recaptcha";
-import { set } from "mongoose";
 
 export default function RequestQuotePage() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [showCaptchaModal, setShowCaptchaModal] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
-
-  const API_KEY = process.env.NEXT_PUBLIC_STATE_API_KEY;
 
   const initialForm = {
     fromCountry: "",
@@ -68,66 +65,70 @@ const [fromCities, setFromCities] = useState([]);
 const [toCities, setToCities] = useState([]);
 const [countries, setCountries] = useState([]);
 
+// Client-side helper (calls your server API)
+const fetchCSC = async (endpoint) => {
+  try {
+    const res = await fetch(`/api/csc?endpoint=${endpoint}`);
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
+
 
 // Fetch all countries once
 useEffect(() => {
-  fetch("https://api.countrystatecity.in/v1/countries", {
-    headers: { "X-CSCAPI-KEY": API_KEY },
-  })
-    .then((res) => res.json())
-    .then((data) => setCountries(data))
-    .catch((err) => console.error(err));
+  fetchCSC("countries").then(setCountries);
 }, []);
+
 
 // Fetch states for fromCountry
 useEffect(() => {
   if (!form.fromCountry) return;
-  fetch(`https://api.countrystatecity.in/v1/countries/${form.fromCountry}/states/`, {
-    headers: { "X-CSCAPI-KEY": API_KEY },
-  })
-    .then((res) => res.json())
-    .then((data) => setFromStates(data))
-    .catch((err) => console.error(err));
-  setForm((prev) => ({ ...prev, fromState: "", fromCity: "" }));
+
+  fetchCSC(`countries/${form.fromCountry}/states`)
+    .then(setFromStates);
+
+  setForm((p) => ({ ...p, fromState: "", fromCity: "" }));
   setFromCities([]);
 }, [form.fromCountry]);
+
 
 // Fetch states for toCountry
 useEffect(() => {
   if (!form.toCountry) return;
-  fetch(`https://api.countrystatecity.in/v1/countries/${form.toCountry}/states/`, {
-    headers: { "X-CSCAPI-KEY": API_KEY },
-  })
-    .then((res) => res.json())
-    .then((data) => setToStates(data))
-    .catch((err) => console.error(err));
-  setForm((prev) => ({ ...prev, toState: "", toCity: "" }));
+
+  fetchCSC(`countries/${form.toCountry}/states`)
+    .then(setToStates);
+
+  setForm((p) => ({ ...p, toState: "", toCity: "" }));
   setToCities([]);
 }, [form.toCountry]);
 
+
+
   // Fetch cities when fromState changes
   useEffect(() => {
-    if (!form.fromState) return;
-    fetch(
-      `https://api.countrystatecity.in/v1/countries/${form.fromCountry}/states/${form.fromState}/cities`,
-      { headers: { "X-CSCAPI-KEY": API_KEY } }
-    )
-      .then((res) => res.json())
-      .then((data) => setFromCities(data))
-      .catch((err) => console.error(err));
+    if (!form.fromCountry || !form.fromState) return;
+  
+    fetchCSC(
+      `countries/${form.fromCountry}/states/${form.fromState}/cities`
+    ).then(setFromCities);
   }, [form.fromState]);
+  
+  
 
   // Fetch cities when toState changes
   useEffect(() => {
-    if (!form.toState) return;
-    fetch(
-      `https://api.countrystatecity.in/v1/countries/${form.toCountry}/states/${form.toState}/cities`,
-      { headers: { "X-CSCAPI-KEY": API_KEY } }
-    )
-      .then((res) => res.json())
-      .then((data) => setToCities(data))
-      .catch((err) => console.error(err));
+    if (!form.toCountry || !form.toState) return;
+  
+    fetchCSC(
+      `countries/${form.toCountry}/states/${form.toState}/cities`
+    ).then(setToCities);
   }, [form.toState]);
+  
 
   // Manual validation for required fields
   const validateForm = () => {
