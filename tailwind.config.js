@@ -5,7 +5,17 @@ module.exports = {
     "./Components/**/*.{js,jsx,ts,tsx}", // ✅ FIXED (capital C)
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        loop: "loop 25s linear infinite",
+      },
+      keyframes: {
+        loop: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
+      },
+    },
   },
   plugins: [],
 };
