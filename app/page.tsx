@@ -90,6 +90,39 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+<div className="w-full mt-20 overflow-x-hidden">
+  <div className="flex w-max animate-loop gap-12 px-4 object-fit">
+    {[
+      { img: "/concor.png", text: "Concor's empanalled CHA" },
+      { img: "/crissCross.png", text: "Member" },
+      { img: "/msme.png", text: "" },
+      { img: "/dgos.png", text: "MTO Registration" },
+    ]
+      .concat([
+        { img: "/concor.png", text: "Concor's empanalled CHA" },
+        { img: "/crissCross.png", text: "Member" },
+        { img: "/msme.png", text: "" },
+        { img: "/dgos.png", text: "MTO Registration" },
+      ])
+      .map((item, index) => (
+        <div
+          key={index}
+          className="min-w-[260px] flex flex-col items-center"
+        >
+          <img
+            src={item.img}
+            alt={item.text}
+            className="w-full h-40 object-cover rounded-xl"
+          />
+          <p className="mt-4 text-sm font-medium text-gray-800">
+            {item.text}
+          </p>
+        </div>
+      ))}
+  </div>
+</div>
+
       </section>
     </main>
   ); 

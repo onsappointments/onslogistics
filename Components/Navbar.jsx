@@ -132,6 +132,7 @@ export default function Navbar() {
             <option value="hi">Hindi</option>
             <option value="zh-CN">Chinese</option>
             <option value="ru">Russian</option>
+            <option value="ar">Arabic</option>
           </select>
         </div>
       </div>
