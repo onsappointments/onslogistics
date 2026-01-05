@@ -15,7 +15,7 @@ export default function Home() {
        <div id="about" className="p-10 rounded-3xl ">
            <h2 className="text-[6rem] md:text-[5rem] font-semibold mb-6 ml-6">About Us</h2>
         <div className="flex p-3 justify-center items-center gap-28">
-        <Image src="/about-us.jpeg" alt="About Us" width={600} height={600} className="rounded-2xl"></Image>
+        <Image src="/About-us.jpg" alt="About Us" width={600} height={600} className="rounded-2xl"></Image>
         <p className="max-w-2xl text-gray-600 w-96 text-[1.1rem] text-left">
          ONS Logistics India Pvt. Ltd. is your trusted partner in global shipping, logistics, and custom clearance. We deliver efficiency, reliability, and transparency across every shipment — ensuring your goods reach their destination safely and on time.
 Backed by industry expertise and a strong global network, we offer end-to-end logistics solutions tailored to the unique requirements of each client. Our dedicated team manages every stage of the supply chain with precision, from documentation and compliance to transportation and last-mile delivery. With a strong focus on customer satisfaction, operational excellence, and timely execution, we help businesses move cargo seamlessly across borders and grow with confidence in international trade.
