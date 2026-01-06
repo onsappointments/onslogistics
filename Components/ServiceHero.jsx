@@ -54,11 +54,12 @@ export default function ServiceHero() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br -mt-[72px] from-blue-50 via-white to-gray-50">
+    <section className="relative overflow-hidden bg-gradient-to-br lg:-mt-[72px] from-blue-50 via-white to-gray-50">
       {/* Hero Section */}
       <div className="relative h-[500px] md:h-[600px]">
         {/* Background Image */}
         <Image
+          rel="preload"
           src="/services-bg.jpg"
           alt="ONS Logistics Services"
           fill
@@ -67,7 +68,7 @@ export default function ServiceHero() {
         />
         
         {/* Enhanced Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-900/75 to-blue-800/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 via-blue-900/50 to-blue-800/30"></div>
 
         {/* Content */}
         <div className="absolute inset-0 flex items-center">

@@ -62,6 +62,7 @@ export default function Home() {
           <div className="relative mb-20">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl">
               <Image 
+                rel="preload"
                 src="/About-us.webp" 
                 alt="About ONS Logistics - Professional freight forwarding services" 
                 width={1000}
@@ -114,6 +115,7 @@ export default function Home() {
               <div className="grid md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto">
                   <Image
+                    rel="preload"
                     src="/about-photo.jpg"
                     alt="Global logistics and freight forwarding operations by ONS Logistics"
                     fill

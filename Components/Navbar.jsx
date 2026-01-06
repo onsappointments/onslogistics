@@ -8,7 +8,6 @@ import { ChevronDown } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [gtReady, setGtReady] = useState(false);
   const [selectedLang, setSelectedLang] = useState("en");
   const [isServicesOpen, setIsServicesOpen] = useState(false);
 
@@ -31,40 +30,6 @@ export default function Navbar() {
     { label: "Toll Free No. 1800-890-7365", path: "tel:18008907365" },
   ];
 
-  /* ---------------- Google Translate Ready ---------------- */
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const select = document.querySelector("select.goog-te-combo");
-      if (select) {
-        setGtReady(true);
-        clearInterval(interval);
-      }
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  /* ---------------- NAVBAR DROP FIX ---------------- */
-  useEffect(() => {
-    const navbar = document.getElementById("site-navbar");
-    if (!navbar) return;
-
-    const updateNavbarPosition = () => {
-      navbar.style.transform = "translateY(0px)";
-    };
-
-    updateNavbarPosition();
-
-    const observer = new MutationObserver(updateNavbarPosition);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  /* ---------------- Language Switch ---------------- */
   const switchLanguage = (lang) => {
     const select = document.querySelector("select.goog-te-combo");
     if (!select) return;
@@ -77,26 +42,26 @@ export default function Navbar() {
   return (
     <nav
       id="site-navbar"
-      className="fixed top-0 left-0 z-50 w-full bg-[--color-background]/90 backdrop-blur-md border-b border-gray-200 transition-transform duration-300"
+      className="fixed top-0 left-0 z-50 w-full bg-[--color-background]/90 backdrop-blur-md border-b border-gray-200"
     >
-      <div className="max-w-[1440px] mx-auto h-[72px] flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto h-[64px] lg:h-[72px] px-4 sm:px-6 flex items-center justify-between">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="ONS Logistics Logo" width={48} height={48} />
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Image src="/logo.png" alt="ONS Logistics Logo" width={44} height={44} />
           <span className="hidden sm:block text-2xl font-semibold text-black">
             ONS
           </span>
         </Link>
 
-        {/* Nav Links */}
-        <ul className="hidden md:flex items-center justify-evenly gap-6">
+        {/* Nav Links (desktop & tablet only) */}
+        <ul className="hidden md:flex items-center gap-4 lg:gap-6 whitespace-nowrap">
 
           {/* Home */}
           <li>
             <Link
               href="/"
-              className={`text-md transition ${
+              className={`text-sm lg:text-md transition ${
                 pathname === "/"
                   ? "font-semibold text-blue-600"
                   : "text-black font-semibold hover:text-blue-600"
@@ -114,7 +79,7 @@ export default function Navbar() {
           >
             <Link
               href="/services"
-              className={`text-md inline-flex items-center gap-1 transition ${
+              className={`inline-flex items-center gap-1 text-sm lg:text-md transition ${
                 pathname.startsWith("/services")
                   ? "font-semibold text-blue-600"
                   : "text-black font-semibold hover:text-blue-600"
@@ -122,31 +87,28 @@ export default function Navbar() {
             >
               Services
               <ChevronDown
-                className={`h-4 w-4 transition-transform duration-300 ${
+                className={`h-4 w-4 transition-transform ${
                   isServicesOpen ? "rotate-180" : ""
                 }`}
               />
             </Link>
 
-            {/* Dropdown */}
             <div
-              className={`absolute left-0 top-full mt-3 w-64 bg-white rounded-xl shadow-2xl border border-blue-600/20 overflow-hidden transition-all duration-300 z-50 ${
+              className={`absolute left-0 top-full mt-3 w-64 bg-white rounded-xl shadow-2xl border border-blue-600/20 overflow-hidden transition-all duration-200 z-50 ${
                 isServicesOpen
                   ? "opacity-100 visible translate-y-0"
                   : "opacity-0 invisible translate-y-2"
               }`}
             >
-              <div className="py-2">
-                {services.map((service, idx) => (
-                  <Link
-                    key={idx}
-                    href={service.href}
-                    className="block px-4 py-2.5 text-md text-black hover:bg-blue-600 hover:text-white transition-all"
-                  >
-                    {service.name}
-                  </Link>
-                ))}
-              </div>
+              {services.map((service, idx) => (
+                <Link
+                  key={idx}
+                  href={service.href}
+                  className="block px-4 py-2.5 text-sm text-black hover:bg-blue-600 hover:text-white"
+                >
+                  {service.name}
+                </Link>
+              ))}
             </div>
           </li>
 
@@ -158,7 +120,7 @@ export default function Navbar() {
                 <li key={item.label}>
                   <a
                     href={item.path}
-                    className="text-md text-black font-semibold hover:text-blue-600"
+                    className="text-sm lg:text-md text-black font-semibold hover:text-blue-600"
                   >
                     {item.label}
                   </a>
@@ -167,7 +129,7 @@ export default function Navbar() {
                 <li key={item.label}>
                   <Link
                     href={item.path}
-                    className={`text-md transition ${
+                    className={`text-sm lg:text-md transition ${
                       pathname === item.path
                         ? "font-semibold text-blue-600"
                         : "text-black font-semibold hover:text-blue-600"
@@ -180,21 +142,25 @@ export default function Navbar() {
             )}
         </ul>
 
-        {/* Right */}
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="text-md text-black font-semibold hover:text-blue-600">
+        {/* Right Section */}
+        <div className="flex items-center gap-3 shrink-0">
+          <Link
+            href="/login"
+            className="text-sm lg:text-md text-black font-semibold hover:text-blue-600"
+          >
             Login
           </Link>
+
           <Link
             href="/register"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-md text-white hover:bg-blue-700"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm lg:text-md text-white hover:bg-blue-700"
           >
             Register
           </Link>
 
-          {/* Language Dropdown */}
+          {/* Language dropdown only on large screens */}
           <select
-            className="ml-3 border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-100"
+            className="hidden lg:block ml-3 border border-gray-300 rounded px-3 py-1 text-sm"
             value={selectedLang}
             onChange={(e) => {
               setSelectedLang(e.target.value);
