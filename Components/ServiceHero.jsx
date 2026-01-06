@@ -54,7 +54,7 @@ export default function ServiceHero() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br lg:-mt-[72px] from-blue-50 via-white to-gray-50">
+    <section className="relative overflow-hidden bg-gradient-to-br  from-blue-50 via-white to-gray-50">
       {/* Hero Section */}
       <div className="relative h-[500px] md:h-[600px]">
         {/* Background Image */}

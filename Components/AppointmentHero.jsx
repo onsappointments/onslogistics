@@ -17,7 +17,7 @@ export default function AppointmentHero() {
   ];
 
   return (
-    <section className="relative w-full min-h-screen overflow-hidden -mt-[72px] bg-gradient-to-br from-blue-50 via-white to-gray-50">
+    <section className="relative w-full min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-gray-50">
       {/* Background */}
       <div className="absolute inset-0">
         <Image
