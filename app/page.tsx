@@ -212,7 +212,7 @@ export default function Home() {
                 {[...certifications, ...certifications].map((cert, index) => (
                   <div
                     key={index}
-                    className="flex-shrink-0 w-[280px] mx-6 group"
+                    className="flex-shrink-0 lg:w-[280px] w-[200px] lg:mx-6 mx-2 group"
                   >
                     <div className=" p-8 transition-all duration-300 flex flex-col items-center">
                       <div className="relative w-full h-40 mb-4 flex items-center justify-center">
@@ -221,7 +221,7 @@ export default function Home() {
                           alt={cert.text}
                           width={200}
                           height={160}
-                          className="object-contain  transition-all duration-300"
+                          className="object-contain  transition-all duration-300 "
                         />
                       </div>
                       {cert.text && (
@@ -250,10 +250,7 @@ export default function Home() {
           }
         }
         .animate-loop {
-          animation: loop 30s linear infinite;
-        }
-        .animate-loop:hover {
-          animation-play-state: paused;
+          animation: loop 15s linear infinite;
         }
       `}</style>
     </main>
