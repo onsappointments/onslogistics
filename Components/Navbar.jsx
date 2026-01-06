@@ -84,8 +84,8 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="ONS Logistics Logo" width={48} height={48} />
-          <span className="hidden sm:block font-semibold text-black">
-            ONS Logistics
+          <span className="hidden sm:block text-2xl font-semibold text-black">
+            ONS
           </span>
         </Link>
 

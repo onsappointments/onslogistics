@@ -37,7 +37,7 @@ const servicesData = [
                  EPCG, MEIS/RODTEP, and RCMC applications
 
                  ECGC formalities and related documentation`,
-    image: "/services/licensing.jpg",
+    image: "/services/dgft.jpg",
   },
   {
     id: "export",

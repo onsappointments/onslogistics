@@ -34,16 +34,10 @@ export default function AppointmentHero() {
       <div className="absolute inset-0 flex items-center">
         <div className="max-w-7xl mx-auto px-6 w-full">
           <div className="max-w-3xl">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium mb-6">
-              <Calendar className="w-4 h-4" />
-              Schedule Your Consultation
-            </div>
-
             {/* Main Heading */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-5xl md:text-6xl w-full whitespace-nowrap lg:text-7xl font-bold text-white leading-tight mb-6 mt-8 ">
               Book Your
-              <span className="block text-blue-300 mt-2">Appointment</span>
+              <span className="  text-blue-300 mt-2"> Appointment</span>
             </h1>
 
             {/* Subheading */}
