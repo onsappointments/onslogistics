@@ -29,7 +29,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative w-full h-screen overflow-hidden -mt-[72px]  bg-gradient-to-br from-blue-50 via-white to-gray-50">
+    <section className="relative w-full h-screen overflow-hidden lg:-mt-[72px]  bg-gradient-to-br from-blue-50 via-white to-gray-50">
       <div className="absolute inset-0">
         {images.map((src, i) => (
           <div
@@ -39,6 +39,7 @@ export default function Hero() {
             }`}
           >
             <Image
+              rel="preload"
               src={src}
               alt={`Professional logistics and freight forwarding services by ONS Logistics – Hero image ${i + 1}`}
               fill
@@ -103,7 +104,7 @@ export default function Hero() {
             </div>
 
             {/* Stats Bar */}
-            <div className="mt-16 grid grid-cols-3 gap-8">
+            <div className="mt-16  grid-cols-3 gap-8 lg:grid hidden">
               <div>
                 <div className="text-3xl md:text-4xl font-bold text-white mb-1">15+</div>
                 <div className="text-sm text-blue-100">Years Experience</div>
@@ -121,19 +122,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Slideshow Indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-        {images.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIndex(i)}
-            className={`h-1.5 rounded-full transition-all ${
-              i === index ? "w-8 bg-white" : "w-1.5 bg-white/50 hover:bg-white/75"
-            }`}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
-      </div>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 right-8 z-20 hidden lg:block">

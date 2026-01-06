@@ -23,6 +23,7 @@ export default function ContactHero() {
       <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden">
         {/* Background Image */}
         <Image
+          rel="preload"
           src="/contactUs.jpg"
           alt="Contact ONS Logistics"
           fill
@@ -31,7 +32,7 @@ export default function ContactHero() {
         />
         
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-900/70 to-blue-900/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 via-blue-900/30 to-blue-900/20"></div>
 
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
