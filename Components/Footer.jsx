@@ -39,8 +39,8 @@ export default function Footer() {
                 width={70}
                 height={70}
               />
-              <h2 className="text-xl font-bold text-slate-900">
-                ONS Logistics India Pvt. Ltd.
+              <h2 className="text-2xl font-bold text-slate-900">
+                ONS
               </h2>
             </div>
 

@@ -79,27 +79,27 @@ export default function Navbar() {
       id="site-navbar"
       className="fixed top-0 left-0 z-50 w-full bg-[--color-background]/90 backdrop-blur-md border-b border-gray-200 transition-transform duration-300"
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6 h-[72px] flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto h-[72px] flex items-center justify-between">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="ONS Logistics Logo" width={48} height={48} />
-          <span className="hidden sm:block font-semibold text-gray-900">
-            ONS Logistics
+          <span className="hidden sm:block text-2xl font-semibold text-black">
+            ONS
           </span>
         </Link>
 
         {/* Nav Links */}
-        <ul className="hidden md:flex items-center gap-6">
+        <ul className="hidden md:flex items-center justify-evenly gap-6">
 
           {/* Home */}
           <li>
             <Link
               href="/"
-              className={`text-sm transition ${
+              className={`text-md transition ${
                 pathname === "/"
                   ? "font-semibold text-blue-600"
-                  : "text-gray-700 hover:text-blue-600"
+                  : "text-black font-semibold hover:text-blue-600"
               }`}
             >
               Home
@@ -114,10 +114,10 @@ export default function Navbar() {
           >
             <Link
               href="/services"
-              className={`text-sm inline-flex items-center gap-1 transition ${
+              className={`text-md inline-flex items-center gap-1 transition ${
                 pathname.startsWith("/services")
                   ? "font-semibold text-blue-600"
-                  : "text-gray-700 hover:text-blue-600"
+                  : "text-black font-semibold hover:text-blue-600"
               }`}
             >
               Services
@@ -141,7 +141,7 @@ export default function Navbar() {
                   <Link
                     key={idx}
                     href={service.href}
-                    className="block px-4 py-2.5 text-sm text-gray-800 hover:bg-blue-600 hover:text-white transition-all"
+                    className="block px-4 py-2.5 text-md text-black hover:bg-blue-600 hover:text-white transition-all"
                   >
                     {service.name}
                   </Link>
@@ -158,7 +158,7 @@ export default function Navbar() {
                 <li key={item.label}>
                   <a
                     href={item.path}
-                    className="text-sm text-gray-700 hover:text-blue-600"
+                    className="text-md text-black font-semibold hover:text-blue-600"
                   >
                     {item.label}
                   </a>
@@ -167,10 +167,10 @@ export default function Navbar() {
                 <li key={item.label}>
                   <Link
                     href={item.path}
-                    className={`text-sm transition ${
+                    className={`text-md transition ${
                       pathname === item.path
                         ? "font-semibold text-blue-600"
-                        : "text-gray-700 hover:text-blue-600"
+                        : "text-black font-semibold hover:text-blue-600"
                     }`}
                   >
                     {item.label}
@@ -182,12 +182,12 @@ export default function Navbar() {
 
         {/* Right */}
         <div className="flex items-center gap-3">
-          <Link href="/login" className="text-sm text-gray-700 hover:text-blue-600">
+          <Link href="/login" className="text-md text-black font-semibold hover:text-blue-600">
             Login
           </Link>
           <Link
             href="/register"
-            className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-md text-white hover:bg-blue-700"
           >
             Register
           </Link>
