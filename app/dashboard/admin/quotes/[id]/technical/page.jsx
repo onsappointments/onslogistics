@@ -33,7 +33,7 @@ export default function TechnicalQuotePage() {
         setCharges(
           heads.map((head) => ({
             head,
-            quantity: 1,
+            quantity: 0,
             rate: 0,
             currency: "INR",
             exchangeRate: 1,

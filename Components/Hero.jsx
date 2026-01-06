@@ -29,7 +29,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative w-full h-screen overflow-hidden lg:-mt-[72px]  bg-gradient-to-br from-blue-50 via-white to-gray-50">
+    <section className="relative w-full h-screen overflow-hidden -mt-[72px]  bg-gradient-to-br from-blue-50 via-white to-gray-50">
       <div className="absolute inset-0">
         {images.map((src, i) => (
           <div
