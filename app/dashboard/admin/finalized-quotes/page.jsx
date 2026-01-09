@@ -1,6 +1,6 @@
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
-import FilterTabs from "@/components/FilterTabs";
+import FilterTabs from "@/Components/FilterTabs.jsx";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
