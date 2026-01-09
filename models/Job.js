@@ -14,6 +14,45 @@ const StageSchema = new mongoose.Schema({
   completed: { type: Boolean, default: false },
   completedAt: { type: Date, default: null }
 });
+const ContainerEventSchema = new mongoose.Schema(
+  {
+    status: { type: String, required: true }, // e.g. Gate In, Loaded, Discharged
+    location: { type: String },
+    eventDate: { type: Date, required: true },
+    remarks: { type: String },
+  },
+  { _id: false }
+);
+
+const ContainerSchema = new mongoose.Schema(
+  {
+    containerNumber: { type: String, required: true },
+    sizeType: String, // 20GP, 40HC, etc
+    events: { type: [ContainerEventSchema], default: [] },
+  },
+  { _id: false }
+);
+const AuditLogSchema = new mongoose.Schema(
+  {
+    action: { type: String, required: true }, // e.g. "container_status_added"
+
+    containerNumber: String,
+    status: String,
+
+    performedBy: {
+      type: String,
+      default: "admin", // later replace with real user ID/email
+    },
+
+    metadata: mongoose.Schema.Types.Mixed, // future-proof
+
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { _id: false }
+);
 
 
 const JobSchema = new mongoose.Schema(
@@ -82,6 +121,12 @@ const JobSchema = new mongoose.Schema(
     // -------------------------
     commodity: { type: String, default: null },
 
+    containers: { type: [ContainerSchema], default: [] },
+
+    auditLogs: {
+      type: [AuditLogSchema],
+      default: [],
+    },
     // -------------------------
     // SYSTEM FIELDS
     // -------------------------
@@ -96,6 +141,12 @@ const JobSchema = new mongoose.Schema(
       enum: ["quote", "manual"],
       default: "manual",
     },
+    technicalQuoteId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TechnicalQuote",
+      default: null,
+    },
+    
 
     stage: {
       type: String,
