@@ -43,7 +43,7 @@ export default async function FinalizedQuotesPage() {
                 </td>
 
                 <td className="p-4 font-semibold">
-                  ₹{q.grandTotal.toFixed(2)}
+                  ₹{(q.grandTotalINR || 0).toFixed(2)}
                 </td>
 
                 <td className="p-4">

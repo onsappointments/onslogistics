@@ -38,7 +38,7 @@ export default function TechnicalQuotePage() {
             currency: "INR",
             exchangeRate: 1,
 
-            igstPercent: 18,
+            igstPercent: 0,
             igstAmount: 0,
 
             cgstPercent: 0,

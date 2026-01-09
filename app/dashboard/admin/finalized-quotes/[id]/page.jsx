@@ -2,9 +2,10 @@ import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import ConvertToJobPanel from "./ConvertToJobPanel";
 import Quote from "@/models/Quote";
+import { log } from "console";
 
 export default async function FinalizedQuoteDetails({ params }) {
-  const { id } = await params;
+  const { id } = params; // ✅ FIX 1
 
   await connectDB();
 
@@ -17,9 +18,20 @@ export default async function FinalizedQuoteDetails({ params }) {
   }
 
   const clientQuote = technicalQuote.clientQuoteId;
+  const currencySummary = technicalQuote.currencySummary || {};
+  const grandTotalINR = technicalQuote.grandTotalINR || 0;
+
+
+
+  if (!technicalQuote) {
+    return <div className="p-10">Quote not found</div>;
+  }
+
+ 
+  console.log("Technical Quote:", technicalQuote);
 
   return (
-    <div className="p-10 max-w-6xl mx-auto">
+    <div className="p-10 max-w-6xl mx-auto ">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-semibold">Finalized Quote</h1>
         <StatusBadge status={technicalQuote.status} />
@@ -37,11 +49,17 @@ export default async function FinalizedQuoteDetails({ params }) {
       {/* TECHNICAL QUOTE */}
       <Section title="Technical Quote">
         <table className="w-full text-sm border">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3 text-left">Service</th>
-              <th className="p-3">Rate</th>
-              <th className="p-3">Qty</th>
+          <thead className="bg-gray-100 text-left">
+            <tr className="">
+             <th className="p-2 ">Service</th>
+              <th className="p-2 ">Qty</th>
+              <th className="p-2 ">Rate</th>
+              <th className="p-2 r">Curr</th>
+              <th className="p-2 ">Ex. Rate</th>
+              <th className="p-2 ">Base (INR)</th>
+              <th className="p-2 ">IGST</th>
+              <th className="p-2 ">CGST</th>
+              <th className="p-2 ">SGST</th>
               <th className="p-3">Amount</th>
             </tr>
           </thead>
@@ -49,8 +67,14 @@ export default async function FinalizedQuoteDetails({ params }) {
             {technicalQuote.lineItems.map((item, i) => (
               <tr key={i} className="border-t">
                 <td className="p-3">{item.head}</td>
-                <td className="p-3">₹{item.rate}</td>
                 <td className="p-3">{item.quantity}</td>
+                <td className="p-3">₹{item.rate}</td>
+                <td className="p-3">{item.currency}</td>
+                <td className="p-3">{item.exchangeRate}</td>
+                <td className="p-3">{item.baseAmount}</td>
+                <td className="p-3">{item.igstPercent}</td>
+                <td className="p-3">{item.cgstPercent}</td>
+                <td className="p-3">{item.sgstPercent}</td>
                 <td className="p-3 font-semibold">
                   ₹{item.totalAmount.toFixed(2)}
                 </td>
@@ -60,8 +84,57 @@ export default async function FinalizedQuoteDetails({ params }) {
         </table>
 
         <div className="mt-4 text-right font-semibold text-lg">
-          Total: ₹{technicalQuote.grandTotal.toFixed(2)}
+          Total: ₹{grandTotalINR.toFixed(2)}
         </div>
+
+        {/* CURRENCY SUMMARY */}
+<Section title="Currency Summary">
+  {Object.values(currencySummary)
+    .filter((curr) => curr.subtotal > 0)
+    .map((curr) => (
+      <div key={curr.currency} className="mb-6 border rounded p-4">
+        <h3 className="text-lg font-semibold mb-3">
+          {curr.currency}
+        </h3>
+
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="p-2 text-left">Service</th>
+              <th className="p-2 text-right">Qty</th>
+              <th className="p-2 text-right">Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {(curr.services || [])
+              .filter((s) => s.amount > 0)
+              .map((s, i) => (
+                <tr key={i} className="border-t">
+                  <td className="p-2">{s.head}</td>
+                  {console.log("Service Item:", s)}
+                  <td className="p-2 text-right">{s.quantity}</td>
+                  <td className="p-2 text-right">
+                    {curr.currency} {s.amount.toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+
+        <div className="text-right font-semibold mt-3">
+          Subtotal: {curr.currency} {curr.subtotal.toFixed(2)}
+        </div>
+      </div>
+    ))}
+
+  <div className="mt-6 text-right text-xl font-semibold">
+    Grand Total (INR): ₹{grandTotalINR.toFixed(2)}
+  </div>
+</Section>
+
+
+
       </Section>
 
       {/* CLIENT APPROVAL CTA */}

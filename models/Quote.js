@@ -10,7 +10,6 @@ const QuoteSchema = new mongoose.Schema(
     toState: String,
     fromPostal: String,
     toPostal: String,
-
     item: String,
     modeOfTransport: String,
     estimatedShippingDate: String,
