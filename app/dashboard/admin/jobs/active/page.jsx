@@ -17,7 +17,7 @@ export default function NewJobsPage() {
 
   return (
     <div className="p-10 max-w-7xl mx-auto">
-      <h1 className="text-4xl font-semibold mb-6">New Jobs</h1>
+      <h1 className="text-4xl font-semibold mb-6">Active Jobs</h1>
 
       <div className="bg-white rounded-xl shadow overflow-x-auto">
         <table className="w-full text-sm">
