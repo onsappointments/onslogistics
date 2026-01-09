@@ -101,11 +101,13 @@ const currencySummary = normalizedLineItems.reduce((acc, item) => {
   acc[curr].services.push({
     head: item.head,
     quantity: item.quantity,
-    amount: item.totalAmount,
+    amount: item.rate * item.quantity,
+    inrAmount: item.totalAmount, 
   });
 
-  acc[curr].subtotal += item.totalAmount;
-  acc[curr].inrEquivalent += item.baseAmount;
+  acc[curr].subtotal += item.rate * item.quantity;
+  acc[curr].inrEquivalent += item.totalAmount;
+
 
   return acc;
 }, {});

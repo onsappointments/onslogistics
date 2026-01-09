@@ -68,7 +68,7 @@ export default async function FinalizedQuoteDetails({ params }) {
               <tr key={i} className="border-t">
                 <td className="p-3">{item.head}</td>
                 <td className="p-3">{item.quantity}</td>
-                <td className="p-3">₹{item.rate}</td>
+                <td className="p-3">{item.currency === "INR" ? "₹" : item.currency === "USD" ? "$" : item.currency === "EUR" ? "€" : ""}{item.rate}</td>
                 <td className="p-3">{item.currency}</td>
                 <td className="p-3">{item.exchangeRate}</td>
                 <td className="p-3">{item.baseAmount}</td>
@@ -112,7 +112,6 @@ export default async function FinalizedQuoteDetails({ params }) {
               .map((s, i) => (
                 <tr key={i} className="border-t">
                   <td className="p-2">{s.head}</td>
-                  {console.log("Service Item:", s)}
                   <td className="p-2 text-right">{s.quantity}</td>
                   <td className="p-2 text-right">
                     {curr.currency} {s.amount.toFixed(2)}
