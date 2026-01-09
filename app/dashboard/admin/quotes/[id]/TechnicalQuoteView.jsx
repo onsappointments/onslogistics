@@ -3,8 +3,15 @@ export default function TechnicalQuoteView({ technicalQuote }) {
   if (!technicalQuote) return null;
   if (!Array.isArray(technicalQuote.lineItems)) return null;
 
-  const { status, subtotal, igstTotal, cgstTotal, sgstTotal, grandTotal } =
-    technicalQuote;
+  const {
+  status,
+  subtotal = 0,
+  igstTotal = 0,
+  cgstTotal = 0,
+  sgstTotal = 0,
+  grandTotalINR = 0,
+} = technicalQuote;
+
 
   return (
     <div className="bg-white rounded-xl shadow p-6 mt-10">
@@ -117,7 +124,7 @@ export default function TechnicalQuoteView({ technicalQuote }) {
 
         <div className="flex justify-between font-semibold border-t pt-2 text-base">
           <span>Grand Total</span>
-          <span>₹{Number(grandTotal).toFixed(2)}</span>
+          <span>₹{Number(grandTotalINR).toFixed(2)}</span>
         </div>
       </div>
     </div>

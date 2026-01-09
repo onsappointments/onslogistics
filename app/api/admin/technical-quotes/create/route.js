@@ -12,6 +12,8 @@ export async function POST(req) {
 
     const { quoteId, shipmentType, lineItems = [] } = await req.json();
 
+    /* ---------------- BASIC VALIDATION ---------------- */
+
     if (!quoteId || !shipmentType) {
       return Response.json(
         { error: "quoteId and shipmentType are required" },
@@ -24,7 +26,7 @@ export async function POST(req) {
       return Response.json({ error: "Quote not found" }, { status: 404 });
     }
 
-    /* ---------------- VALIDATE HEADS ---------------- */
+    /* ---------------- VALIDATE EXPENDITURE HEADS ---------------- */
 
     const ALLOWED_HEADS =
       shipmentType === "import" ? IMPORT_HEADS : EXPORT_HEADS;
@@ -50,6 +52,7 @@ export async function POST(req) {
       const quantity = Number(item.quantity || 0);
       const rate = Number(item.rate || 0);
       const exchangeRate = Number(item.exchangeRate || 1);
+      const currency = item.currency || "INR";
 
       const baseAmount = rate * quantity * exchangeRate;
 
@@ -65,10 +68,10 @@ export async function POST(req) {
         baseAmount + igstAmount + cgstAmount + sgstAmount;
 
       return {
-        head: item.head, // ✅ GUARANTEED VALID
+        head: item.head,
         quantity,
         rate,
-        currency: item.currency || "INR",
+        currency,
         exchangeRate,
         baseAmount,
         igstPercent,
@@ -81,21 +84,55 @@ export async function POST(req) {
       };
     });
 
-    /* ---------------- UPSERT TECH QUOTE ---------------- */
+    /* ---------------- CURRENCY SUMMARY ---------------- */
+const currencySummary = normalizedLineItems.reduce((acc, item) => {
+  const curr = item.currency;
+
+  if (!acc[curr]) {
+    acc[curr] = {
+      currency: curr,
+      services: [],
+      subtotal: 0,
+      exchangeRate: item.exchangeRate || 1,
+      inrEquivalent: 0,
+    };
+  }
+
+  acc[curr].services.push({
+    head: item.head,
+    quantity: item.quantity,
+    amount: item.totalAmount,
+  });
+
+  acc[curr].subtotal += item.totalAmount;
+  acc[curr].inrEquivalent += item.baseAmount;
+
+  return acc;
+}, {});
+
+
+    /* ---------------- GRAND TOTAL (INR) ---------------- */
+
+    const grandTotalINR = Object.values(currencySummary).reduce(
+      (sum, curr) => sum + curr.inrEquivalent,
+      0
+    );
+
+    /* ---------------- UPSERT (🔥 MUST USE $set) ---------------- */
 
     const techQuote = await TechnicalQuote.findOneAndUpdate(
       { clientQuoteId: quoteId },
       {
-        clientQuoteId: quoteId,
-        shipmentType,
-        lineItems: normalizedLineItems,
-        status: "draft",
+        $set: {
+          clientQuoteId: quoteId,
+          shipmentType,
+          lineItems: normalizedLineItems,
+          currencySummary,
+          grandTotalINR,
+          status: "draft",
+        },
       },
-      {
-        upsert: true,
-        new: true,
-        runValidators: true,
-      }
+      { upsert: true, new: true }
     );
 
     return Response.json({
