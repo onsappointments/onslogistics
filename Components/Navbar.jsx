@@ -27,6 +27,7 @@ export default function Navbar() {
     { label: "Book Appointment", path: "/book-appointment" },
     { label: "Contact Us", path: "/contact" },
     { label: "Request A Quote", path: "/request-quote" },
+    { label: "Track Your Shipment", path: "/tracking" },
     { label: "Toll Free No. 1800-890-7365", path: "tel:18008907365" },
   ];
 
