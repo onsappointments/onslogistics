@@ -44,8 +44,46 @@ export default async function JobDetails({ params }) {
             Delete Job
           </button>
         </form>
-      </div>
 
+        {plainJob.status === "active" && (
+       <Link
+        href={`/dashboard/admin/jobs/${plainJob._id}/tracking`}
+        className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+       >
+        Update Container Status
+       </Link>
+       )}
+      </div>
+      {/* QUOTE ACTIONS */}
+<div className="flex gap-4 mb-6">
+  {plainJob.quoteId && (
+    <Link
+      href={`/dashboard/admin/quotes/${plainJob.quoteId}`}
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+    >
+      View Finalized Quote
+    </Link>
+  )}
+
+  {/*{plainJob.quoteId && !plainJob.technicalQuoteId && (
+    <Link
+      href={`/dashboard/admin/technical-quotes/new?quoteId=${plainJob.quoteId}`}
+      className="px-4 py-2 bg-green-600 text-white rounded-lg"
+    >
+      Add Technical Quote
+    </Link>
+  )}
+
+  /*{plainJob.technicalQuoteId && (
+    <Link
+      href={`/dashboard/admin/technical-quotes/${plainJob.technicalQuoteId}`}
+      className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+    >
+      View Technical Quote
+    </Link>
+  )}*/}
+</div>
+  
       {/* JOB FIELDS */}
       <div className="bg-white shadow rounded-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field label="Job ID" value={plainJob.jobId} />

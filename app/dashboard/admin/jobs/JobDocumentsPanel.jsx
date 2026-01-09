@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-
-
 const STAGE_LABELS = {
   1: "Documentation",
   2: "Stage 2",
@@ -60,7 +58,6 @@ export default function JobDocumentsPanel({ job }) {
   const [currentJob, setCurrentJob] = useState(() => {
     const defaults = getDefaultDocs(job);
     const mergedDocs = mergeDocuments(job.documents || [], defaults);
-
     return { ...job, documents: mergedDocs };
   });
 
@@ -68,72 +65,52 @@ export default function JobDocumentsPanel({ job }) {
   const [confirmingDoc, setConfirmingDoc] = useState(null);
   const [stageLoading, setStageLoading] = useState(false);
 
-  const nextStage = STAGE_LABELS[currentJob.stage] || `Stage ${currentJob.stage}`;
+  const nextStage =
+    STAGE_LABELS[currentJob.stage] || `Stage ${currentJob.stage}`;
 
   const allDocsDone =
     currentJob.documents.length > 0 &&
     currentJob.documents.every((d) => d.isCompleted === true);
 
-    async function uploadDocument(docName, file) {
-      if (!file) return alert("Please select a file");
-    
-      setUploadingDoc(docName);
-    
-      try {
-        // 1️⃣ Get signed upload URL
-        const uploadUrlRes = await fetch("/api/uploadthing/url", {
-          method: "POST",
-        });
-        const { url } = await uploadUrlRes.json();
-    
-        // 2️⃣ Upload file directly to UploadThing storage
-        const uploadRes = await fetch(url, {
-          method: "POST",
-          body: file,
-          headers: {
-            "Content-Type": file.type,
-            "x-uploadthing-filename": file.name,
-          },
-        });
-    
-        const uploaded = await uploadRes.json();
-    
-        if (!uploaded || !uploaded.files || !uploaded.files[0]?.url) {
-          console.error("UploadThing response:", uploaded);
-          alert("Upload failed");
-          return;
-        }
-    
-        const fileUrl = uploaded.files[0].url;
-    
-        // 3️⃣ Save URL to database
-        const res = await fetch("/api/admin/jobs/upload-document", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jobId: currentJob._id,
-            documentName: docName,
-            fileUrl,
-          }),
-        });
-    
-        const data = await res.json();
-        if (!res.ok) return alert(data.error);
-    
-        // 4️⃣ Update UI
-        setCurrentJob((prev) => ({
-          ...prev,
-          documents: mergeDocuments(data.job.documents, getDefaultDocs(prev)),
-        }));
-    
-      } catch (err) {
-        console.error("Upload error:", err);
-        alert("Upload failed");
-      } finally {
-        setUploadingDoc(null);
+  /* ===========================
+     ✅ CLOUDINARY UPLOAD (FINAL)
+     =========================== */
+  async function uploadDocument(docName, file) {
+    if (!file) return alert("Please select a file");
+
+    setUploadingDoc(docName);
+
+    try {
+      const formData = new FormData();
+      formData.append("jobId", currentJob._id);
+      formData.append("documentName", docName);
+      formData.append("file", file); // actual file
+
+      const res = await fetch("/api/admin/jobs/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error(data);
+        return alert(data.error || "Upload failed");
       }
+
+      setCurrentJob((prev) => ({
+        ...prev,
+        documents: mergeDocuments(
+          data.job.documents,
+          getDefaultDocs(prev)
+        ),
+      }));
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Upload failed");
+    } finally {
+      setUploadingDoc(null);
     }
-    
+  }
 
   async function confirmDocument(docName) {
     if (!window.confirm(`Confirm "${docName}" and notify client?`)) return;
@@ -155,7 +132,10 @@ export default function JobDocumentsPanel({ job }) {
 
       setCurrentJob((prev) => ({
         ...prev,
-        documents: mergeDocuments(data.job.documents, getDefaultDocs(prev)),
+        documents: mergeDocuments(
+          data.job.documents,
+          getDefaultDocs(prev)
+        ),
       }));
 
       alert("Document confirmed. Email sent to client.");
@@ -163,7 +143,7 @@ export default function JobDocumentsPanel({ job }) {
       alert("Error confirming document");
     } finally {
       setConfirmingDoc(null);
-    } 
+    }
   }
 
   async function nextStageHandler() {
@@ -201,7 +181,9 @@ export default function JobDocumentsPanel({ job }) {
         <div>
           <h2 className="text-xl font-semibold">Documentation & Stages</h2>
           <p className="text-sm text-gray-600">
-            Current Stage: <span className="font-medium">{nextStage}</span> ({currentJob.status})
+            Current Stage:{" "}
+            <span className="font-medium">{nextStage}</span> (
+            {currentJob.status})
           </p>
         </div>
 
@@ -241,7 +223,8 @@ export default function JobDocumentsPanel({ job }) {
 
                 {doc.completedAt && (
                   <p className="text-xs text-gray-500">
-                    Confirmed: {new Date(doc.completedAt).toLocaleString()}
+                    Confirmed:{" "}
+                    {new Date(doc.completedAt).toLocaleString()}
                   </p>
                 )}
               </div>
@@ -250,7 +233,10 @@ export default function JobDocumentsPanel({ job }) {
                 {/* Upload */}
                 <input
                   type="file"
-                  onChange={(e) => uploadDocument(doc.name, e.target.files[0])}
+                  disabled={uploadingDoc === doc.name}
+                  onChange={(e) =>
+                    uploadDocument(doc.name, e.target.files[0])
+                  }
                   className="text-sm"
                 />
 
@@ -258,7 +244,7 @@ export default function JobDocumentsPanel({ job }) {
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    disabled={isCompleted}
+                    disabled={isCompleted || confirmingDoc === doc.name}
                     checked={isCompleted}
                     onChange={() => confirmDocument(doc.name)}
                   />
