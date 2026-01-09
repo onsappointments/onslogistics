@@ -1,25 +1,69 @@
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
-import Quote from "@/models/Quote";
+import FilterTabs from "@/components/FilterTabs";
 import Link from "next/link";
 
-export default async function FinalizedQuotesPage() {
-  await connectDB();
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-  const quotes = await TechnicalQuote.find({
-    status: { $in: ["sent_to_client", "client_approved"] },
-  })
-    .populate("clientQuoteId")
-    .sort({ createdAt: -1 })
-    .lean();
+export default async function FinalizedQuotesPage({ searchParams }) {
+  await connectDB();
+  const params = await searchParams;
+  const status = params?.status;
+
+  const quotes = await TechnicalQuote.aggregate([
+    {
+      $match: status
+        ? { status }
+        : { status: { $in: ["sent_to_client", "client_approved"] } },
+    },
+
+    {
+      $lookup: {
+        from: "quotes",
+        localField: "clientQuoteId",
+        foreignField: "_id",
+        as: "clientQuote",
+      },
+    },
+    {
+      $unwind: {
+        path: "$clientQuote",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    {
+      $lookup: {
+        from: "jobs",
+        localField: "clientQuote._id",
+        foreignField: "quoteId",
+        as: "job",
+      },
+    },
+
+    {
+      $match: {
+        $or: [
+          { status: "sent_to_client" }, // always show
+          {
+            status: "client_approved",
+            job: { $size: 0 }, // hide if converted to job
+          },
+        ],
+      },
+    },
+
+    { $sort: { createdAt: -1 } },
+  ]);
 
   return (
     <div className="p-10 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-semibold mb-8">
-        Finalized Quotes
-      </h1>
+      <h1 className="text-3xl font-semibold mb-6">Finalized Quotes</h1>
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <FilterTabs active={status || "all"} />
+
+      <div className="bg-white rounded-xl shadow overflow-hidden mt-6">
         <table className="w-full text-sm">
           <thead className="bg-gray-100">
             <tr>
@@ -33,29 +77,27 @@ export default async function FinalizedQuotesPage() {
 
           <tbody>
             {quotes.map((q) => (
-              <tr key={q._id} className="border-t">
+              <tr key={q._id} className="border-t hover:bg-gray-50">
                 <td className="p-4 font-medium">
-                  {q.clientQuoteId?.company || "—"}
+                  {q.clientQuote?.company || "—"}
+                </td>
+
+                <td className="p-4 capitalize">{q.shipmentType}</td>
+
+                <td className="p-4 font-semibold">
+                  ₹{Number(q.grandTotalINR || 0).toFixed(2)}
                 </td>
 
                 <td className="p-4 capitalize">
-                  {q.shipmentType}
-                </td>
-
-                <td className="p-4 font-semibold">
-                  ₹{(q.grandTotalINR || 0).toFixed(2)}
-                </td>
-
-                <td className="p-4">
-                  <StatusBadge status={q.status} />
+                  {q.status.replaceAll("_", " ")}
                 </td>
 
                 <td className="p-4">
                   <Link
                     href={`/dashboard/admin/finalized-quotes/${q._id}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline font-medium"
                   >
-                    View Details
+                    View
                   </Link>
                 </td>
               </tr>
@@ -63,11 +105,8 @@ export default async function FinalizedQuotesPage() {
 
             {quotes.length === 0 && (
               <tr>
-                <td
-                  colSpan={5}
-                  className="p-6 text-center text-gray-500"
-                >
-                  No finalized quotes yet
+                <td colSpan={5} className="p-6 text-center text-gray-500">
+                  No quotes found
                 </td>
               </tr>
             )}
@@ -75,24 +114,5 @@ export default async function FinalizedQuotesPage() {
         </table>
       </div>
     </div>
-  );
-}
-
-/* ---------- STATUS BADGE ---------- */
-
-function StatusBadge({ status }) {
-  const map = {
-    sent_to_client: "bg-yellow-100 text-yellow-700",
-    client_approved: "bg-green-100 text-green-700",
-  };
-
-  return (
-    <span
-      className={`px-3 py-1 rounded-full text-xs font-medium ${
-        map[status] || "bg-gray-100 text-gray-600"
-      }`}
-    >
-      {status.replaceAll("_", " ")}
-    </span>
   );
 }
