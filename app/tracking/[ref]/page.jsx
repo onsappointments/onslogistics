@@ -78,10 +78,21 @@ export default async function PublicTrackingPage({ params }) {
                 <li key={idx} className="relative">
                   <span className="absolute -left-[9px] top-1.5 w-3 h-3 bg-blue-600 rounded-full" />
                   <p className="font-medium">{event.status}</p>
-                  <p className="text-sm text-gray-500">
-                    {event.location} •{" "}
-                    {new Date(event.date).toLocaleDateString()}
-                  </p>
+
+                 <p className="text-sm text-gray-500">
+                  {event.location || "—"}
+                  {event.eventDate && !isNaN(new Date(event.eventDate)) && (
+                  <> • {new Date(event.eventDate).toLocaleDateString()}</>
+                  )}
+
+
+                 </p>
+
+                 {event.remarks && (
+                 <p className="mt-1 text-sm text-gray-600 italic">
+                   {event.remarks}
+                 </p>
+                )}
                 </li>
               ))}
             </ol>
