@@ -3,6 +3,8 @@ import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import Job from "@/models/Job";
 import generateJobId from "@/lib/generateJobId";
+import { logAudit } from "@/lib/audit";
+
 
 export async function POST(req) {
   await connectDB();
@@ -95,6 +97,22 @@ export async function POST(req) {
     stages,
     documents,
     currentStage: 2,
+  });
+  
+  /* ---------------- AUDIT LOG ---------------- */
+  await logAudit({
+    entityType: "job",
+    entityId: job._id,
+    action: "job_created_from_quote",
+    description: "Job created from client-approved technical quote",
+    performedBy: "system", // or admin user later
+    meta: {
+      jobId: job.jobId,
+      quoteId: quote._id,
+      technicalQuoteId: technicalQuote._id,
+      shipmentType: quote.shipmentType,
+      company: quote.company,
+    },
   });
 
   return Response.json({

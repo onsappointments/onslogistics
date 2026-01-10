@@ -2,6 +2,8 @@ import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import { Resend } from "resend";
+import { logAudit } from "@/lib/audit";
+
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -121,6 +123,23 @@ export async function POST(req) {
         </div>
       `,
     });
+    
+    /* ---------------- AUDIT LOG ---------------- */
+
+    await logAudit({
+      entityType: "technical_quote",
+     entityId: technicalQuote._id,
+     action: "sent_to_client",
+     description: "Technical quote finalized and sent to client",
+     performedBy: null, // or req.user._id when auth is wired
+     meta: {
+       clientQuoteId: quoteId,
+       email: clientQuote.email,
+       shipmentType: technicalQuote.shipmentType,
+       grandTotal: technicalQuote.grandTotal,
+      },
+   });
+
 
     return Response.json({
       success: true,

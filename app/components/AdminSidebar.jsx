@@ -55,6 +55,11 @@ export default function AdminSidebar() {
     Active Jobs 
   </button>
 </Link>
+<Link href="/dashboard/admin/audit">
+  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
+    Audit Logs
+  </button>
+</Link>
       </nav>
        <button
           onClick={() => signOut({ callbackUrl: "/login" })}
