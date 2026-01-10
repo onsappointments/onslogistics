@@ -41,7 +41,6 @@ export default async function FinalizedQuotesPage({ searchParams }) {
         as: "job",
       },
     },
-
     {
       $match: {
         $or: [

@@ -18,5 +18,5 @@ export async function GET(req, { params }) {
   await technicalQuote.save();
 
   // ✅ REDIRECT CLIENT
-  redirect("/client/quote-rejected");
+  redirect(`/client/quotes/${technicalQuote.clientQuoteId}/rejected`);
 }

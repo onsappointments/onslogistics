@@ -158,6 +158,7 @@ export default function TechnicalQuotePage() {
 
                 <td className="p-2">
                   <input
+                    min={0}
                     type="number"
                     value={c.quantity}
                     onChange={(e) =>
@@ -170,6 +171,7 @@ export default function TechnicalQuotePage() {
 
                 <td className="p-2">
                   <input
+                    min={0}
                     type="number"
                     value={c.rate}
                     onChange={(e) =>
@@ -197,6 +199,7 @@ export default function TechnicalQuotePage() {
 
                 <td className="p-2">
                   <input
+                    min={0}
                     type="number"
                     value={c.exchangeRate}
                     onChange={(e) =>
@@ -209,6 +212,7 @@ export default function TechnicalQuotePage() {
 
                 <td className="p-2">
                   <input
+                    min={0}
                     type="number"
                     value={c.igstPercent}
                     onChange={(e) =>
@@ -221,6 +225,7 @@ export default function TechnicalQuotePage() {
 
                 <td className="p-2">
                   <input
+                    min={0}
                     type="number"
                     value={c.cgstPercent}
                     onChange={(e) =>
@@ -233,6 +238,7 @@ export default function TechnicalQuotePage() {
 
                 <td className="p-2">
                   <input
+                    min={0}
                     type="number"
                     value={c.sgstPercent}
                     onChange={(e) =>

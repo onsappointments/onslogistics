@@ -1,0 +1,28 @@
+{
+  "super_admin": ["*"],
+
+  "sales": [
+    "technicalquote:create",
+    "technicalquote:view"
+  ],
+
+  "operations": [
+    "job:view",
+    "job:update"
+  ],
+  
+  "accounts": [
+    "technicalquote:view",
+    "technicalquote:approve",
+    "invoice:view"
+  ],
+
+  "manager": [
+    "quote:view",
+    "technicalquote:view",
+    "technicalquote:approve",
+
+    "job:view",
+    "shipment:view"
+  ]
+}

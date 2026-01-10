@@ -2,67 +2,89 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+
+/* ---------------- MENU CONFIG ---------------- */
+
+const ADMIN_MENU = [
+  {
+    name: "Search Clients",
+    href: "/dashboard/admin",
+    permission: "client:view",
+  },
+  {
+    name: "View Quotes",
+    href: "/dashboard/admin/quotes",
+    permission: "quote:view",
+  },
+  {
+    name: "View Finalized Quotes",
+    href: "/dashboard/admin/finalized-quotes",
+    permission: "quote:view_finalized",
+  },
+  {
+    name: "Create a Job",
+    href: "/dashboard/admin/jobs/create",
+    permission: "job:create",
+  },
+  {
+    name: "New Jobs",
+    href: "/dashboard/admin/jobs/new",
+    permission: "job:view_new",
+  },
+  {
+    name: "Active Jobs",
+    href: "/dashboard/admin/jobs/active",
+    permission: "job:view_active",
+  },
+];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
-
-  const links = [
-    { name: "Search Clients", href: "/dashboard/admin" },
-  ];
+  const permissions = session?.user?.permissions || [];
 
   return (
-    <aside className="w-64 min-h-screen bg-white/80 border-r border-gray-200 shadow-md p-6 space-y-6">
-      <div className="text-xl font-semibold text-gray-900">ONS Admin</div>
-      <nav className="flex flex-col gap-3">
-        {links.map((link) => (
+    <aside className="w-64  bg-white/80 border-r border-gray-200 shadow-md p-6 flex flex-col">
+      {/* HEADER */}
+      <div className="text-xl font-semibold text-gray-900 mb-6">
+        ONS Admin
+      </div>
+
+      {/* MENU */}
+      <nav className="flex flex-col gap-2 flex-1">
+        {ADMIN_MENU.filter((item) =>
+          permissions.includes(item.permission)
+        ).map((item) => (
           <Link
-            key={link.href}
-            href={link.href}
-            className={`p-3 rounded-xl font-medium transition ${
-              pathname === link.href
+            key={item.href}
+            href={item.href}
+            className={`px-4 py-3 rounded-xl font-medium transition ${
+              pathname === item.href
                 ? "bg-blue-600 text-white"
                 : "text-gray-700 hover:bg-blue-50"
             }`}
           >
-            {link.name}
+            {item.name}
           </Link>
-          
         ))}
-        <Link href="/dashboard/admin/quotes">
-  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
-    View Quotes
-  </button>
-</Link>
-<Link href="/dashboard/admin/finalized-quotes">
-  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
-    View Finalized Quotes
-  </button>
-</Link>
-<Link href="/dashboard/admin/jobs/create">
-  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
-   Create a Job 
-  </button>
-</Link>
-<Link href="/dashboard/admin/jobs/new">
-  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
-    New Jobs 
-  </button>
-</Link>
-<Link href="/dashboard/admin/jobs/active">
-  <button className="w-full my-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
-    Active Jobs 
-  </button>
-</Link>
+
+        {/* Fallback if no permissions */}
+        {permissions.length === 0 && (
+          <p className="text-sm text-gray-500 mt-4">
+            No menu access assigned
+          </p>
+        )}
       </nav>
-       <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
-          className="mt-8 bg-blue-600 text-white py-2 px-6 rounded-xl hover:bg-blue-700 
-          transition font-medium shadow-md w-full"
-        >
-          Logout
-        </button>
+
+      {/* LOGOUT */}
+      <button
+        onClick={() => signOut({ callbackUrl: "/login" })}
+        className="mt-6 bg-blue-600 text-white py-2 px-6 rounded-xl hover:bg-blue-700 transition font-medium shadow-md"
+      >
+        Logout
+      </button>
     </aside>
   );
 }

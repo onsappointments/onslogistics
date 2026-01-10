@@ -58,39 +58,74 @@ export default async function QuoteDetails({ params }) {
           label="Phone"
           value={`${quote.phoneCountryCode || ""} ${quote.phone}`}
         />
+        <Field label="WhatsApp Number" value={quote.whatsappNumber} />
+        <Field label="Your Website" value={quote.yourWebsite} />
+        <Field label="Customer Type" value={quote.customerType} />
+        <Field label="Preferred Contact Method" value={quote.preferredContactMethod} />
+        <Field label="Best Time to Call" value={quote.bestTimeToCall} />
+        <Field label="Best Time to Email" value={quote.bestTimeToEmail} />
+        <Field label="How Did You Know Us" value={quote.howDidYouKnowUs} />
       </Section>
 
       {/* LOCATION */}
       <Section title="Location Details">
-        <Field label="From City" value={quote.fromCity} />
-        <Field label="To City" value={quote.toCity} />
+        <Field label="From Country" value={quote.fromCountry} />
+        <Field label="To Country" value={quote.toCountry} />
         <Field label="From State" value={quote.fromState} />
         <Field label="To State" value={quote.toState} />
+        <Field label="From City" value={quote.fromCity} />
+        <Field label="To City" value={quote.toCity} />
         <Field label="From Postal" value={quote.fromPostal} />
         <Field label="To Postal" value={quote.toPostal} />
+        <Field label="From Location Type" value={quote.fromLocationType} />
+        <Field label="To Location Type" value={quote.toLocationType} />
       </Section>
 
       {/* SHIPMENT */}
       <Section title="Shipment Details">
         <Field label="Item" value={quote.item} />
         <Field label="Shipment Type" value={quote.shipmentType} />
+        <Field label="Mode of Transport" value={quote.modeOfTransport} />
+        <Field label="Mode of Shipment" value={quote.modeOfShipment} />
         <Field label="Container Type" value={quote.containerType} />
-        <Field label="Mode" value={quote.modeOfShipment} />
+        <Field label="Freight Terms" value={quote.freightTerms} />
+        <Field label="Estimated Shipping Date" value={quote.estimatedShippingDate} />
+        <Field label="Goods Purpose" value={quote.goodsPurpose} />
+        <Field 
+          label="Value of Goods" 
+          value={quote.valueOfGoods ? `${quote.valueOfGoods} ${quote.currency || 'INR'}` : null} 
+        />
+        <Field label="Dimensions" value={quote.dimensions} />
+        <Field label="Pieces" value={quote.pieces} />
+        <Field 
+          label="Total Weight" 
+          value={quote.totalWeight ? `${quote.totalWeight} ${quote.weightMeasure || 'Kgs'}` : null} 
+        />
+        <Field label="IMO Code" value={quote.imoCode} />
+        <Field label="Nature of Goods" value={quote.natureOfGoods} />
+        <Field label="Temperature" value={quote.temperature} />
       </Section>
 
       {/* MESSAGE */}
       <Section title="Message">
-        <p className="text-gray-700 whitespace-pre-line">
-          {quote.message || "—"}
-        </p>
+        <div className="col-span-2">
+          <p className="text-gray-700 whitespace-pre-line">
+            {quote.message || "—"}
+          </p>
+        </div>
       </Section>
 
       {/* SYSTEM */}
       <Section title="System Info">
+        <Field label="Reference No" value={quote.referenceNo} />
         <Field label="Status" value={quote.status} />
         <Field
           label="Submitted"
           value={new Date(quote.createdAt).toLocaleString()}
+        />
+        <Field
+          label="Last Updated"
+          value={new Date(quote.updatedAt).toLocaleString()}
         />
       </Section>
 
@@ -117,7 +152,7 @@ function Section({ title, children }) {
 }
 
 function Field({ label, value }) {
-  if (!value) return null;
+  if (!value || value === "" || value === "—") return null;
   return (
     <div className="text-gray-700">
       <span className="font-medium">{label}: </span>

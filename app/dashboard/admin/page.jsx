@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 export default function AdminDashboard() {
@@ -86,14 +87,25 @@ export default function AdminDashboard() {
     <div className="space-y-12">
       
       {/* ================= HEADER ================= */}
-      <section>
-        <h1 className="text-4xl font-semibold mb-2">
+      <section className="flex flex-col md:flex-row items-center justify-between bg-white/80 backdrop-blur-xl rounded-3xl shadow p-8 gap-6">
+        <div>
+          <h1 className="text-4xl font-semibold mb-2">
           Welcome, {session?.user?.name || "Admin"} 👋
         </h1>
         <p className="text-gray-600 text-lg">
           Manage clients, shipments, and documents efficiently.
         </p>
+        </div>
+
+         <Link 
+            href="/dashboard/admin/users/create"
+            className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition">
+            Create New Admin
+          </Link>
+
       </section>
+
+       
 
       {/* ================= SEARCH CLIENT ================= */}
       <section className="bg-white/80 backdrop-blur-xl rounded-3xl shadow p-8">
