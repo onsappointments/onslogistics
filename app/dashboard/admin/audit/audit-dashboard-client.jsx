@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import AuditTimeline from "@/components/AuditTimeline";
+import AuditTimeline from "@/Components/AuditTimeline";
 
 export default function AuditDashboardClient({ jobs, admins }) {
   const [mode, setMode] = useState("jobs"); // jobs | admins
