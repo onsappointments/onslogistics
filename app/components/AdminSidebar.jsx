@@ -81,7 +81,7 @@ export default function AdminSidebar() {
       {/* LOGOUT */}
       <button
         onClick={() => signOut({ callbackUrl: "/login" })}
-        className="mt-6 bg-blue-600 text-white py-2 px-6 rounded-xl hover:bg-blue-700 transition font-medium shadow-md"
+        className=" bg-blue-600 text-white py-2 px-6 rounded-xl hover:bg-blue-700 transition font-medium shadow-md"
       >
         Logout
       </button>

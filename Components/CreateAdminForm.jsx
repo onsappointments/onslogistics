@@ -33,10 +33,21 @@ export default function CreateAdminForm() {
 
   /* ---------------- HANDLERS ---------------- */
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  if (name === "adminType") {
+    setFormData((prev) => ({
+      ...prev,
+      adminType: value,
+      permissions: value === "super_admin" ? ALL_PERMISSION_VALUES : prev.permissions,
+    }));
+    return;
+  }
+
+  setFormData((prev) => ({ ...prev, [name]: value }));
+};
+
 
   const togglePermission = (permission) => {
     setFormData((prev) => ({
@@ -47,6 +58,8 @@ export default function CreateAdminForm() {
     }));
   };
 
+  const isSuperAdmin = formData.adminType === "super_admin";
+  const ALL_PERMISSION_VALUES = PERMISSION_OPTIONS.map((perm) => perm.value);
   /* ---------------- VALIDATION ---------------- */
 
   const validateForm = () => {
@@ -220,7 +233,7 @@ export default function CreateAdminForm() {
                 >
                   <input
                     type="checkbox"
-                    checked={formData.permissions.includes(perm.value)}
+                    checked={isSuperAdmin || formData.permissions.includes(perm.value)}
                     onChange={() => togglePermission(perm.value)}
                     className="h-4 w-4 text-blue-600 rounded"
                   />

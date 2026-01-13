@@ -1,16 +1,5 @@
 'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-export default function QuoteRejectedPage({ quoteData }) {
-  const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+export default function QuoteRejectedPage() {
 
 
 
@@ -121,7 +110,7 @@ export default function QuoteRejectedPage({ quoteData }) {
               Have questions about this decision?
             </p>
             <p className="text-[#7a7a7a] text-sm">
-              Call us at <a href="tel:+1800-890-7365" className="text-[#dc2626] no-underline font-semibold transition-colors duration-300 hover:text-[#991b1b]">+1-800-890-7365</a> or{' '}
+              Call us at <a href="tel:+1800-890-7365" className="text-[#dc2626] no-underline font-semibold transition-colors duration-300 hover:text-[#991b1b]">+91 1800-890-7365</a> or{' '}
               email <a href="mailto:info@onslog.com" className="text-[#dc2626] no-underline font-semibold transition-colors duration-300 hover:text-[#991b1b]">info@onslog.com</a>
             </p>
           </div>
