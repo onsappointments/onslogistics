@@ -103,17 +103,31 @@ export async function POST(req) {
       createdAt: new Date(),
       createdBy: req.user?._id || null, // optional if auth middleware exists
     });
-    job.auditLogs.push({
-      action: "container_status_added",
-      containerNumber,
-      status: event.status,
-      performedBy: "admin", // later: req.user.email
-      metadata: {
-        location: event.location,
-        remarks: event.remarks,
-      },
-    });
     
+    /* -------- AUDIT LOG -------- */
+
+   job.auditLogs.push({
+     entityType: "container",
+     action: "container_status_added",
+     description: `Status "${event.status}" added for container ${containerNumber}`,
+     performedBy: "admin", // later: req.user._id
+     performedAt: new Date(),
+
+     reference: {
+       jobId: job.jobId,
+       containerNumber,
+     },
+
+     metadata: {
+       status: event.status,
+       location: event.location || null,
+       remarks: event.remarks || null,
+       eventDate: event.eventDate
+         ? new Date(event.eventDate)
+         : new Date(),
+     },
+    });
+
       
 
     await job.save();

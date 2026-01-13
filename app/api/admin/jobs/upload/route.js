@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import cloudinary from "@/lib/cloudinary";
+import { logAudit } from "@/lib/audit";
+
 
 export async function POST(req) {
   try {
@@ -60,6 +62,20 @@ export async function POST(req) {
     }
 
     await job.save();
+    /* ---------------- AUDIT LOG ---------------- */
+    await logAudit({
+      entityType: "job",
+      entityId: job._id,
+     action: "document_uploaded",
+     description: `Document "${documentName}" uploaded`,
+     performedBy: "admin", // later replace with req.user._id
+     meta: {
+       jobId: job.jobId,
+       documentName,
+       fileUrl,
+       uploadedAt: new Date(),
+     },
+   });
 
     return NextResponse.json({
       success: true,
