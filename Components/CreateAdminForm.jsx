@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { label } from "framer-motion/m";
 
 /* ---------------- PERMISSION OPTIONS ---------------- */
 

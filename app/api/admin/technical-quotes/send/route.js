@@ -2,13 +2,7 @@ import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import { Resend } from "resend";
-<<<<<<< HEAD
-import { generateTechnicalQuotePdf } from "@/lib/generateTechnicalQuotePdf";
-=======
-import { logAudit } from "@/lib/audit";
-
-
->>>>>>> a4caaa5156a4b6b500cce3aca0aeed9b05d05dea
+import { generateTechnicalQuotePdf } from "@/lib/GenerateTechnicalQuotePdf";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
