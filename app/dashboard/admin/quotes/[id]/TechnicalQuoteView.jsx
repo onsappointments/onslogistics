@@ -9,7 +9,7 @@ export default function TechnicalQuoteView({ technicalQuote }) {
   igstTotal = 0,
   cgstTotal = 0,
   sgstTotal = 0,
-  grandTotal = 0,
+  grandTotalINR = 0,
 } = technicalQuote;
 
   console.log("TechnicalQuoteView:", technicalQuote);
@@ -125,7 +125,7 @@ export default function TechnicalQuoteView({ technicalQuote }) {
 
         <div className="flex justify-between font-semibold border-t pt-2 text-base">
           <span>Grand Total</span>
-          <span>₹{Number(grandTotal).toFixed(2)}</span>
+          <span>₹{Number(grandTotalINR).toFixed(2)}</span>
         </div>
       </div>
     </div>

@@ -51,12 +51,10 @@ const QuoteSchema = new mongoose.Schema(
     dimensions: String,
     pieces: {
       type: String,
-      required: true,
     },
     imoCode: String,
     natureOfGoods: {
       type: String,
-      required: true,
     },
     temperature: String,
     totalWeight: {

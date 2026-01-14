@@ -19,8 +19,13 @@ export default async function QuoteDetails({ params }) {
     clientQuoteId: new mongoose.Types.ObjectId(id),
   }).lean();
 
-    const filteredLineItems = technicalQuote?.lineItems?.filter((item) => item.rate > 0 ? item : null);
-    technicalQuote.lineItems = filteredLineItems;
+if(technicalQuote) {
+      technicalQuote.lineItems = (technicalQuote?.lineItems || []).filter(
+  (item) => item.rate > 0
+);
+}
+
+console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technicalQuote)
 
   if (!quote) return <div className="p-10">Quote not found</div>;
 
