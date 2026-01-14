@@ -5,6 +5,7 @@ import QuoteActions from "./QuoteActions";
 import Link from "next/link";
 import TechnicalQuoteView from "./TechnicalQuoteView";
 import mongoose from "mongoose";
+import { filter } from "framer-motion/m";
 
 export default async function QuoteDetails({ params }) {
   const { id } = await params;
@@ -17,6 +18,9 @@ export default async function QuoteDetails({ params }) {
   const technicalQuote = await TechnicalQuote.findOne({
     clientQuoteId: new mongoose.Types.ObjectId(id),
   }).lean();
+
+    const filteredLineItems = technicalQuote?.lineItems?.filter((item) => item.rate > 0 ? item : null);
+    technicalQuote.lineItems = filteredLineItems;
 
   if (!quote) return <div className="p-10">Quote not found</div>;
 

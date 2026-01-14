@@ -7,8 +7,7 @@ import { logAudit } from "@/lib/audit";
 export async function GET(req, { params }) {
   await connectDB();
 
-  const { id } = await params; // 🔥 MUST await
-
+  const { id } = await params; 
   const technicalQuote = await TechnicalQuote.findById(id);
 
   if (!technicalQuote) {

@@ -37,6 +37,11 @@ const ADMIN_MENU = [
     href: "/dashboard/admin/jobs/active",
     permission: "job:view_active",
   },
+  {
+    name: "Audit Logs",
+    href: "/dashboard/admin/audit",
+    permission: "audit_logs:view",
+  }
 ];
 
 export default function AdminSidebar() {

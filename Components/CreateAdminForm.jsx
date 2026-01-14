@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { label } from "framer-motion/m";
 
 /* ---------------- PERMISSION OPTIONS ---------------- */
 
@@ -12,6 +13,7 @@ const PERMISSION_OPTIONS = [
   { label: "Create a Job", value: "job:create" },
   { label: "New Jobs", value: "job:view_new" },
   { label: "Active Jobs", value: "job:view_active" },
+  {label : "Audit Logs", value: "audit_logs:view"},
 ];
 
 export default function CreateAdminForm() {

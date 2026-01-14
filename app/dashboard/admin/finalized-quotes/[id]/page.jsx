@@ -2,7 +2,7 @@ import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import ConvertToJobPanel from "./ConvertToJobPanel";
 import Quote from "@/models/Quote";
-import { log } from "console";
+import CurrencyConverter from "@/Components/CurrencyConverter";
 
 export default async function FinalizedQuoteDetails({ params }) {
   const { id } = params; 
@@ -53,7 +53,7 @@ export default async function FinalizedQuoteDetails({ params }) {
         <table className="w-full text-sm border">
           <thead className="bg-gray-100 text-left">
             <tr className="">
-             <th className="p-2 ">Service</th>
+            <th className="p-2 ">Service</th>
               <th className="p-2 ">Qty</th>
               <th className="p-2 ">Rate</th>
               <th className="p-2 r">Curr</th>
@@ -67,7 +67,7 @@ export default async function FinalizedQuoteDetails({ params }) {
           </thead>
           <tbody>
             {technicalQuote.lineItems.map((item, i) => (
-            item.quantity > 0 && ( 
+            item.quantity > 0 && item.rate > 0 && ( 
                 <tr key={i} className="border-t">
                 <td className="p-3">{item.head}</td>
                 <td className="p-3">{item.quantity}</td>
@@ -131,11 +131,9 @@ export default async function FinalizedQuoteDetails({ params }) {
     ))}
 
   <div className="mt-6 text-right text-xl font-semibold">
-    Grand Total (INR): ₹{grandTotalINR.toFixed(2)}
+    <CurrencyConverter grandTotalINR={grandTotalINR} currencySummary={currencySummary} />
   </div>
 </Section>
-
-
 
       </Section>
 
