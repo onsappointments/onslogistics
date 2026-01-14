@@ -3,8 +3,8 @@ import Job from "@/models/Job";
 import Link from "next/link";
 import { initiateJob, deleteJob } from "../actions";
 import JobDocumentsPanel from "../JobDocumentsPanel"; // FIXED PATH
-import AuditTimeline from "@/components/AuditTimeline";
-import AuditTimelineWrapper from "@/components/AuditTimelineWrapper";
+import AuditTimeline from "@/Components/AuditTimeline";
+import AuditTimelineWrapper from "@/Components/AuditTimelineWrapper";
 
 
 export default async function JobDetails({ params }) {
