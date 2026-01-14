@@ -1,33 +1,9 @@
     'use client';
 
-    import { useState, useEffect } from 'react';
-    import { useRouter } from 'next/navigation';
 
-    export default function QuoteApprovedSuccess({ quoteData }) {
-    const router = useRouter();
-    const [mounted, setMounted] = useState(false);
+    export default function QuoteApprovedSuccess() {
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
-    // Default quote data if not provided
-    const quote = quoteData || {
-        referenceNo: 'RFQ-2025-00123',
-        approvalDate: new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-        }),
-        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-        }),
-        status: 'Approved',
-        email: 'customer@example.com',
-        phone: '+1 (234) 567-890'
-    };
 
     return (
         <>
