@@ -1,7 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
-import { generateTechnicalQuotePdf } from "@/lib/generateTechnicalQuotePdf";
+import { generateTechnicalQuotePdf } from "@/lib/GenerateTechnicalQuotePdf";
 
 export async function GET(req, { params }) {
   try {
