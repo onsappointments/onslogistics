@@ -9,15 +9,15 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Protected routes
-  if (pathname.startsWith("/dashboard/admin")) {
+  if (pathname.startsWith("/dashboard/") ) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }
 
   return NextResponse.next();
-}
+}   
 
 export const config = {
-  matcher: ["/dashboard/admin/:path*"],
-};
+  matcher: ["/dashboard/:path*"],
+};  

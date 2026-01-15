@@ -101,33 +101,10 @@ export default function TechnicalQuoteView({ technicalQuote }) {
         </table>
       </div>
 
-      {/* TOTALS */}
-      <div className="mt-6 max-w-sm ml-auto text-sm space-y-1">
-        <div className="flex justify-between">
-          <span>Subtotal</span>
-          <span>₹{Number(subtotal).toFixed(2)}</span>
-        </div>
-
-        <div className="flex justify-between">
-          <span>IGST</span>
-          <span>₹{Number(igstTotal).toFixed(2)}</span>
-        </div>
-
-        <div className="flex justify-between">
-          <span>CGST</span>
-          <span>₹{Number(cgstTotal).toFixed(2)}</span>
-        </div>
-
-        <div className="flex justify-between">
-          <span>SGST</span>
-          <span>₹{Number(sgstTotal).toFixed(2)}</span>
-        </div>
-
-        <div className="flex justify-between font-semibold border-t pt-2 text-base">
+        <div className="flex justify-between font-semibold border-t pt-6 text-base">
           <span>Grand Total</span>
           <span>₹{Number(grandTotalINR).toFixed(2)}</span>
         </div>
       </div>
-    </div>
   );
 }
