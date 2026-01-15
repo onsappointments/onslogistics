@@ -13,6 +13,7 @@ const PERMISSION_OPTIONS = [
   { label: "New Jobs", value: "job:view_new" },
   { label: "Active Jobs", value: "job:view_active" },
   {label : "Audit Logs", value: "audit_logs:view"},
+  {label: "Create Admin", value: "admin:create"},
 ];
 
 export default function CreateAdminForm() {

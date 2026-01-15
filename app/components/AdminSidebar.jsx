@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { permission } from "process";
 
 /* ---------------- MENU CONFIG ---------------- */
 
@@ -41,6 +42,11 @@ const ADMIN_MENU = [
     name: "Audit Logs",
     href: "/dashboard/admin/audit",
     permission: "audit_logs:view",
+  },
+  {
+    name: "Create Admin",
+    href: "/dashboard/admin/users/create",
+    permission: "admin:create",
   }
 ];
 

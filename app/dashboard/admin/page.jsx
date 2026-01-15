@@ -96,13 +96,6 @@ export default function AdminDashboard() {
           Manage clients, shipments, and documents efficiently.
         </p>
         </div>
-
-         <Link 
-            href="/dashboard/admin/users/create"
-            className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition">
-            Create New Admin
-          </Link>
-
       </section>
 
        
