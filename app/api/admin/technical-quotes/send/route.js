@@ -2,7 +2,7 @@ import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import { Resend } from "resend";
-
+import { generateTechnicalQuotePdf } from "@/lib/GenerateTechnicalQuotePdf";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
@@ -36,11 +36,21 @@ export async function POST(req) {
     }
 
     /* ---------------- PREVENT RESEND ---------------- */
+
     if (technicalQuote.status === "sent_to_client") {
       return Response.json({
         message: "Quote already sent to client",
       });
     }
+
+    /* ---------------- GENERATE PDF ---------------- */
+
+    const pdfBuffer = await generateTechnicalQuotePdf({
+      clientQuote,
+      technicalQuote,
+    });
+
+
 
     /* ---------------- UPDATE STATUS ---------------- */
 
@@ -52,19 +62,26 @@ export async function POST(req) {
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-    // ✅ VIEW uses CLIENT QUOTE ID (page expects clientQuoteId)
     const viewQuoteUrl = `${baseUrl}/client/quotes/${quoteId}`;
-
-    // ✅ ACTIONS use TECHNICAL QUOTE ID (API updates TechnicalQuote)
     const approveUrl = `${baseUrl}/api/client/quotes/${technicalQuote._id}/approve`;
     const rejectUrl  = `${baseUrl}/api/client/quotes/${technicalQuote._id}/reject`;
 
-    /* ---------------- SEND EMAIL ---------------- */
+    /* ---------------- SEND EMAIL (HTML UNCHANGED) ---------------- */
 
     await resend.emails.send({
       from: process.env.EMAIL_FROM,
       to: clientQuote.email,
       subject: "Quotation from ONS Logistics",
+
+      // ✅ PDF ATTACHMENT ADDED (SAFE)
+      attachments: [
+        {
+          filename: `Quotation-${clientQuote.referenceNo || quoteId}.pdf`,
+          content : pdfBuffer,
+        },
+      ],
+
+      // ❗ EMAIL HTML LEFT EXACTLY AS-IS
       html: `
         <div style="font-family: Arial, sans-serif; line-height:1.6">
           <h2>Quotation from ONS Logistics</h2>
@@ -121,6 +138,23 @@ export async function POST(req) {
         </div>
       `,
     });
+    
+    /* ---------------- AUDIT LOG ---------------- */
+
+    await logAudit({
+      entityType: "technical_quote",
+     entityId: technicalQuote._id,
+     action: "sent_to_client",
+     description: "Technical quote finalized and sent to client",
+     performedBy: null, // or req.user._id when auth is wired
+     meta: {
+       clientQuoteId: quoteId,
+       email: clientQuote.email,
+       shipmentType: technicalQuote.shipmentType,
+       grandTotal: technicalQuote.grandTotal,
+      },
+   });
+
 
     return Response.json({
       success: true,

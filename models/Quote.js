@@ -2,43 +2,94 @@ import * as mongoose from "mongoose";
 
 const QuoteSchema = new mongoose.Schema(
   {
-    fromCity: String,
-    toCity: String,
+    fromCountry: {
+      type: String,
+      required: true,
+    },
+    toCountry: {
+      type: String,
+      required: true,
+    },
+    fromCity: {
+      type: String,
+      required: true,
+    },
+    toCity: {
+      type: String,
+      required: true,
+    },
     fromLocationType: String,
     toLocationType: String,
     fromState: String,
     toState: String,
     fromPostal: String,
     toPostal: String,
-    item: String,
-    modeOfTransport: String,
+    
+    // Shipment details - essential for quoting
+    item: {
+      type: String,
+      required: true,
+    },
+    modeOfTransport: {
+      type: String,
+      required: true,
+    },
     estimatedShippingDate: String,
     freightTerms: String,
     containerType: String,
     modeOfShipment: String,
     shipmentType: {
-  type: String,
-  enum: ["import", "export", "courier"],
-  required: true,
-},
+      type: String,
+      enum: ["import", "export", "courier"],
+      required: true,
+    },
 
+    // Goods information
     goodsPurpose: String,
     valueOfGoods: String,
     currency: String,
     dimensions: String,
-    pieces: String,
+    pieces: {
+      type: String,
+    },
     imoCode: String,
-    natureOfGoods: String,
+    natureOfGoods: {
+      type: String,
+    },
     temperature: String,
-    totalWeight: String,
-    weightMeasure: String,
+    totalWeight: {
+      type: String,
+    },
+    weightMeasure: {
+      type: String,
+    },
 
-    firstName: String,
-    lastName: String,
-    company: String,
-    email: String,
-    phoneCountryCode: String,
-    phone: String,
+    // Contact information - required to respond to quote
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+    },
+    company: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
+    phoneCountryCode: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
     whatsappNumber: String,
     yourWebsite: String,
     customerType: String,
@@ -47,6 +98,7 @@ const QuoteSchema = new mongoose.Schema(
     bestTimeToCall: String,
     bestTimeToEmail: String,
     message: String,
+    
     status: {
       type: String,
       enum: [
@@ -63,10 +115,10 @@ const QuoteSchema = new mongoose.Schema(
       type: String, // RFQ-2025-00123
     },
     
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );

@@ -12,6 +12,7 @@ export default function TechnicalQuoteView({ technicalQuote }) {
   grandTotalINR = 0,
 } = technicalQuote;
 
+  console.log("TechnicalQuoteView:", technicalQuote);
 
   return (
     <div className="bg-white rounded-xl shadow p-6 mt-10">
@@ -76,19 +77,19 @@ export default function TechnicalQuoteView({ technicalQuote }) {
                 <td className="p-2 text-right">
                   {item.igstPercent > 0
                     ? `${item.igstPercent}% ₹${item.igstAmount.toFixed(2)}`
-                    : "—"}
+                    : "0"}
                 </td>
 
                 <td className="p-2 text-right">
                   {item.cgstPercent > 0
                     ? `${item.cgstPercent}% ₹${item.cgstAmount.toFixed(2)}`
-                    : "—"}
+                    : "0"}
                 </td>
 
                 <td className="p-2 text-right">
                   {item.sgstPercent > 0
                     ? `${item.sgstPercent}% ₹${item.sgstAmount.toFixed(2)}`
-                    : "—"}
+                    : "0"}
                 </td>
 
                 <td className="p-2 text-right font-semibold">

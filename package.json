@@ -9,14 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^143.0.4",
     "@uploadthing/react": "^7.3.3",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",
     "framer-motion": "^12.23.24",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.553.0",
     "mongoose": "^8.19.3",
     "next": "15.4.8",
     "next-auth": "^4.24.13",
+    "puppeteer-core": "^24.34.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-google-recaptcha": "^3.1.0",

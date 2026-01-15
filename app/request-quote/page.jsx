@@ -22,7 +22,6 @@ export default function RequestQuotePage() {
     toPostal: "",
     item: "",
     modeOfTransport: "",
-    estimatedShippingDate: "",
     freightTerms: "",
     containerType: "",
     modeOfShipment: "",
@@ -59,80 +58,73 @@ export default function RequestQuotePage() {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   // States and Cities
- const [fromStates, setFromStates] = useState([]);
-const [toStates, setToStates] = useState([]);
-const [fromCities, setFromCities] = useState([]);
-const [toCities, setToCities] = useState([]);
-const [countries, setCountries] = useState([]);
+  const [fromStates, setFromStates] = useState([]);
+  const [toStates, setToStates] = useState([]);
+  const [fromCities, setFromCities] = useState([]);
+  const [toCities, setToCities] = useState([]);
+  const [countries, setCountries] = useState([]);
 
-// Client-side helper (calls your server API)
-const fetchCSC = async (endpoint) => {
-  try {
-    const res = await fetch(`/api/csc?endpoint=${endpoint}`);
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-};
+  // Get today's date in YYYY-MM-DD format for min date
+  const today = new Date().toISOString().split('T')[0];
 
+  // Client-side helper (calls your server API)
+  const fetchCSC = async (endpoint) => {
+    try {
+      const res = await fetch(`/api/csc?endpoint=${endpoint}`);
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  };
 
-// Fetch all countries once
-useEffect(() => {
-  fetchCSC("countries").then(setCountries);
-}, []);
+  // Fetch all countries once
+  useEffect(() => {
+    fetchCSC("countries").then(setCountries);
+  }, []);
 
+  // Fetch states for fromCountry
+  useEffect(() => {
+    if (!form.fromCountry) return;
 
-// Fetch states for fromCountry
-useEffect(() => {
-  if (!form.fromCountry) return;
+    fetchCSC(`countries/${form.fromCountry}/states`).then(setFromStates);
 
-  fetchCSC(`countries/${form.fromCountry}/states`)
-    .then(setFromStates);
+    setForm((p) => ({ ...p, fromState: "", fromCity: "" }));
+    setFromCities([]);
+  }, [form.fromCountry]);
 
-  setForm((p) => ({ ...p, fromState: "", fromCity: "" }));
-  setFromCities([]);
-}, [form.fromCountry]);
+  // Fetch states for toCountry
+  useEffect(() => {
+    if (!form.toCountry) return;
 
+    fetchCSC(`countries/${form.toCountry}/states`).then(setToStates);
 
-// Fetch states for toCountry
-useEffect(() => {
-  if (!form.toCountry) return;
-
-  fetchCSC(`countries/${form.toCountry}/states`)
-    .then(setToStates);
-
-  setForm((p) => ({ ...p, toState: "", toCity: "" }));
-  setToCities([]);
-}, [form.toCountry]);
-
-
+    setForm((p) => ({ ...p, toState: "", toCity: "" }));
+    setToCities([]);
+  }, [form.toCountry]);
 
   // Fetch cities when fromState changes
   useEffect(() => {
     if (!form.fromCountry || !form.fromState) return;
-  
+
     fetchCSC(
       `countries/${form.fromCountry}/states/${form.fromState}/cities`
     ).then(setFromCities);
   }, [form.fromState]);
-  
-  
 
   // Fetch cities when toState changes
   useEffect(() => {
     if (!form.toCountry || !form.toState) return;
-  
+
     fetchCSC(
       `countries/${form.toCountry}/states/${form.toState}/cities`
     ).then(setToCities);
   }, [form.toState]);
-  
 
   // Manual validation for required fields
   const validateForm = () => {
-    const requiredFields = ["firstName", "email", "item"];
+    const requiredFields = ["firstName", "email", "item", "shipmentType" , "company" , "fromCountry", "toCountry", "fromCity", "toCity", "modeOfTransport", "modeOfShipment", "phone" , "containerType"];
     for (const field of requiredFields) {
       if (!form[field]?.trim()) {
         setStatus(`Please fill the ${field.replace(/([A-Z])/g, " $1")} field.`);
@@ -149,6 +141,7 @@ useEffect(() => {
     setShowCaptchaModal(true);
     setLoading(true);
   };
+
   const handleCaptchaVerify = async (token) => {
     if (!token) return;
 
@@ -195,232 +188,428 @@ useEffect(() => {
           {/* Source & Destination */}
           <section>
             <h2 className="text-2xl font-semibold mb-4">Source & Destination</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* From Country */}
-              <select
-                name="fromCountry"
-                value={form.fromCountry}
-                onChange={(e) =>
-                  setForm({ ...form, fromCountry: e.target.value, fromState: "", fromCity: "" })
-                }
-                className="input-box"
-              >
-                <option value="">Select From Country</option>
-                {countries.map((country) => (
-                  <option key={country.iso2} value={country.iso2}>
-                    {country.name}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  From Country <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="fromCountry"
+                  value={form.fromCountry}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      fromCountry: e.target.value,
+                      fromState: "",
+                      fromCity: "",
+                    })
+                  }
+                  className="input-box"
+                >
+                  <option value="">Select From Country</option>
+                  {countries.map((country) => (
+                    <option key={country.iso2} value={country.iso2}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* To Country */}
-              <select
-                name="toCountry"
-                value={form.toCountry}
-                onChange={(e) =>
-                  setForm({ ...form, toCountry: e.target.value, toState: "", toCity: "" })
-                }
-                className="input-box"
-              >
-                <option value="">Select To Country</option>
-                {countries.map((country) => (
-                  <option key={country.iso2} value={country.iso2}>
-                    {country.name}
-                  </option>
-                ))}
-              </select> 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  To Country <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="toCountry"
+                  value={form.toCountry}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      toCountry: e.target.value,
+                      toState: "",
+                      toCity: "",
+                    })
+                  }
+                  className="input-box"
+                >
+                  <option value="">Select To Country</option>
+                  {countries.map((country) => (
+                    <option key={country.iso2} value={country.iso2}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* From State */}
-              <select
-                name="fromState"
-                value={form.fromState}
-                onChange={(e) =>
-                  setForm({ ...form, fromState: e.target.value, fromCity: "" })
-                }
-                className="input-box"
-              >
-                <option value="">Select From State</option>
-                {fromStates.map((state) => (
-                  <option key={state.iso2} value={state.iso2}>
-                    {state.name}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  From State
+                </label>
+                <select
+                  name="fromState"
+                  value={form.fromState}
+                  onChange={(e) =>
+                    setForm({ ...form, fromState: e.target.value, fromCity: "" })
+                  }
+                  className="input-box"
+                  disabled={!form.fromCountry}
+                >
+                  <option value="">Select From State</option>
+                  {fromStates.map((state) => (
+                    <option key={state.iso2} value={state.iso2}>
+                      {state.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                 {/* To State */}
-              <select
-                name="toState"
-                value={form.toState}
-                onChange={(e) =>
-                  setForm({ ...form, toState: e.target.value, toCity: "" })
-                }
-                className="input-box"
-              >
-                <option value="">Select To State</option>
-                {toStates.map((state) => (
-                  <option key={state.iso2} value={state.iso2}>
-                    {state.name}
-                  </option>
-                ))}
-              </select>
+              {/* To State */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  To State
+                </label>
+                <select
+                  name="toState"
+                  value={form.toState}
+                  onChange={(e) =>
+                    setForm({ ...form, toState: e.target.value, toCity: "" })
+                  }
+                  className="input-box"
+                  disabled={!form.toCountry}
+                >
+                  <option value="">Select To State</option>
+                  {toStates.map((state) => (
+                    <option key={state.iso2} value={state.iso2}>
+                      {state.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* From City */}
-              <select
-                name="fromCity"
-                value={form.fromCity}
-                onChange={handleChange}
-                disabled={!form.fromState}
-                className="input-box"
-              >
-                <option value="">Select From City</option>
-                {fromCities.map((city) => (
-                  <option key={city.id} value={city.name}>
-                    {city.name}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  From City <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="fromCity"
+                  value={form.fromCity}
+                  onChange={handleChange}
+                  disabled={!form.fromState}
+                  className="input-box"
+                >
+                  <option value="">Select From City</option>
+                  {fromCities.map((city) => (
+                    <option key={city.id} value={city.name}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* To City */}
-              <select
-                name="toCity"
-                value={form.toCity}
-                onChange={handleChange}
-                disabled={!form.toState}
-                className="input-box"
-              >
-                <option value="">Select To City</option>
-                {toCities.map((city) => (
-                  <option key={city.id} value={city.name}>
-                    {city.name}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  To City <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="toCity"
+                  value={form.toCity}
+                  onChange={handleChange}
+                  disabled={!form.toState}
+                  className="input-box"
+                >
+                  <option value="">Select To City</option>
+                  {toCities.map((city) => (
+                    <option key={city.id} value={city.name}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-              {/* Postal Codes */}
-              <input
-                name="fromPostal"
-                value={form.fromPostal}
-                onChange={handleChange}
-                placeholder="From Postal"
-                className="input-box"
-              />
-              <input
-                name="toPostal"
-                value={form.toPostal}
-                onChange={handleChange}
-                placeholder="To Postal"
-                className="input-box"
-              />
+              {/* From Postal */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  From Postal Code
+                </label>
+                <input
+                  name="fromPostal"
+                  value={form.fromPostal}
+                  onChange={handleChange}
+                  placeholder="Enter postal code"
+                  className="input-box"
+                />
+              </div>
 
-              {/* Location Type */}
-              <select
-                name="fromLocationType"
-                value={form.fromLocationType}
-                onChange={handleChange}
-                className="input-box"
-              >
-                <option>Port</option>
-                <option>Door</option>
-              </select>
+              {/* To Postal */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  To Postal Code
+                </label>
+                <input
+                  name="toPostal"
+                  value={form.toPostal}
+                  onChange={handleChange}
+                  placeholder="Enter postal code"
+                  className="input-box"
+                />
+              </div>
 
-              <select
-                name="toLocationType"
-                value={form.toLocationType}
-                onChange={handleChange}
-                className="input-box"
-              >
-                <option>Port</option>
-                <option>Door</option>
-              </select>
+              {/* From Location Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  From Location Type
+                </label>
+                <select
+                  name="fromLocationType"
+                  value={form.fromLocationType}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  <option>Port</option>
+                  <option>Door</option>
+                </select>
+              </div>
+
+              {/* To Location Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  To Location Type
+                </label>
+                <select
+                  name="toLocationType"
+                  value={form.toLocationType}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  <option>Port</option>
+                  <option>Door</option>
+                </select>
+              </div>
             </div>
           </section>
 
           {/* Shipment Details */}
           <section>
             <h2 className="text-2xl font-semibold mb-4">Shipment Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                "item",
-                "estimatedShippingDate",
-                "dimensions",
-                "pieces",
-                "imoCode",
-                "temperature",
-              ].map((field) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Item */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Item <span className="text-red-500">*</span>
+                </label>
                 <input
-                  key={field}
-                  name={field}
-                  value={form[field]}
+                  name="item"
+                  value={form.item}
                   onChange={handleChange}
-                  placeholder={field.replace(/([A-Z])/g, " $1")}
-                  type={field === "estimatedShippingDate" ? "date" : "text"}
+                  placeholder="Enter item description"
                   className="input-box"
                 />
-              ))}
+              </div>
 
-              {[
-                { name: "modeOfTransport", options: ["", "Air", "Sea", "Road"] },
-                { name: "freightTerms", options: ["", "Paid by Shipper", "Paid by Consignee"] },
-                { name: "containerType", options: ["", "20 FT", "40 FT", "LCL"] },
-                { name: "modeOfShipment", options: ["", "Container", "Break Bulk", "LCL"] },
-                { name: "goodsPurpose", options: ["", "Personal", "Commercial"] },
-                { name: "shipmentType", options: ["", "import", "export", "courier"] },
-              ].map((field) => (
+              {/* Dimensions */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Dimensions
+                </label>
+                <input
+                  name="dimensions"
+                  value={form.dimensions}
+                  onChange={handleChange}
+                  placeholder="e.g., 10x20x30 cm"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Pieces */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Number of Pieces
+                </label>
+                <input
+                  name="pieces"
+                  value={form.pieces}
+                  onChange={handleChange}
+                  placeholder="Enter number of pieces"
+                  type="number"
+                  min="0"
+                  className="input-box"
+                />
+              </div>
+
+              {/* IMO Code */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  IMO Code
+                </label>
+                <input
+                  name="imoCode"
+                  value={form.imoCode}
+                  onChange={handleChange}
+                  placeholder="Enter IMO code"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Temperature */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Temperature Requirements
+                </label>
+                <input
+                  name="temperature"
+                  value={form.temperature}
+                  onChange={handleChange}
+                  placeholder="e.g., -20°C to 5°C"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Mode of Transport */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mode of Transport <span className="text-red-500">*</span>
+                </label>
                 <select
-                  key={field.name}
-                  name={field.name}
-                  value={form[field.name]}
+                  name="modeOfTransport"
+                  value={form.modeOfTransport}
                   onChange={handleChange}
                   className="input-box"
                 >
-                  {field.options.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt || `Select ${field.name.replace(/([A-Z])/g, " $1")}`}
-                    </option>
-                  ))}
-                </select>
-              ))}
-
-              {/* Value + Currency */}
-              <div className="flex gap-2">
-                <input
-                  name="valueOfGoods"
-                  value={form.valueOfGoods}
-                  onChange={handleChange}
-                  placeholder="Value of goods"
-                  className="input-box flex-1"
-                />
-                <select
-                  name="currency"
-                  value={form.currency}
-                  onChange={handleChange}
-                  className="input-box w-32"
-                >
-                  {["INR", "USD", "AED"].map((opt) => (
-                    <option key={opt}>{opt}</option>
-                  ))}
+                  <option value="">Select Mode of Transport</option>
+                  <option>Air</option>
+                  <option>Sea</option>
+                  <option>Road</option>
                 </select>
               </div>
 
-              {/* Weight + Unit */}
-              <div className="flex gap-2">
-                <input
-                  name="totalWeight"
-                  value={form.totalWeight}
-                  onChange={handleChange}
-                  placeholder="Total weight"
-                  className="input-box flex-1"
-                />
+              {/* Freight Terms */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Freight Terms
+                </label>
                 <select
-                  name="weightMeasure"
-                  value={form.weightMeasure}
+                  name="freightTerms"
+                  value={form.freightTerms}
                   onChange={handleChange}
-                  className="input-box w-32"
+                  className="input-box"
                 >
-                  {["Kgs", "Lbs"].map((opt) => (
-                    <option key={opt}>{opt}</option>
-                  ))}
+                  <option value="">Select Freight Terms</option>
+                  <option>Paid by Shipper</option>
+                  <option>Paid by Consignee</option>
                 </select>
+              </div>
+
+              {/* Container Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Container Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="containerType"
+                  value={form.containerType}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  <option value="">Select Container Type</option>
+                  <option>20 FT</option>
+                  <option>40 FT</option>
+                  <option>LCL</option>
+                </select>
+              </div>
+
+              {/* Mode of Shipment */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mode of Shipment <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="modeOfShipment"
+                  value={form.modeOfShipment}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  <option value="">Select Mode of Shipment</option>
+                  <option>Container</option>
+                  <option>Break Bulk</option>
+                  <option>LCL</option>
+                </select>
+              </div>
+
+              {/* Goods Purpose */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Goods Purpose
+                </label>
+                <select
+                  name="goodsPurpose"
+                  value={form.goodsPurpose}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  <option value="">Select Goods Purpose</option>
+                  <option>Personal</option>
+                  <option>Commercial</option>
+                </select>
+              </div>
+
+              {/* Shipment Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Shipment Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="shipmentType"
+                  value={form.shipmentType}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  <option value="">Select Shipment Type</option>
+                  <option>import</option>
+                  <option>export</option>
+                  <option>courier</option>
+                </select>
+              </div>
+
+              {/* Value + Currency */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Value of Goods
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    name="currency"
+                    value={form.currency}
+                    onChange={handleChange}
+                    className="input-box w-32"
+                  >
+                    <option>INR</option>
+                    <option>USD</option>
+                    <option>AED</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Weight + Unit */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Total Weight
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    name="weightMeasure"
+                    value={form.weightMeasure}
+                    onChange={handleChange}
+                    className="input-box w-32"
+                  >
+                    <option>Kgs</option>
+                    <option>Lbs</option>
+                  </select>
+                </div>
               </div>
             </div>
           </section>
@@ -428,77 +617,207 @@ useEffect(() => {
           {/* Personal Details */}
           <section>
             <h2 className="text-2xl font-semibold mb-4">Personal Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                "firstName",
-                "lastName",
-                "company",
-                "email",
-                "phone",
-                "whatsappNumber",
-                "yourWebsite",
-                "howDidYouKnowUs",
-                "bestTimeToCall",
-                "bestTimeToEmail",
-              ].map((field) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  First Name <span className="text-red-500">*</span>
+                </label>
                 <input
-                  key={field}
-                  name={field}
-                  value={form[field]}
+                  name="firstName"
+                  value={form.firstName}
                   onChange={handleChange}
-                  placeholder={field.replace(/([A-Z])/g, " $1")}
+                  placeholder="Enter first name"
                   className="input-box"
-                  type={field === "email" ? "email" : "text"}
                 />
-              ))}
+              </div>
 
-              <div className="flex gap-2">
+              {/* Last Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Last Name
+                </label>
+                <input
+                  name="lastName"
+                  value={form.lastName}
+                  onChange={handleChange}
+                  placeholder="Enter last name"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Company */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Company <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="company"
+                  value={form.company}
+                  onChange={handleChange}
+                  placeholder="Enter company name"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  type="email"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
+               <div className="flex gap-2">
                 <input
                   name="phoneCountryCode"
                   value={form.phoneCountryCode}
                   onChange={handleChange}
-                  className="input-box w-24"
+                  placeholder="+91"
+                  className="input-box flex-[0.1]"
                 />
                 <input
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="Phone"
-                  className="input-box flex-1"
+                  className="input-box flex-[1]"
                 />
               </div>
 
-              <select
-                name="customerType"
-                value={form.customerType}
-                onChange={handleChange}
-                className="input-box"
-              >
-                {[ "Customer Type", "Exporter", "Importer", "Manufacturer", "Individual"].map(
-                  (opt) => (
-                    <option key={opt}>{opt}</option>
-                  )
-                )}
-              </select>
+              </div>
 
-              <select
-                name="preferredContactMethod"
-                value={form.preferredContactMethod}
-                onChange={handleChange}
-                className="input-box"
-              >
-                {["Phone", "Email", "Whatsapp"].map((opt) => (
-                  <option key={opt}>{opt}</option>
-                ))}
-              </select>
+              {/* WhatsApp Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  WhatsApp Number
+                </label>
+                <input
+                  name="whatsappNumber"
+                  value={form.whatsappNumber}
+                  onChange={handleChange}
+                  placeholder="Enter WhatsApp number"
+                  className="input-box"
+                />
+              </div>
 
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={handleChange}
-                placeholder="Message"
-                className="input-box col-span-2 h-24"
-              />
+              {/* Website */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Website
+                </label>
+                <input
+                  name="yourWebsite"
+                  value={form.yourWebsite}
+                  onChange={handleChange}
+                  placeholder="Enter website URL"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Customer Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Customer Type 
+                </label>
+                <select
+                  name="customerType"
+                  value={form.customerType}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  <option value="">Select Customer Type</option>
+                  <option>Exporter</option>
+                  <option>Importer</option>
+                  <option>Manufacturer</option>
+                  <option>Individual</option>
+                </select>
+              </div>
+
+              {/* How Did You Know Us */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  How Did You Know Us?
+                </label>
+                <input
+                  name="howDidYouKnowUs"
+                  value={form.howDidYouKnowUs}
+                  onChange={handleChange}
+                  placeholder="e.g., Google, Referral, Social Media"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Preferred Contact Method */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Preferred Contact Method
+                </label>
+                <select
+                  name="preferredContactMethod"
+                  value={form.preferredContactMethod}
+                  onChange={handleChange}
+                  className="input-box"
+                >
+                  <option>Phone</option>
+                  <option>Email</option>
+                  <option>Whatsapp</option>
+                </select>
+              </div>
+
+              {/* Best Time to Call */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Best Time to Call
+                </label>
+                <input
+                  name="bestTimeToCall"
+                  value={form.bestTimeToCall}
+                  onChange={handleChange}
+                  placeholder="e.g., 10 AM - 12 PM"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Best Time to Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Best Time to Email
+                </label>
+                <input
+                  name="bestTimeToEmail"
+                  value={form.bestTimeToEmail}
+                  onChange={handleChange}
+                  placeholder="e.g., Morning, Afternoon"
+                  className="input-box"
+                />
+              </div>
+
+              {/* Message */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Additional Message
+                </label>
+                <textarea
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
+                  placeholder="Any additional information or requirements..."
+                  className="input-box h-24"
+                />
+              </div>
             </div>
           </section>
 
@@ -507,21 +826,31 @@ useEffect(() => {
             type="button"
             disabled={loading}
             onClick={handleSubmitClick}
-            className="px-8 py-4 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition"
+            className="px-8 py-4 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Submitting..." : "Submit Quote Request"}
           </button>
 
           {status && (
-            <p className="text-lg text-green-700 font-medium mt-4">{status}</p>
+            <p
+              className={`text-lg font-medium mt-4 ${
+                status.includes("successfully")
+                  ? "text-green-700"
+                  : "text-red-700"
+              }`}
+            >
+              {status}
+            </p>
           )}
         </form>
       </div>
 
       {/* Captcha Modal */}
-     <div
+      <div
         className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
-          showCaptchaModal ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          showCaptchaModal
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       >
         <div className="bg-white p-8 rounded-2xl shadow-xl">
@@ -529,12 +858,15 @@ useEffect(() => {
           <Recaptcha onVerify={handleCaptchaVerify} />
           <button
             className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            onClick={() => setShowCaptchaModal(false)}
+            onClick={() => {
+              setShowCaptchaModal(false);
+              setLoading(false);
+            }}
           >
             Cancel
           </button>
         </div>
-</div>
+      </div>
 
       <style jsx>{`
         .input-box {
@@ -544,11 +876,16 @@ useEffect(() => {
           border: 1px solid #e5e5e5;
           font-size: 15px;
           transition: 0.2s;
+          width: 100%;
         }
         .input-box:focus {
           border-color: black;
           box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.07);
           outline: none;
+        }
+        .input-box:disabled {
+          background-color: #f5f5f7;
+          cursor: not-allowed;
         }
       `}</style>
     </main>

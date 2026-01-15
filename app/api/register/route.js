@@ -7,6 +7,19 @@ export async function POST(req) {
     const { fullName, businessName, businessContact, email, country, password } =
       await req.json();
 
+      if (!fullName || !email || !password) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Missing required fields",
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
     await connectDB();
 
     // ✅ Check if user already exists

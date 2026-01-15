@@ -1,6 +1,8 @@
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import Quote from "@/models/Quote";
+import { logAudit } from "@/lib/audit";
+
 import {
   IMPORT_HEADS,
   EXPORT_HEADS,
@@ -119,7 +121,10 @@ const currencySummary = normalizedLineItems.reduce((acc, item) => {
       (sum, curr) => sum + curr.inrEquivalent,
       0
     );
-
+    const existingTechQuote = await TechnicalQuote.findOne({
+      clientQuoteId: quoteId,
+    });
+    
     /* ---------------- UPSERT (🔥 MUST USE $set) ---------------- */
 
     const techQuote = await TechnicalQuote.findOneAndUpdate(
@@ -136,6 +141,37 @@ const currencySummary = normalizedLineItems.reduce((acc, item) => {
       },
       { upsert: true, new: true }
     );
+
+    /* ---------------- AUDIT LOG ---------------- */
+
+    if (!existingTechQuote) {
+       // ✅ FIRST TIME CREATION
+       await logAudit({
+        entityType: "technical_quote",
+        entityId: techQuote._id,
+        action: "created",
+        description: "Technical quote created",
+        performedBy: null, // or user._id if you have auth
+        meta: {
+         quoteId,
+         shipmentType,
+        },
+      });
+    } else {
+  // ✅ SAVED AS DRAFT
+      await logAudit({
+       entityType: "technical_quote",
+       entityId: techQuote._id,
+       action: "saved_draft",
+       description: "Technical quote saved as draft",
+       performedBy: null,
+       meta: {
+         quoteId,
+          updatedLineItems: normalizedLineItems.length,
+       },
+     });
+   }
+
 
     return Response.json({
       success: true,

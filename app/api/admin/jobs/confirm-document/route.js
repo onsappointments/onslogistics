@@ -3,6 +3,8 @@ import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import Quote from "@/models/Quote";
 import sendClientEmail from "@/lib/sendClientEmail.js";
+import { logAudit } from "@/lib/audit";
+
 
 export async function POST(req) {
   try {
@@ -72,6 +74,22 @@ export async function POST(req) {
         `,
       });
     }
+    /* ---------------- AUDIT LOG ---------------- */
+    await logAudit({
+      entityType: "job",
+      entityId: job._id,
+      action: "document_confirmed",
+      description: `Document "${documentName}" confirmed`,
+      performedBy: "admin", // replace with user id later
+      meta: {
+        jobId: job.jobId,
+        documentName,
+        confirmedAt: doc.confirmedAt,
+        clientNotified: Boolean(clientEmail),
+        clientEmail,
+      },
+    });
+
 
     return NextResponse.json({ success: true, job });
   } catch (err) {

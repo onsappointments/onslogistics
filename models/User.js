@@ -9,6 +9,14 @@ const UserSchema = new mongoose.Schema(
     country: { type: String },
     password: { type: String, required: true },
     role: { type: String, enum: ["client", "admin"], default: "client" },
+    adminType: {
+      type: String,
+      enum: ["super_admin", "manager", "accounts", "sales", "operations"],
+      required: function () {
+        return this.role === "admin";
+      },
+    },
+    permissions: { type: [String], default: [] },
   },
   { timestamps: true }
 );

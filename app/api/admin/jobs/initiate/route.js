@@ -2,6 +2,8 @@ import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import Quote from "@/models/Quote";
 import getDocumentsForType from "@/lib/getDocumentsForType";
+import { logAudit } from "@/lib/audit";
+
 
 export async function POST(req) {
   await connectDB();
@@ -49,6 +51,23 @@ export async function POST(req) {
   job.currentStage = 2;
 
   await job.save();
+  
+  /* ---------------- AUDIT LOG ---------------- */
+  await logAudit({
+    entityType: "job",
+    entityId: job._id,
+    action: "job_initiated",
+    description: "Job initiated and moved to active status",
+    performedBy: "admin", // later replace with req.user._id
+    meta: {
+      jobId: job.jobId,
+      shipmentType,
+      previousStatus: "new",
+      newStatus: "active",
+      currentStage: job.currentStage,
+      documentsRequired: documents.map(d => d.name),
+    },
+  });
 
   return Response.json({ success: true, job });
 }

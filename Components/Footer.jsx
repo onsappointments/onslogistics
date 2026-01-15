@@ -104,6 +104,11 @@ export default function Footer() {
                   → Contact Us
                 </Link>
               </li>
+              <li>
+                <Link href="/tracking" className="hover:text-blue-600 transition-all">
+                  → Track Your Shipment 
+                </Link>
+              </li>
             </ul>
           </div>
 
