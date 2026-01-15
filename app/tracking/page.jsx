@@ -1,26 +1,27 @@
 "use client"
 
 import { useState } from "react";
+
+import { useRouter } from "next/navigation";
 import { Package, Ship, Search, MapPin, Clock, CheckCircle, TruckIcon, Anchor, Plane, ArrowRight } from "lucide-react";
 import Image from "next/image";
 
 export default function TrackingLandingPage() {
-  const [reference, setReference] = useState("");
   const [isTracking, setIsTracking] = useState(false);
+
+ const router = useRouter();
+  const [reference, setReference] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
+    setIsTracking(true);
 
     if (!reference.trim()) {
       alert("Please enter a tracking reference");
       return;
     }
 
-    setIsTracking(true);
-    setTimeout(() => {
-      alert(`Tracking: ${reference.trim().toUpperCase()}`);
-      setIsTracking(false);
-    }, 1000);
+    router.push(`/tracking/${reference.trim().toUpperCase()}`);
   }
 
   return (
@@ -146,7 +147,6 @@ export default function TrackingLandingPage() {
                 {["MRKU8365035", "BL20250123", "BKG889900", "INV-98231"].map((example) => (
                   <button
                     key={example}
-                    onClick={() => setReference(example)}
                     className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition"
                   >
                     {example}
