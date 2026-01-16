@@ -8,7 +8,7 @@ export default function Recaptcha({ onVerify }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (process.env.RECAPTCHA_SITE_KEY) {
+    if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
       setReady(true);
     } else {
       console.error("ReCAPTCHA site key is missing!");
@@ -19,7 +19,7 @@ export default function Recaptcha({ onVerify }) {
 
   return (
     <ReCAPTCHA
-      sitekey={process.env.RECAPTCHA_SITE_KEY}
+      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       onChange={onVerify}
     />
   );
