@@ -3,11 +3,10 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 import { redirect } from "next/navigation";
 import { logAudit } from "@/lib/audit";
 
-
 export async function GET(req, { params }) {
   await connectDB();
 
-  const { id } = await params; // 🔥 MUST await
+  const id = params.id; // ✅ Correct — NO await
 
   const technicalQuote = await TechnicalQuote.findById(id);
 
@@ -18,7 +17,8 @@ export async function GET(req, { params }) {
   // ✅ UPDATE STATUS
   technicalQuote.status = "client_rejected";
   await technicalQuote.save();
-  /* ---------------- AUDIT LOG ---------------- */
+
+  // ✅ AUDIT LOG
   await logAudit({
     entityType: "technical_quote",
     entityId: technicalQuote._id,
@@ -31,6 +31,7 @@ export async function GET(req, { params }) {
       grandTotal: technicalQuote.grandTotal,
     },
   });
-  // ✅ REDIRECT CLIENT
+
+  // ✅ REDIRECT CLIENT TO REJECTION PAGE
   redirect(`/client/quotes/${technicalQuote.clientQuoteId}/rejected`);
 }
