@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Recaptcha from "../../Components/Recaptcha";
 
 export default function RequestQuotePage() {
   const [loading, setLoading] = useState(false);
@@ -158,7 +157,7 @@ export default function RequestQuotePage() {
         return;
       }
   
-      setQuoteId(data.quoteId);
+      setQuoteId(data.otpId);
       setShowOtpModal(true);
       setStatus("OTP sent to your email");
   
@@ -178,11 +177,12 @@ export default function RequestQuotePage() {
     setLoading(true);
   
     try {
-      const res = await fetch("/api/quotes/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quoteId, otp }),
-      });
+    const res = await fetch("/api/quotes/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quoteId, otp }),  // <-- FIXED
+    });
+
   
       const data = await res.json();
   

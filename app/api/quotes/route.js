@@ -2,72 +2,57 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 
-
 export async function POST(request) {
   try {
     await connectDB();
 
     const data = await request.json();
 
-    const { firstName, email, item, captchaToken } = data;
+    // Basic validation for required fields
+    const requiredFields = [
+      "fromCountry",
+      "toCountry", 
+      "fromCity",
+      "toCity",
+      "item",
+      "modeOfTransport",
+      "containerType",
+      "modeOfShipment",
+      "shipmentType",
+      "firstName",
+      "company",
+      "email",
+      "phoneCountryCode",
+      "phone",
+    ];
 
-    // ✅ Basic validation
-    if (!firstName || !email || !item) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "firstName, email & item are required.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (!captchaToken) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Captcha verification is required.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // ✅ Verify captcha with Google
-    const captchaResponse = await fetch(
-      "https://www.google.com/recaptcha/api/siteverify",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          secret: process.env.RECAPTCHA_SECRET_KEY,
-          response: captchaToken,
-        }),
-      }
+    const missing = requiredFields.filter(
+      (f) => !data[f] || data[f].toString().trim() === ""
     );
 
-    const captchaResult = await captchaResponse.json();
-
-    if (!captchaResult.success) {
+    if (missing.length > 0) {
       return NextResponse.json(
         {
           success: false,
-          error: "Captcha verification failed.",
+          error: `Missing required fields: ${missing.join(", ")}`,
         },
-        { status: 403 }
+        { status: 400 }
       );
     }
 
-    delete data.captchaToken;
-
-    // ✅ Save the quote in MongoDB
-    const createdQuote = await Quote.create(data);
+    // Save the quote directly
+    const createdQuote = await Quote.create({
+      ...data,
+      status: "pending",
+      verifiedEmail: false, // No email verification in this flow
+      createdAt: new Date(),
+    });
 
     return NextResponse.json(
       {
         success: true,
-        quote: createdQuote,
+        message: "Quote submitted successfully",
+        quoteId: createdQuote._id,
       },
       { status: 201 }
     );
