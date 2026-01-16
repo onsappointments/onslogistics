@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "@sparticuz/chromium": "^143.0.4",
     "@uploadthing/react": "^7.3.3",
     "bcryptjs": "^3.0.3",
+    "brevo": "^1.0.0",
     "cloudinary": "^2.8.0",
     "framer-motion": "^12.23.24",
     "jsonwebtoken": "^9.0.3",

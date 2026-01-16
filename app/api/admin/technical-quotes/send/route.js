@@ -1,9 +1,9 @@
 import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
-import { Resend } from "resend";
 import { generateTechnicalQuotePdf } from "@/lib/GenerateTechnicalQuotePdf";
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { logAudit } from "@/lib/audit";
+import sendClientEmail from "@/lib/sendClientEmail"; // ⬅ YOUR BREVO FUNCTION
 
 export async function POST(req) {
   try {
@@ -50,8 +50,6 @@ export async function POST(req) {
       technicalQuote,
     });
 
-
-
     /* ---------------- UPDATE STATUS ---------------- */
 
     technicalQuote.status = "sent_to_client";
@@ -64,97 +62,97 @@ export async function POST(req) {
 
     const viewQuoteUrl = `${baseUrl}/client/quotes/${quoteId}`;
     const approveUrl = `${baseUrl}/api/client/quotes/${technicalQuote._id}/approve`;
-    const rejectUrl  = `${baseUrl}/api/client/quotes/${technicalQuote._id}/reject`;
+    const rejectUrl = `${baseUrl}/api/client/quotes/${technicalQuote._id}/reject`;
 
-    /* ---------------- SEND EMAIL (HTML UNCHANGED) ---------------- */
+    /* ---------------- BUILD EMAIL HTML ---------------- */
 
-    await resend.emails.send({
-      from: process.env.EMAIL_FROM,
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; line-height:1.6">
+        <h2>Quotation from ONS Logistics</h2>
+
+        <p>Hello ${clientQuote.firstName},</p>
+
+        <p>Please review your quotation and choose an action below.</p>
+
+        <div style="margin: 24px 0;">
+          <a href="${viewQuoteUrl}"
+            style="display:inline-block;
+                   padding:12px 20px;
+                   background:#2563eb;
+                   color:#ffffff;
+                   text-decoration:none;
+                   border-radius:6px;
+                   font-weight:600;
+                   margin-right:10px;">
+            View Quotation
+          </a>
+
+          <a href="${approveUrl}"
+            style="display:inline-block;
+                   padding:12px 20px;
+                   background:#16a34a;
+                   color:#ffffff;
+                   text-decoration:none;
+                   border-radius:6px;
+                   font-weight:600;
+                   margin-right:10px;">
+            ✅ Approve Quote
+          </a>
+
+          <a href="${rejectUrl}"
+            style="display:inline-block;
+                   padding:12px 20px;
+                   background:#dc2626;
+                   color:#ffffff;
+                   text-decoration:none;
+                   border-radius:6px;
+                   font-weight:600;">
+            ❌ Reject Quote
+          </a>
+        </div>
+
+        <p style="margin-top:20px">
+          If you have any questions, feel free to reply to this email.
+        </p>
+
+        <p>
+          Regards,<br/>
+          <strong>ONS Logistics Team</strong>
+        </p>
+      </div>
+    `;
+
+    /* ---------------- SEND EMAIL USING YOUR BREVO FUNCTION ---------------- */
+
+    await sendClientEmail({
       to: clientQuote.email,
       subject: "Quotation from ONS Logistics",
 
-      // ✅ PDF ATTACHMENT ADDED (SAFE)
+      // Add attachment inside your brevo function call
+      html: emailHtml,
       attachments: [
         {
-          filename: `Quotation-${clientQuote.referenceNo || quoteId}.pdf`,
-          content : pdfBuffer,
+          name: `Quotation-${clientQuote.referenceNo || quoteId}.pdf`,
+          content: pdfBuffer.toString("base64"), // Brevo requires base64
         },
       ],
-
-      // ❗ EMAIL HTML LEFT EXACTLY AS-IS
-      html: `
-        <div style="font-family: Arial, sans-serif; line-height:1.6">
-          <h2>Quotation from ONS Logistics</h2>
-
-          <p>Hello ${clientQuote.firstName},</p>
-
-          <p>Please review your quotation and choose an action below.</p>
-
-          <div style="margin: 24px 0;">
-            <a href="${viewQuoteUrl}"
-              style="display:inline-block;
-                     padding:12px 20px;
-                     background:#2563eb;
-                     color:#ffffff;
-                     text-decoration:none;
-                     border-radius:6px;
-                     font-weight:600;
-                     margin-right:10px;">
-              View Quotation
-            </a>
-
-            <a href="${approveUrl}"
-              style="display:inline-block;
-                     padding:12px 20px;
-                     background:#16a34a;
-                     color:#ffffff;
-                     text-decoration:none;
-                     border-radius:6px;
-                     font-weight:600;
-                     margin-right:10px;">
-              ✅ Approve Quote
-            </a>
-
-            <a href="${rejectUrl}"
-              style="display:inline-block;
-                     padding:12px 20px;
-                     background:#dc2626;
-                     color:#ffffff;
-                     text-decoration:none;
-                     border-radius:6px;
-                     font-weight:600;">
-              ❌ Reject Quote
-            </a>
-          </div>
-
-          <p style="margin-top:20px">
-            If you have any questions, feel free to reply to this email.
-          </p>
-
-          <p>
-            Regards,<br/>
-            <strong>ONS Logistics Team</strong>
-          </p>
-        </div>
-      `,
     });
-    
+
     /* ---------------- AUDIT LOG ---------------- */
 
     await logAudit({
       entityType: "technical_quote",
-     entityId: technicalQuote._id,
-     action: "sent_to_client",
-     description: "Technical quote finalized and sent to client",
-     performedBy: null, // or req.user._id when auth is wired
-     meta: {
-       clientQuoteId: quoteId,
-       email: clientQuote.email,
-       shipmentType: technicalQuote.shipmentType,
-       grandTotal: technicalQuote.grandTotal,
+      entityId: technicalQuote._id,
+      action: "sent_to_client",
+      description: "Technical quote finalized and sent to client",
+      performedBy: null,
+      meta: {
+        clientQuoteId: quoteId,
+        email: clientQuote.email,
+        shipmentType: technicalQuote.shipmentType,
+        grandTotal: technicalQuote.grandTotal,
       },
-   });
-
+    });
 
     return Response.json({
       success: true,

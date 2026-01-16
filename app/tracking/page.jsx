@@ -18,6 +18,7 @@ export default function TrackingLandingPage() {
 
     if (!reference.trim()) {
       alert("Please enter a tracking reference");
+      setIsTracking(false);
       return;
     }
 
@@ -159,7 +160,7 @@ export default function TrackingLandingPage() {
           {/* Service Cards */}
           <div className="grid md:grid-cols-3 gap-6">
             <ServiceCard
-              icon={<TruckIcon className="w-8 h-8 text-blue-600" />}
+              icon={<TruckIcon className="w-8 h-8 text-blue-600 " />}
               title="Road Transport"
               description="Track your ground shipments across highways and borders."
             />
