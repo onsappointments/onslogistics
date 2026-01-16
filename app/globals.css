@@ -123,3 +123,87 @@ body {
         .input {
   @apply w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none;
 }
+
+
+/* ---- Global Form Styling for Request Quote Page ---- */
+
+.input-box {
+  @apply w-full px-4 py-3 bg-white border border-gray-300 rounded-lg 
+         text-gray-800 shadow-sm outline-none transition-all ease-in-out 
+         duration-150;
+}
+
+.input-box:focus {
+  @apply border-blue-500 ring-2 ring-blue-200;
+}
+
+/* Fix select dropdown appearance */
+select.input-box {
+  @apply appearance-none bg-no-repeat bg-right pr-10;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' width='24' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5z'/></svg>");
+}
+
+/* Fix number input CSS (remove arrows for cleaner look) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Section Titles */
+form section h2 {
+  @apply text-xl md:text-2xl font-semibold text-gray-900 mb-4;
+}
+
+/* Label Styling */
+form label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+/* Grid gap fix for large forms */
+.grid {
+  @apply gap-6;
+}
+
+/* OTP Modal Fix */
+.modal-input {
+  @apply px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-500;
+}
+
+/* Submit & Verify Buttons */
+.btn-primary {
+  @apply bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold shadow-md 
+         hover:bg-blue-700 hover:shadow-lg active:scale-95 transition;
+}
+
+/* Error / Success Messages */
+.status-text {
+  @apply mt-2 text-sm font-semibold;
+}
+
+.status-text.error {
+  @apply text-red-600;
+}
+
+.status-text.success {
+  @apply text-green-600;
+}
+
+/* Smooth spacing between sections */
+form section {
+  @apply pb-8 border-b border-gray-200;
+}
+
+form section:last-child {
+  @apply border-none pb-0;
+}
+
+/* Make form look Apple-clean on mobile */
+@media (max-width: 640px) {
+  .input-box {
+    @apply py-3 text-base;
+  }
+}

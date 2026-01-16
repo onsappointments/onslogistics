@@ -3,10 +3,10 @@ import Quote from "@/models/Quote";
 import Job from "@/models/Job";
 import generateJobId from "@/lib/generateJobId";
 
-export async function POST(req) {
+export async function GET(req, { params }) {
   await connectDB();
 
-  const { id } = await req.json();
+  const id = params.id; // <-- URL PARAM, NOT JSON BODY
 
   // Documents for Import/Export
   const IM_DOCUMENTS = [
@@ -58,7 +58,6 @@ export async function POST(req) {
     { number: 2, name: "Documentation", completed: false },
   ];
 
-  // Add stage 3–10
   for (let i = 3; i <= 10; i++) {
     stages.push({ number: i, name: `Stage ${i}`, completed: false });
   }
@@ -67,15 +66,9 @@ export async function POST(req) {
   const job = await Job.create({
     jobId,
     quoteId: quote._id,
-
-    // Copy company from Quote
     company: quote.company || "",
-
-    // Pre-fill some fields
     containerType: quote.containerType || null,
     commodity: quote.natureOfGoods || null,
-
-    // System fields
     status: "new",
     stage: "Documentation",
     stages,
