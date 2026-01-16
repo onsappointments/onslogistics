@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Recaptcha from "../../Components/Recaptcha";
 
 export default function RequestQuotePage() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
-  const [showCaptchaModal, setShowCaptchaModal] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState("");
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [quoteId, setQuoteId] = useState(null);
 
   const initialForm = {
     fromCountry: "",
@@ -134,45 +134,80 @@ export default function RequestQuotePage() {
     return true;
   };
 
-  const handleSubmitClick = (e) => {
+  const handleSubmitClick = async (e) => {
     e.preventDefault();
     setStatus("");
+  
     if (!validateForm()) return;
-    setShowCaptchaModal(true);
+  
     setLoading(true);
-  };
-
-  const handleCaptchaVerify = async (token) => {
-    if (!token) return;
-
-    setCaptchaToken(token);
-    setShowCaptchaModal(false);
-    setLoading(true);
-    setStatus("");
-
+  
     try {
-      const res = await fetch("/api/quotes", {
+      const res = await fetch("/api/quotes/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, captchaToken: token }),
+        body: JSON.stringify(form),
       });
-
-      const response = await res.json();
-
-      if (res.ok) {
-        setStatus("Your quote request has been submitted successfully!");
-        setForm(initialForm);
-        setCaptchaToken("");
-      } else {
-        setStatus(response.error || "Something went wrong.");
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        setStatus(data.error || "Failed to send OTP");
+        setLoading(false);
+        return;
       }
+  
+      setQuoteId(data.otpId);
+      setShowOtpModal(true);
+      setStatus("OTP sent to your email");
+  
     } catch (err) {
       console.error(err);
       setStatus("Server error. Try again later.");
     }
-
+  
     setLoading(false);
   };
+  const handleVerifyOtp = async () => {
+    if (!otp.trim()) {
+      setStatus("Please enter OTP");
+      return;
+    }
+  
+    setLoading(true);
+  
+    try {
+    const res = await fetch("/api/quotes/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quoteId, otp }),  // <-- FIXED
+    });
+
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        setStatus(data.error || "Invalid OTP");
+        setLoading(false);
+        return;
+      }
+  
+      setStatus("Your quote request has been submitted successfully!");
+      setForm(initialForm);
+      setShowOtpModal(false);
+      setOtp("");
+      setQuoteId(null);
+  
+    } catch (err) {
+      console.error(err);
+      setStatus("Verification failed");
+    }
+  
+    setLoading(false);
+  };
+  
+
+  
 
   return (
     <main className="bg-[#F5F5F7] min-h-screen py-16 px-6">
@@ -845,28 +880,46 @@ export default function RequestQuotePage() {
         </form>
       </div>
 
-      {/* Captcha Modal */}
+      
+      {/* OTP Modal */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
-          showCaptchaModal
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${
+          showOtpModal ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
-        <div className="bg-white p-8 rounded-2xl shadow-xl">
-          <h3 className="text-xl font-semibold mb-4">Verify Captcha</h3>
-          <Recaptcha onVerify={handleCaptchaVerify} />
-          <button
-            className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            onClick={() => {
-              setShowCaptchaModal(false);
-              setLoading(false);
-            }}
-          >
-            Cancel
-          </button>
+        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm">
+          <h3 className="text-xl font-semibold mb-4">Verify Email</h3>
+
+          <input
+            type="text"
+           value={otp}
+           onChange={(e) => setOtp(e.target.value)}
+           placeholder="Enter 6-digit OTP"
+           className="input-box"
+         />
+
+        <div className="flex gap-3 mt-4">
+            <button
+             onClick={handleVerifyOtp}
+             disabled={loading}
+             className="flex-1 bg-blue-600 text-white py-2 rounded-lg"
+            >
+              Verify
+            </button>
+
+            <button
+              onClick={() => {
+                setShowOtpModal(false);
+                setLoading(false);
+              }}
+              className="flex-1 bg-gray-200 py-2 rounded-lg"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
+
 
       <style jsx>{`
         .input-box {
