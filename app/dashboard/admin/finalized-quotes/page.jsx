@@ -96,7 +96,7 @@ export default async function FinalizedQuotesPage({ searchParams }) {
                 );
 
               return (
-                <tr key={q._id} className="border-t hover:bg-gray-50">
+                <tr  key={q._id} className="border-t hover:bg-gray-50">
                   {/* CLIENT */}
                   <td className="p-4">
                     <div className="font-semibold">{c.company}</div>
@@ -108,8 +108,8 @@ export default async function FinalizedQuotesPage({ searchParams }) {
                   </td>
 
                   {/* SHIPMENT DETAILS */}
-                  <td className="p-4">
-                    <div className="capitalize font-medium">
+                  <td className="p-4 text-center">
+                    <div className="capitalize font-medium ">
                       {q.shipmentType}
                     </div>
                     <div className="text-xs">
@@ -122,7 +122,7 @@ export default async function FinalizedQuotesPage({ searchParams }) {
                   </td>
 
                   {/* CURRENCY SUMMARY */}
-                  <td className="p-4 text-xs text-gray-700">
+                  <td className="p-4 text-md font-semibold text-center text-gray-700">
                     {currencyLines.length > 0
                       ? currencyLines.map((l, i) => (
                           <div key={i} className="mb-1">
@@ -138,7 +138,7 @@ export default async function FinalizedQuotesPage({ searchParams }) {
                   </td>
 
                   {/* STATUS */}
-                  <td className="p-4 capitalize">
+                  <td className={`p-4 capitalize ${q.status === "sent_to_client" ? "text-red-500" : "bg-green-100 text-green-700"}`}>
                     {q.status.replaceAll("_", " ")}
                   </td>
 
@@ -158,7 +158,7 @@ export default async function FinalizedQuotesPage({ searchParams }) {
             {quotes.length === 0 && (
               <tr>
                 <td colSpan={6} className="p-6 text-center text-gray-500">
-                  No finalized quotes available (Grand Total is zero)
+                  No finalized quotes available
                 </td>
               </tr>
             )}
