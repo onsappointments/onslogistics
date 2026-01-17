@@ -218,6 +218,8 @@ const handleChange = (e) => {
               <option value="sales">Sales</option>
               <option value="operations">Operations</option>
               <option value="accounts">Accounts</option>
+              <option value="IT">IT</option>
+              <option value="reception">reception</option>
             </select>
           </div>
 
