@@ -9,7 +9,7 @@ export default function RejectQuotePage() {
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
   const [isAlreadyProcessed, setIsAlreadyProcessed] = useState(false);
-
+  let data;
   useEffect(() => {
     const rejectQuote = async () => {
       try {
@@ -17,7 +17,7 @@ export default function RejectQuotePage() {
           method: "POST",
         });
 
-        const data = await response.json();
+        data = await response.json();
 
         if (response.ok) {
           // Check if quote was already rejected
@@ -58,7 +58,6 @@ export default function RejectQuotePage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Quote Rejected</h2>
             <p className="text-gray-600 mb-2">{message}</p>
             <p className="text-sm text-gray-500">We'll contact you shortly to discuss alternatives.</p>
-            <p className="text-sm text-gray-500 mt-4">Redirecting...</p>
           </div>
         )}
 
@@ -67,8 +66,8 @@ export default function RejectQuotePage() {
             <div className="text-blue-600 text-5xl mb-4">ℹ</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Already Processed</h2>
             <p className="text-gray-600 mb-2">{message}</p>
-            <p className="text-sm text-gray-500">This quote has already been rejected.</p>
-            <p className="text-sm text-gray-500 mt-4">Redirecting to quote details...</p>
+            <p className="text-sm text-gray-500">This quote has already been prosessed.</p>
+
           </div>
         )}
 
