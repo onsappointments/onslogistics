@@ -72,20 +72,6 @@ export default function AppointmentHero() {
               <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 transition-transform group-hover:translate-x-1" />
             </button>
 
-            {/* Payment Notice */}
-            <div className="mt-8 flex gap-3 p-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 max-w-lg">
-              <CheckCircle2 className="w-5 h-5 text-blue-300 mt-0.5" />
-              <div>
-                <p className="text-white text-sm font-medium mb-1">
-                  Confirmation Fee Required
-                </p>
-                <p className="text-blue-100 text-sm">
-                  A small booking fee is required to confirm your appointment and
-                  reserve your time slot.
-                </p>
-              </div>
-            </div>
-
             {/* Stats */}
             <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-2xl">
               <Stat value="24/7" label="Available Support" />

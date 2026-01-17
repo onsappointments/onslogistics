@@ -1,37 +1,91 @@
+
+
+// app/api/client/quotes/[id]/approve/route.js
+
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
-import { redirect } from "next/navigation";
-import { logAudit } from "@/lib/audit";
 
-export async function GET(req, { params }) {
-  await connectDB();
+export async function POST(req, context) {
+  console.log("=== APPROVE ROUTE STARTED ===");
+  
+  try {
+    // Handle params - try multiple approaches for compatibility
+    let id;
+    try {
+      const params = await context.params;
+      id = params.id;
+    } catch (e) {
+      id = context.params.id;
+    }
 
-  const id = params.id; // ✅ Correct way
+    console.log("Quote ID:", id);
 
-  const technicalQuote = await TechnicalQuote.findById(id);
+    if (!id) {
+      console.log("ERROR: No ID provided");
+      return Response.json({ error: "Quote ID is required" }, { status: 400 });
+    }
 
-  if (!technicalQuote) {
-    return new Response("Quotation not found", { status: 404 });
+    console.log("Connecting to DB...");
+    await connectDB();
+    console.log("DB connected");
+    
+    console.log("Finding quote by ID:", id);
+    const quote = await TechnicalQuote.findById(id);
+    
+    if (!quote) {
+      console.log("ERROR: Quote not found");
+      return Response.json({ error: "Quote not found" }, { status: 404 });
+    }
+
+    console.log("Quote found:", {
+      id: quote._id,
+      status: quote.status,
+      clientQuoteId: quote.clientQuoteId
+    });
+
+    // Check if already approved
+    if (quote.status === "client_approved") {
+      console.log("Quote already approved");
+      return Response.json({ 
+        success: true, 
+        message: "Quote was already approved",
+        clientQuoteId: quote.clientQuoteId.toString()
+      });
+    }
+
+    //check if already rejected
+    if (quote.status === "client_rejected") {
+      console.log("Quote already rejected");
+      return Response.json({ 
+        success: true, 
+        message: "Quote was already rejected",
+        clientQuoteId: quote.clientQuoteId.toString()
+      });
+    }
+    
+    console.log("Updating quote status to approved...");
+    quote.status = "client_approved";
+    
+    console.log("Saving quote...");
+    await quote.save();
+    console.log("Quote saved successfully");
+    
+    return Response.json({ 
+      success: true, 
+      message: "Quote approved successfully",
+      clientQuoteId: quote.clientQuoteId.toString()
+    });
+    
+  } catch (error) {
+    console.error("=== APPROVE ROUTE ERROR ===");
+    console.error("Error name:", error.name);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    
+    return Response.json({ 
+      error: "Failed to approve quote",
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 });
   }
-
-  // ✅ UPDATE STATUS
-  technicalQuote.status = "client_approved";
-  await technicalQuote.save();
-
-  // ✅ AUDIT LOG
-  await logAudit({
-    entityType: "technical_quote",
-    entityId: technicalQuote._id,
-    action: "client_approved",
-    description: "Client approved the technical quotation",
-    performedBy: "client",
-    meta: {
-      clientQuoteId: technicalQuote.clientQuoteId,
-      shipmentType: technicalQuote.shipmentType,
-      grandTotal: technicalQuote.grandTotal,
-    },
-  });
-
-  // ✅ Redirect to confirmation page
-  redirect(`/client/quotes/${technicalQuote.clientQuoteId}/approved`);
 }

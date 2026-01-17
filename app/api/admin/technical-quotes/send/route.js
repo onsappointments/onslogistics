@@ -3,7 +3,7 @@ import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import { generateTechnicalQuotePdf } from "@/lib/GenerateTechnicalQuotePdf";
 import { logAudit } from "@/lib/audit";
-import sendClientEmail from "@/lib/sendClientEmail"; // ⬅ YOUR BREVO FUNCTION
+import sendClientEmail from "@/lib/sendClientEmail";
 
 export async function POST(req) {
   try {
@@ -55,18 +55,19 @@ export async function POST(req) {
     technicalQuote.status = "sent_to_client";
     await technicalQuote.save();
 
-    /* ---------------- BUILD LINKS ---------------- */
+    /* ---------------- BUILD LINKS - FIXED VERSION ---------------- */
 
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+    // ✅ All links now point to frontend pages, not API endpoints
     const viewQuoteUrl = `${baseUrl}/client/quotes/${quoteId}`;
-    const approveUrl = `${baseUrl}/api/client/quotes/${technicalQuote._id}/approve`;
-    const rejectUrl = `${baseUrl}/api/client/quotes/${technicalQuote._id}/reject`;
+    const approveUrl = `${baseUrl}/client/quotes/${technicalQuote._id}/approve`;
+    const rejectUrl = `${baseUrl}/client/quotes/${technicalQuote._id}/reject`;
 
     /* ---------------- BUILD EMAIL HTML ---------------- */
 
-   const emailHtml = `
+    const emailHtml = `
 <div style="font-family: Arial, sans-serif; line-height:1.6">
   <h2>Quotation from ONS Logistics</h2>
 
@@ -90,19 +91,16 @@ export async function POST(req) {
 </div>
 `;
 
-
     /* ---------------- SEND EMAIL USING YOUR BREVO FUNCTION ---------------- */
 
     await sendClientEmail({
       to: clientQuote.email,
       subject: "Quotation from ONS Logistics",
-
-      // Add attachment inside your brevo function call
       html: emailHtml,
       attachments: [
         {
           name: `Quotation-${clientQuote.referenceNo || quoteId}.pdf`,
-          content: pdfBuffer.toString("base64"), // Brevo requires base64
+          content: pdfBuffer.toString("base64"),
         },
       ],
     });
