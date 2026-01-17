@@ -55,21 +55,33 @@ export async function POST(req) {
     technicalQuote.status = "sent_to_client";
     await technicalQuote.save();
 
-    /* ---------------- BUILD LINKS - FIXED VERSION ---------------- */
+    /* ---------------- BUILD LINKS - CLEANED VERSION ---------------- */
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    // Get base URL and clean it thoroughly
+    let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    baseUrl = baseUrl.trim().replace(/[\n\r]/g, '').replace(/\/$/, '');
 
-    // ✅ Pass technical quote ID as query parameter
-    const viewQuoteUrl = `${baseUrl}/client/quotes/${quoteId}`;
-    const approveUrl = `${baseUrl}/client/quote-action?id=${technicalQuote._id}&action=approve`;
-    const rejectUrl = `${baseUrl}/client/quote-action?id=${technicalQuote._id}&action=reject`;
+    // Convert IDs to clean strings
+    const quoteIdStr = String(quoteId).trim();
+    const techQuoteIdStr = String(technicalQuote._id).trim();
+
+    // Build URLs using existing folder structure
+    const viewQuoteUrl = `${baseUrl}/client/quotes/${quoteIdStr}`;
+    const approveUrl = `${baseUrl}/client/quotes/${techQuoteIdStr}/approve`;
+    const rejectUrl = `${baseUrl}/client/quotes/${techQuoteIdStr}/reject`;
+
+    console.log('=== EMAIL URLS ===');
+    console.log('Base:', baseUrl);
+    console.log('View:', viewQuoteUrl);
+    console.log('Approve:', approveUrl);
+    console.log('Reject:', rejectUrl);
+    console.log('==================');
 
     /* ---------------- BUILD EMAIL HTML ---------------- */
 
-     // ✅ Build email HTML - keep URLs on single lines to avoid newline issues
-    const emailHtml = `<div style="font-family: Arial, sans-serif; line-height:1.6"><h2>Quotation from ONS Logistics</h2><p>Hello ${clientQuote.firstName},</p><p>Please review your quotation and choose an action below.</p><div style="margin: 24px 0;"><a href="${viewQuoteUrl}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px;">View Quotation</a><a href="${approveUrl}" style="display:inline-block;padding:12px 20px;background:#16a34a;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px;">✅ Approve Quote</a><a href="${rejectUrl}" style="display:inline-block;padding:12px 20px;background:#dc2626;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">❌ Reject Quote</a></div><p style="margin-top:20px">If you have any questions, feel free to reply to this email.</p><p>Regards,<br/><strong>ONS Logistics Team</strong></p></div>`;
+    const emailHtml = `<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>Quotation from ONS Logistics</h2><p>Hello ${clientQuote.firstName},</p><p>Please review your quotation and choose an action below.</p><div style="margin:24px 0"><a href="${viewQuoteUrl}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px">View Quotation</a><a href="${approveUrl}" style="display:inline-block;padding:12px 20px;background:#16a34a;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px">✅ Approve Quote</a><a href="${rejectUrl}" style="display:inline-block;padding:12px 20px;background:#dc2626;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">❌ Reject Quote</a></div><p style="margin-top:20px">If you have any questions, feel free to reply to this email.</p><p>Regards,<br/><strong>ONS Logistics Team</strong></p></div>`;
 
-    /* ---------------- SEND EMAIL USING YOUR BREVO FUNCTION ---------------- */
+    /* ---------------- SEND EMAIL ---------------- */
 
     await sendClientEmail({
       to: clientQuote.email,
