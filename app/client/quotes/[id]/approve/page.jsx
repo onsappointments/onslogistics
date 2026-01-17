@@ -29,13 +29,6 @@ export default function ApproveQuotePage() {
             setStatus("success");
             setMessage(data.message || "Quote approved successfully!");
           }
-          
-          // Redirect to client quote view
-          if (data.clientQuoteId) {
-            setTimeout(() => {
-              router.push(`/client/quotes/${data.clientQuoteId}`);
-            }, 2000);
-          }
         } else {
           setStatus("error");
           setMessage(data.error || data.message || "Failed to approve quote");
