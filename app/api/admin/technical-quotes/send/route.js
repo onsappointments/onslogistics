@@ -57,8 +57,7 @@ export async function POST(req) {
 
     /* ---------------- BUILD LINKS - FIXED VERSION ---------------- */
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     // ✅ Pass technical quote ID as query parameter
     const viewQuoteUrl = `${baseUrl}/client/quotes/${quoteId}`;
