@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema(
     role: { type: String, enum: ["client", "admin"], default: "client" },
     adminType: {
       type: String,
-      enum: ["super_admin", "manager", "accounts", "sales", "operations"],
+      enum: ["super_admin", "manager", "accounts", "sales", "operations","IT","reception"],
       required: function () {
         return this.role === "admin";
       },
