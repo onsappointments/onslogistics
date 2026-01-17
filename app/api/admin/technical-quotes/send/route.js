@@ -66,61 +66,30 @@ export async function POST(req) {
 
     /* ---------------- BUILD EMAIL HTML ---------------- */
 
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; line-height:1.6">
-        <h2>Quotation from ONS Logistics</h2>
+   const emailHtml = `
+<div style="font-family: Arial, sans-serif; line-height:1.6">
+  <h2>Quotation from ONS Logistics</h2>
 
-        <p>Hello ${clientQuote.firstName},</p>
+  <p>Hello ${clientQuote.firstName},</p>
 
-        <p>Please review your quotation and choose an action below.</p>
+  <p>Please review your quotation and choose an action below.</p>
 
-        <div style="margin: 24px 0;">
-          <a href="${viewQuoteUrl}"
-            style="display:inline-block;
-                   padding:12px 20px;
-                   background:#2563eb;
-                   color:#ffffff;
-                   text-decoration:none;
-                   border-radius:6px;
-                   font-weight:600;
-                   margin-right:10px;">
-            View Quotation
-          </a>
+  <div style="margin: 24px 0;">
 
-          <a href="${approveUrl}"
-            style="display:inline-block;
-                   padding:12px 20px;
-                   background:#16a34a;
-                   color:#ffffff;
-                   text-decoration:none;
-                   border-radius:6px;
-                   font-weight:600;
-                   margin-right:10px;">
-            ✅ Approve Quote
-          </a>
+    <a href="${viewQuoteUrl}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px;">View Quotation</a>
 
-          <a href="${rejectUrl}"
-            style="display:inline-block;
-                   padding:12px 20px;
-                   background:#dc2626;
-                   color:#ffffff;
-                   text-decoration:none;
-                   border-radius:6px;
-                   font-weight:600;">
-            ❌ Reject Quote
-          </a>
-        </div>
+    <a href="${approveUrl}" style="display:inline-block;padding:12px 20px;background:#16a34a;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px;">✅ Approve Quote</a>
 
-        <p style="margin-top:20px">
-          If you have any questions, feel free to reply to this email.
-        </p>
+    <a href="${rejectUrl}" style="display:inline-block;padding:12px 20px;background:#dc2626;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">❌ Reject Quote</a>
 
-        <p>
-          Regards,<br/>
-          <strong>ONS Logistics Team</strong>
-        </p>
-      </div>
-    `;
+  </div>
+
+  <p style="margin-top:20px">If you have any questions, feel free to reply to this email.</p>
+
+  <p>Regards,<br/><strong>ONS Logistics Team</strong></p>
+</div>
+`;
+
 
     /* ---------------- SEND EMAIL USING YOUR BREVO FUNCTION ---------------- */
 
