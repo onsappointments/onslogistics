@@ -1,27 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function BookAppointment() {
   const [status, setStatus] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  const handleSubmit = async () => {
+    if (!formRef.current) return;
 
-    const response = await fetch("https://formspree.io/f/xzzyblrb", {
-      method: "POST",
-      body: formData,
-      headers: {
-        Accept: "application/json",
-      },
+    setIsSubmitting(true);
+    setStatus("");
+
+    const formData = new FormData();
+    const inputs = formRef.current.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+      if (input.name) {
+        formData.append(input.name, input.value);
+      }
     });
 
-    if (response.ok) {
-      setStatus("SUCCESS");
-      e.currentTarget.reset();
-    } else {
+    try {
+      const response = await fetch("https://formspree.io/f/xzzyblrb", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (response.ok) {
+        setStatus("SUCCESS");
+        // Reset all inputs
+        inputs.forEach(input => {
+          if (input.type === 'select-one') {
+            input.selectedIndex = 0;
+          } else {
+            input.value = '';
+          }
+        });
+      } else {
+        setStatus("ERROR");
+      }
+    } catch (error) {
       setStatus("ERROR");
+      console.error("Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -32,7 +59,7 @@ export default function BookAppointment() {
           Book an Appointment
         </h2>
 
-        <div className="space-y-6">
+        <div ref={formRef} className="space-y-6">
           {/* Name, Email, Phone */}
           <div className="grid md:grid-cols-3 gap-6">
             <input
@@ -112,10 +139,12 @@ export default function BookAppointment() {
           <div className="text-center">
             <button
               onClick={handleSubmit}
+              disabled={isSubmitting}
               className="px-10 py-3 bg-blue-600 text-white font-medium text-lg rounded-full
-                         hover:bg-blue-700 transition shadow-md hover:shadow-lg"
+                         hover:bg-blue-700 transition shadow-md hover:shadow-lg
+                         disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              Submit
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
 
