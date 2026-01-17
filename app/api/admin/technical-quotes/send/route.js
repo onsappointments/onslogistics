@@ -57,39 +57,17 @@ export async function POST(req) {
 
     /* ---------------- BUILD LINKS - FIXED VERSION ---------------- */
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-    // ✅ All links now point to frontend pages, not API endpoints
+    // ✅ Pass technical quote ID as query parameter
     const viewQuoteUrl = `${baseUrl}/client/quotes/${quoteId}`;
-    const approveUrl = `${baseUrl}/client/quotes/${technicalQuote._id}/approve`;
-    const rejectUrl = `${baseUrl}/client/quotes/${technicalQuote._id}/reject`;
+    const approveUrl = `${baseUrl}/client/quote-action?id=${technicalQuote._id}&action=approve`;
+    const rejectUrl = `${baseUrl}/client/quote-action?id=${technicalQuote._id}&action=reject`;
 
     /* ---------------- BUILD EMAIL HTML ---------------- */
 
-    const emailHtml = `
-<div style="font-family: Arial, sans-serif; line-height:1.6">
-  <h2>Quotation from ONS Logistics</h2>
-
-  <p>Hello ${clientQuote.firstName},</p>
-
-  <p>Please review your quotation and choose an action below.</p>
-
-  <div style="margin: 24px 0;">
-
-    <a href="${viewQuoteUrl}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px;">View Quotation</a>
-
-    <a href="${approveUrl}" style="display:inline-block;padding:12px 20px;background:#16a34a;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px;">✅ Approve Quote</a>
-
-    <a href="${rejectUrl}" style="display:inline-block;padding:12px 20px;background:#dc2626;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">❌ Reject Quote</a>
-
-  </div>
-
-  <p style="margin-top:20px">If you have any questions, feel free to reply to this email.</p>
-
-  <p>Regards,<br/><strong>ONS Logistics Team</strong></p>
-</div>
-`;
+     // ✅ Build email HTML - keep URLs on single lines to avoid newline issues
+    const emailHtml = `<div style="font-family: Arial, sans-serif; line-height:1.6"><h2>Quotation from ONS Logistics</h2><p>Hello ${clientQuote.firstName},</p><p>Please review your quotation and choose an action below.</p><div style="margin: 24px 0;"><a href="${viewQuoteUrl}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px;">View Quotation</a><a href="${approveUrl}" style="display:inline-block;padding:12px 20px;background:#16a34a;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;margin-right:10px;">✅ Approve Quote</a><a href="${rejectUrl}" style="display:inline-block;padding:12px 20px;background:#dc2626;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">❌ Reject Quote</a></div><p style="margin-top:20px">If you have any questions, feel free to reply to this email.</p><p>Regards,<br/><strong>ONS Logistics Team</strong></p></div>`;
 
     /* ---------------- SEND EMAIL USING YOUR BREVO FUNCTION ---------------- */
 
