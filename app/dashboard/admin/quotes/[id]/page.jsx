@@ -172,6 +172,21 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
         />
       </Section>
 
+        {/* CLIENT REJECTION REMARKS */}
+{technicalQuote?.status === "client_rejected" && technicalQuote?.clientRemarks && (
+  <div className="bg-red-50 border border-red-300 p-5 rounded-xl mb-8">
+    {console.log("Client Rejection Remarks:", technicalQuote.clientRemarks)}
+    <h2 className="text-xl font-semibold text-red-800 mb-3">
+      Client Rejection Remarks
+    </h2>
+
+    <p className="text-red-700 whitespace-pre-line leading-relaxed">
+      {technicalQuote.clientRemarks}
+    </p>
+
+  </div>
+)}
+
       {/* ✅ FIX 3: draft/final view now works */}
       <TechnicalQuoteView technicalQuote={technicalQuote} />
 

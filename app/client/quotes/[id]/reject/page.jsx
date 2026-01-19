@@ -1,73 +1,100 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 export default function RejectQuotePage() {
   const params = useParams();
   const router = useRouter();
-  const [status, setStatus] = useState("loading");
+
+  const [remarks, setRemarks] = useState("");
+  const [status, setStatus] = useState("form"); // form | loading | success | error | info
   const [message, setMessage] = useState("");
-  const [isAlreadyProcessed, setIsAlreadyProcessed] = useState(false);
-  let data;
-  useEffect(() => {
-    const rejectQuote = async () => {
-      try {
-        const response = await fetch(`/api/client/quotes/${params.id}/reject`, {
-          method: "POST",
-        });
 
-        data = await response.json();
+  const submitRejection = async () => {
+    setStatus("loading");
 
-        if (response.ok) {
-          // Check if quote was already rejected
-          if (data.message && data.message.toLowerCase().includes("already")) {
-            setStatus("info");
-            setMessage(data.message);
-            setIsAlreadyProcessed(true);
-          } else {
-            setStatus("success");
-            setMessage(data.message || "Quote rejected successfully.");
-          }
+    try {
+      const response = await fetch(`/api/client/quotes/${params.id}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ remarks }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.message?.toLowerCase().includes("already")) {
+          setStatus("info");
+          setMessage(data.message);
         } else {
-          setStatus("error");
-          setMessage(data.error || data.message || "Failed to reject quote");
+          setStatus("success");
+          setMessage(data.message || "Quote rejected successfully.");
         }
-      } catch (error) {
+      } else {
         setStatus("error");
-        setMessage("An error occurred while rejecting the quote");
+        setMessage(data.error || "Failed to reject quote");
       }
-    };
-
-    rejectQuote();
-  }, [params.id, router]);
+    } catch (error) {
+      setStatus("error");
+      setMessage("An error occurred while rejecting the quote");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        
+        {status === "form" && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+              Reject Quote
+            </h2>
+
+            <p className="text-gray-600 mb-4 text-center">
+              Please tell us what went wrong. This helps us improve.
+            </p>
+
+            <textarea
+              className="w-full border rounded-lg p-3 mb-4 h-32"
+              placeholder="Write your remarks here..."
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+            />
+
+            <button
+              onClick={submitRejection}
+              className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700"
+            >
+              Submit Rejection
+            </button>
+          </div>
+        )}
+
         {status === "loading" && (
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Processing your response...</p>
+            <p className="text-gray-600">Submitting your response...</p>
           </div>
         )}
 
         {status === "success" && (
           <div className="text-center">
-            <div className="text-orange-600 text-5xl mb-4">ℹ</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Quote Rejected</h2>
+            <div className="text-red-600 text-5xl mb-4">✔</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Quote Rejected
+            </h2>
             <p className="text-gray-600 mb-2">{message}</p>
-            <p className="text-sm text-gray-500">We'll contact you shortly to discuss alternatives.</p>
           </div>
         )}
 
         {status === "info" && (
           <div className="text-center">
             <div className="text-blue-600 text-5xl mb-4">ℹ</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Already Processed</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Already Processed
+            </h2>
             <p className="text-gray-600 mb-2">{message}</p>
-            <p className="text-sm text-gray-500">This quote has already been prosessed.</p>
-
           </div>
         )}
 

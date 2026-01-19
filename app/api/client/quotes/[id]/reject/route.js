@@ -5,85 +5,92 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 
 export async function POST(req, context) {
   console.log("=== REJECT ROUTE STARTED ===");
-  
+
   try {
-    // Handle params - try multiple approaches for compatibility
+    // Extract ID safely
     let id;
     try {
-      const params = await context.params;
-      id = params.id;
-    } catch (e) {
+      id = (await context.params).id;
+    } catch {
       id = context.params.id;
     }
 
     console.log("Quote ID:", id);
 
     if (!id) {
-      console.log("ERROR: No ID provided");
       return Response.json({ error: "Quote ID is required" }, { status: 400 });
     }
 
-    console.log("Connecting to DB...");
+    // Get remarks from client
+    let remarks = "";
+    try {
+      const body = await req.json();
+      remarks = body?.remarks || "";
+    } catch (e) {
+      // If no body, remarks remain empty
+    }
+
+    console.log("Client Remarks:", remarks);
+
     await connectDB();
-    console.log("DB connected");
-    
-    console.log("Finding quote by ID:", id);
+
     const quote = await TechnicalQuote.findById(id);
-    
+
     if (!quote) {
-      console.log("ERROR: Quote not found");
       return Response.json({ error: "Quote not found" }, { status: 404 });
     }
 
     console.log("Quote found:", {
       id: quote._id,
       status: quote.status,
-      clientQuoteId: quote.clientQuoteId
+      clientQuoteId: quote.clientQuoteId,
     });
 
-    // Check if already rejected
+    // Already rejected
     if (quote.status === "client_rejected") {
-      console.log("Quote already rejected");
-      return Response.json({ 
-        success: true, 
+      return Response.json({
+        success: true,
         message: "Quote was already rejected",
-        clientQuoteId: quote.clientQuoteId.toString()
+        clientQuoteId: quote.clientQuoteId.toString(),
+        previousRemarks: quote.clientRemarks || "",
       });
     }
 
-    //check if already approved 
+    // Prevent rejecting after approval
     if (quote.status === "client_approved") {
-      console.log("Quote already approved");
-      return Response.json({ 
-        success: true, 
+      return Response.json({
+        success: false,
         message: "Quote cannot be rejected because it was already approved",
-        clientQuoteId: quote.clientQuoteId.toString()
+        clientQuoteId: quote.clientQuoteId.toString(),
       });
     }
-    
-    console.log("Updating quote status to rejected...");
+
+    // Update status + add remarks
     quote.status = "client_rejected";
-    
-    console.log("Saving quote...");
+    quote.clientRemarks = remarks;
+
     await quote.save();
-    console.log("Quote saved successfully");
-    
-    return Response.json({ 
-      success: true, 
+
+    console.log("Quote rejection saved successfully");
+
+    return Response.json({
+      success: true,
       message: "Quote rejected successfully",
-      clientQuoteId: quote.clientQuoteId.toString()
+      clientQuoteId: quote.clientQuoteId.toString(),
+      remarksSaved: remarks,
     });
-    
+
   } catch (error) {
     console.error("=== REJECT ROUTE ERROR ===");
-    console.error("Error name:", error.name);
-    console.error("Error message:", error.message);
-    console.error("Error stack:", error.stack);
-    
-    return Response.json({ 
-      error: "Failed to reject quote",
-      message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    }, { status: 500 });
+    console.error(error);
+
+    return Response.json(
+      {
+        error: "Failed to reject quote",
+        message: error.message,
+        details: process.env.NODE_ENV === "development" ? error.stack : undefined,
+      },
+      { status: 500 }
+    );
   }
 }
