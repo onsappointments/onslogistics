@@ -4,11 +4,27 @@ import Job from "@/models/Job";
 import Quote from "@/models/Quote";
 import sendClientEmail from "@/lib/sendClientEmail.js";
 import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+
 
 
 export async function POST(req) {
   try {
     await connectDB();
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const performedBy = {
+      userId: session.user.id,
+      email: session.user.email,
+      role: session.user.role,
+      adminType: session.user.adminType,
+    };
+
 
     const { jobId, documentName } = await req.json();
 
@@ -80,7 +96,7 @@ export async function POST(req) {
       entityId: job._id,
       action: "document_confirmed",
       description: `Document "${documentName}" confirmed`,
-      performedBy: "admin", // replace with user id later
+      performedBy: session.user.id,
       meta: {
         jobId: job.jobId,
         documentName,

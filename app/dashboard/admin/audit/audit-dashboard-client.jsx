@@ -8,6 +8,9 @@ export default function AuditDashboardClient({ jobs, admins }) {
   const [selectedId, setSelectedId] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
 
   async function loadJobAudit(jobId) {
     setLoading(true);
@@ -19,8 +22,15 @@ export default function AuditDashboardClient({ jobs, admins }) {
 
   async function loadAdminAudit(adminId) {
     setLoading(true);
-    const res = await fetch(`/api/admin/audit/logs?admin=${adminId}`);
+  
+    const params = new URLSearchParams();
+    params.set("admin", adminId);
+    if (fromDate) params.set("from", fromDate);
+    if (toDate) params.set("to", toDate);
+  
+    const res = await fetch(`/api/admin/audit/logs?${params.toString()}`);
     const data = await res.json();
+  
     setLogs(data.logs || []);
     setLoading(false);
   }
@@ -43,6 +53,31 @@ export default function AuditDashboardClient({ jobs, admins }) {
             <option value="jobs">Active Jobs</option>
             <option value="admins">Admins</option>
           </select>
+        </div>
+        
+        <div className="space-y-2 mb-4">
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          />
+
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          />
+
+          {mode === "admins" && selectedId && (
+            <button
+              onClick={() => loadAdminAudit(selectedId)}
+              className="w-full bg-blue-600 text-white rounded px-3 py-2"
+            >
+              Apply Filter
+            </button>
+          )}
         </div>
 
         {/* LIST */}
