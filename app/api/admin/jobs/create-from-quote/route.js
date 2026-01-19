@@ -4,10 +4,18 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 import Job from "@/models/Job";
 import generateJobId from "@/lib/generateJobId";
 import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+
 
 
 export async function POST(req) {
   await connectDB();
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { technicalQuoteId } = await req.json();
 
@@ -105,7 +113,7 @@ export async function POST(req) {
     entityId: job._id,
     action: "job_created_from_quote",
     description: "Job created from client-approved technical quote",
-    performedBy: "system", // or admin user later
+    performedBy: session.user.id,
     meta: {
       jobId: job.jobId,
       quoteId: quote._id,

@@ -2,6 +2,8 @@ import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import Quote from "@/models/Quote";
 import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 import {
   IMPORT_HEADS,
@@ -11,6 +13,12 @@ import {
 export async function POST(req) {
   try {
     await connectDB();
+
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { quoteId, shipmentType, lineItems = [] } = await req.json();
 
@@ -151,7 +159,7 @@ const currencySummary = normalizedLineItems.reduce((acc, item) => {
         entityId: techQuote._id,
         action: "created",
         description: "Technical quote created",
-        performedBy: null, // or user._id if you have auth
+        performedBy: session.user.id,
         meta: {
          quoteId,
          shipmentType,
@@ -164,7 +172,7 @@ const currencySummary = normalizedLineItems.reduce((acc, item) => {
        entityId: techQuote._id,
        action: "saved_draft",
        description: "Technical quote saved as draft",
-       performedBy: null,
+       performedBy: session.user.id,
        meta: {
          quoteId,
           updatedLineItems: normalizedLineItems.length,

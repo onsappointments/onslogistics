@@ -4,6 +4,9 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import mongoose from "mongoose";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+
 
 /* ---------------- STATUS FLOW ---------------- */
 
@@ -24,6 +27,19 @@ const STATUS_FLOW = [
 export async function POST(req) {
   try {
     await connectDB();
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const performedBy = {
+      userId: session.user.id,
+      email: session.user.email,
+      role: session.user.role,
+      adminType: session.user.adminType,
+    };
+
 
     const { jobId, containerNumber, sizeType, event } = await req.json();
 
@@ -110,7 +126,7 @@ export async function POST(req) {
      entityType: "container",
      action: "container_status_added",
      description: `Status "${event.status}" added for container ${containerNumber}`,
-     performedBy: "admin", // later: req.user._id
+     performedBy: session.user.id,
      performedAt: new Date(),
 
      reference: {

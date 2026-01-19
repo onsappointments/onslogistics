@@ -57,9 +57,10 @@ export async function GET(req, { params }) {
     const logs = await AuditLog.find({
       $or: entityFilters,
     })
-      .populate("performedBy", "name email")
+      .populate("performedBy", "fullName email role adminType")
       .sort({ createdAt: 1 })
       .lean();
+    
 
     return NextResponse.json({
       success: true,

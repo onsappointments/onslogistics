@@ -3,10 +3,17 @@ import Job from "@/models/Job";
 import Quote from "@/models/Quote";
 import getDocumentsForType from "@/lib/getDocumentsForType";
 import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 
 export async function POST(req) {
   await connectDB();
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { id } = await req.json();
 
@@ -58,7 +65,7 @@ export async function POST(req) {
     entityId: job._id,
     action: "job_initiated",
     description: "Job initiated and moved to active status",
-    performedBy: "admin", // later replace with req.user._id
+    performedBy: session.user.id,
     meta: {
       jobId: job.jobId,
       shipmentType,

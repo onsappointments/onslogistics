@@ -99,6 +99,12 @@ const TechnicalQuoteSchema = new mongoose.Schema(
       default: "draft",
     },
 
+    clientRemarks: {
+    type: String,
+    default: "",
+},
+
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
