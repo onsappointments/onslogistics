@@ -18,7 +18,6 @@ export async function POST(request) {
       "modeOfTransport",
       "containerType",
       "modeOfShipment",
-      "shipmentType",
       "firstName",
       "company",
       "email",

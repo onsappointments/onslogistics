@@ -5,7 +5,7 @@ import QuoteActions from "./QuoteActions";
 import Link from "next/link";
 import TechnicalQuoteView from "./TechnicalQuoteView";
 import mongoose from "mongoose";
-import { filter } from "framer-motion/m";
+import ShipmentTypeSelector from "./ShipmentTypeSelector";
 
 export default async function QuoteDetails({ params }) {
   const { id } = await params;
@@ -34,14 +34,48 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
     technicalQuote.status === "draft" ||
     technicalQuote.status === "client_rejected";
 
+    console.log("quote", quote)
+
   return (
     <div className="p-10 max-w-5xl mx-auto">
+{quote.shipmentType === "Not set" && (
+  <div className="mb-6 p-5 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-sm">
+    <div className="flex items-center gap-3">
+      <svg
+        className="w-6 h-6 text-yellow-600 flex-shrink-0"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 9v3m0 4h.01M10.29 3.86l-7.18 12.42A2 2 0 0 0 5 20h14a2 2 0 0 0 1.89-3.72L13.71 3.86a2 2 0 0 0-3.42 0z"
+        />
+      </svg>
+
+      <div>
+        <p className="text-yellow-800 font-semibold text-lg">
+          Shipment Type Not Selected
+        </p>
+        <p className="text-yellow-700 text-sm mt-1">
+          This quote cannot be processed until a valid <strong>Shipment Type</strong> is selected.
+          Please update the quote to continue.
+        </p>
+      </div>
+      <ShipmentTypeSelector id={quote._id.toString()} current={quote.shipmentType}/>
+    </div>
+  </div>
+)}
+
+      
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold">Quote Details</h1>
 
         {/* ✅ FIX 2: show button only when editable */}
-        {canEditTechnicalQuote && (
+         { quote.shipmentType !== "Not set" && canEditTechnicalQuote && (
           <Link
             href={`/dashboard/admin/quotes/${quote._id}/technical`}
             className={`rounded-lg px-6 py-3 text-white font-medium transition ${
