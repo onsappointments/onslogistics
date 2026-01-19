@@ -5,7 +5,7 @@ import QuoteActions from "./QuoteActions";
 import Link from "next/link";
 import TechnicalQuoteView from "./TechnicalQuoteView";
 import mongoose from "mongoose";
-import ShowStatus from "@/Components/ShowStatus";
+import ShipmentTypeSelector from "./ShipmentTypeSelector";
 
 export default async function QuoteDetails({ params }) {
   const { id } = await params;
@@ -64,6 +64,7 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
           Please update the quote to continue.
         </p>
       </div>
+      <ShipmentTypeSelector id={quote._id.toString()} current={quote.shipmentType}/>
     </div>
   </div>
 )}
@@ -74,7 +75,7 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
         <h1 className="text-3xl font-semibold">Quote Details</h1>
 
         {/* ✅ FIX 2: show button only when editable */}
-        {canEditTechnicalQuote && (
+         { quote.shipmentType !== "Not set" && canEditTechnicalQuote && (
           <Link
             href={`/dashboard/admin/quotes/${quote._id}/technical`}
             className={`rounded-lg px-6 py-3 text-white font-medium transition ${
