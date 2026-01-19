@@ -38,10 +38,10 @@ const QuoteSchema = new mongoose.Schema(
     freightTerms: String,
     containerType: String,
     modeOfShipment: String,
+
     shipmentType: {
       type: String,
-      enum: ["import", "export", "courier"],
-      required: true,
+      enum: ["import", "export", "courier" , "Not set"],
     },
 
     // Goods information

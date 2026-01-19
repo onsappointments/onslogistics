@@ -1,13 +1,16 @@
 "use client";
-
+import ShowStatus from "@/Components/ShowStatus";
 import { useEffect, useState } from "react";
 
 export default function RequestQuotePage() {
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("");
+   const [status, setStatus] = useState({ title: "", message: "" });
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otp, setOtp] = useState("");
   const [quoteId, setQuoteId] = useState(null);
+  const [statusType, setStatusType] = useState(""); // "success" | "error" | "warning"
+const [showStatusModal, setShowStatusModal] = useState(false);
+
 
   const initialForm = {
     fromCountry: "",
@@ -119,12 +122,42 @@ export default function RequestQuotePage() {
     ).then(setToCities);
   }, [form.toState]);
 
+  // Auto-determine shipment type based on countries
+  useEffect(() => {
+    if (!form.fromCountry || !form.toCountry) {
+      setForm((p) => ({ ...p, shipmentType: "" }));
+      return;
+    }
+
+    const fromIndia = form.fromCountry === "IN";
+    const toIndia = form.toCountry === "IN";
+
+    let shipmentType = "";
+
+    if (fromIndia && toIndia) {
+      shipmentType = "courier";
+    } else if (fromIndia && !toIndia) {
+      shipmentType = "export";
+    } else if (!fromIndia && toIndia) {
+      shipmentType = "import";
+    } else {
+      shipmentType = "Not set";
+    }
+
+    setForm((p) => ({ ...p, shipmentType }));
+  }, [form.fromCountry, form.toCountry]);
+
   // Manual validation for required fields
   const validateForm = () => {
-    const requiredFields = ["firstName", "email", "item", "shipmentType", "company", "fromCountry", "toCountry", "fromCity", "toCity", "modeOfTransport", "modeOfShipment", "phone", "containerType"];
+    const requiredFields = ["firstName", "email", "item", "company", "fromCountry", "toCountry", "fromCity", "toCity", "modeOfTransport", "modeOfShipment", "phone", "containerType"];
     for (const field of requiredFields) {
       if (!form[field]?.trim()) {
-        setStatus(`Please fill the ${field.replace(/([A-Z])/g, " $1")} field.`);
+        showStatus(
+  "warning",
+  "Missing Required Field",
+  `Please fill the ${field.replace(/([A-Z])/g, " $1")} field.`
+);
+
         return false;
       }
     }
@@ -149,14 +182,16 @@ export default function RequestQuotePage() {
       const data = await res.json();
   
       if (!res.ok) {
-        setStatus(data.error || "Failed to send OTP");
+        showStatus("error", "OTP Error", data.error || "Failed to send OTP");
+
         setLoading(false);
         return;
       }
   
       setQuoteId(data.otpId);
       setShowOtpModal(true);
-      setStatus("OTP sent to your email");
+      showStatus("success", "OTP Sent", "An OTP has been sent to your email.");
+
   
     } catch (err) {
       console.error(err);
@@ -168,7 +203,12 @@ export default function RequestQuotePage() {
 
   const handleVerifyOtp = async () => {
     if (!otp.trim()) {
-      setStatus("Please enter OTP");
+      showStatus(
+  "warning",
+  "Please enter the OTP",
+  ""
+);
+
       return;
     }
   
@@ -184,12 +224,18 @@ export default function RequestQuotePage() {
       const data = await res.json();
   
       if (!res.ok) {
-        setStatus(data.error || "Invalid OTP");
+        showStatus("error", "Invalid OTP", data.error || "Invalid OTP");
+
         setLoading(false);
         return;
       }
   
-      setStatus("Your quote request has been submitted successfully!");
+      showStatus(
+  "success",
+  "Quote Submitted",
+  "Your quote request has been submitted successfully!"
+);
+
       setForm(initialForm);
       setShowOtpModal(false);
       setOtp("");
@@ -202,6 +248,13 @@ export default function RequestQuotePage() {
   
     setLoading(false);
   };
+
+  const showStatus = (type, title, message) => {
+  setStatusType(type);
+  setStatus({ title, message });
+  setShowStatusModal(true);
+};
+
 
   return (
     <main className="bg-[#F5F5F7] min-h-screen py-16 px-6">
@@ -420,6 +473,7 @@ export default function RequestQuotePage() {
                 </select>
               </div>
             </div>
+
           </section>
 
           {/* Shipment Details */}
@@ -600,88 +654,68 @@ export default function RequestQuotePage() {
                 </select>
               </div>
 
-              {/* Shipment Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Shipment Type <span className="text-red-500">*</span>
+                  Value of Goods
                 </label>
-                <select
-                  name="shipmentType"
-                  value={form.shipmentType}
-                  onChange={handleChange}
-                  className="input-box"
-                >
-                  <option value="">Select Shipment Type</option>
-                  <option>import</option>
-                  <option>export</option>
-                  <option>courier</option>
-                </select>
+
+                <div className="flex gap-3 items-center">
+                  <select
+                    name="currency"
+                    value={form.currency}
+                    onChange={handleChange}
+                    className="input-box !w-32 !min-h-[48px]"
+                  >
+                    <option>INR</option>
+                    <option>USD</option>
+                    <option>AED</option>
+                    <option>EUR</option>
+                    <option>GBP</option>
+                  </select>
+
+                  <input
+                    name="valueOfGoods"
+                    value={form.valueOfGoods}
+                    onChange={handleChange}
+                    placeholder="Enter value"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="input-box flex-1 !min-h-[48px]"
+                  />
+                </div>
               </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Value of Goods
-          </label>
+              {/* Total Weight */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Total Weight
+                </label>
 
-          <div className="flex gap-3 items-center">
-            <select
-              name="currency"
-              value={form.currency}
-              onChange={handleChange}
-              className="input-box !w-32 !min-h-[48px]"   // FORCES proper size
-            >
-              <option>INR</option>
-              <option>USD</option>
-              <option>AED</option>
-              <option>EUR</option>
-              <option>GBP</option>
-            </select>
+                <div className="flex gap-3 items-center">
+                  <input
+                    name="totalWeight"
+                    value={form.totalWeight}
+                    onChange={handleChange}
+                    placeholder="Enter weight"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="input-box flex-1 !min-h-[48px]"
+                  />
 
-            <input
-              name="valueOfGoods"
-              value={form.valueOfGoods}
-              onChange={handleChange}
-              placeholder="Enter value"
-              type="number"
-              min="0"
-              step="0.01"
-              className="input-box flex-1 !min-h-[48px]"
-            />
-          </div>
-        </div>
-
-
-
-              {/* Total Weight - FIXED */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Total Weight
-            </label>
-
-            <div className="flex gap-3 items-center">
-              <input
-                name="totalWeight"
-                value={form.totalWeight}
-                onChange={handleChange}
-                placeholder="Enter weight"
-                type="number"
-                min="0"
-                step="0.01"
-                className="input-box flex-1 !min-h-[48px]"
-              />
-
-              <select
-                name="weightMeasure"
-                value={form.weightMeasure}
-                onChange={handleChange}
-                className="input-box !w-32 !min-h-[48px]"
-              >
-                <option>Kgs</option>
-                <option>Lbs</option>
-                <option>Tons</option>
-              </select>
-            </div>
-          </div>
+                  <select
+                    name="weightMeasure"
+                    value={form.weightMeasure}
+                    onChange={handleChange}
+                    className="input-box !w-32 !min-h-[48px]"
+                  >
+                    <option>Kgs</option>
+                    <option>Lbs</option>
+                    <option>Tons</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -897,58 +931,65 @@ export default function RequestQuotePage() {
               type="button"
               disabled={loading}
               onClick={handleSubmitClick}
-              className="px-8 py-4 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
             >
-              {loading ? "Submitting..." : "Submit Quote Request"}
+              {loading ? "Submitting..." : "Submit"}
             </button>
-
-            {status && (
-              <p
-                className={`text-base font-medium text-center ${
-                  status.includes("successfully")
-                    ? "text-green-700"
-                    : "text-red-700"
-                }`}
-              >
-                {status}
-              </p>
-            )}
           </div>
         </form>
+
+{showOtpModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 text-center">
+      <h3 className="text-2xl font-semibold mb-4">Verify OTP</h3>
+      <p className="text-gray-600 mb-4">
+        Enter the 6-digit OTP sent to your email
+      </p>
+
+      <input
+        type="text"
+        maxLength="6"
+        value={otp}
+        onChange={(e) => setOtp(e.target.value)}
+        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-center text-xl tracking-widest outline-none focus:ring focus:ring-blue-300"
+        placeholder="••••••"
+      />
+
+      <div className="flex items-center justify-center gap-4 mt-6">
+        <button
+          onClick={() => setShowOtpModal(false)}
+          className="px-5 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleVerifyOtp}
+          disabled={loading}
+          className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300"
+        >
+          {loading ? "Verifying..." : "Verify OTP"}
+        </button>
       </div>
 
-      {/* OTP Modal */}
-      <div
-        className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
-          showOtpModal ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-          <h3 className="text-2xl font-semibold mb-2">Verify Your Email</h3>
-          <p className="text-gray-600 mb-6 text-sm">
-            We've sent a 6-digit code to {form.email}
-          </p>
+      {status.message && (
+        <p className="text-red-500 text-sm mt-3">{status.message}</p>
+      )}
+    </div>
+  </div>
+)}
 
-          <input
-            type="text"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            placeholder="Enter 6-digit OTP"
-            maxLength="6"
-            className="input-box text-center text-2xl tracking-widest font-mono mb-4"
-          />
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleVerifyOtp}
-              disabled={loading || otp.length !== 6}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"          
-            >
-              {loading ? "Verifying..." : "Verify"}
-            </button>
-          </div>
-        </div>  
       </div>
-      </main>
-    );
+
+{showStatusModal && (
+  <ShowStatus
+    type={statusType}
+    title={status.title}
+    message={status.message}
+    onClose={() => setShowStatusModal(false)}
+  />
+)}
+
+    </main>
+  );
 }

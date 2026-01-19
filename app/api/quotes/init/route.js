@@ -19,7 +19,6 @@ export async function POST(req) {
       "toCity",
       "item",
       "modeOfTransport",
-      "shipmentType",
       "firstName",
       "company",
       "email",
