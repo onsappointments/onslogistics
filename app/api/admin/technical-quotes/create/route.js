@@ -9,8 +9,6 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 import Quote from "@/models/Quote";
 import User from "@/models/User";
 import { logAudit } from "@/lib/audit";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 import {
   IMPORT_HEADS,
@@ -20,6 +18,12 @@ import {
 export async function POST(req) {
   try {
     await connectDB();
+
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { quoteId, shipmentType, lineItems = [] } = await req.json();
 
@@ -208,7 +212,7 @@ export async function POST(req) {
         entityId: techQuote._id,
         action: "created",
         description: "Technical quote created",
-        performedBy: currentUser?._id || null,
+        performedBy: null, // or user._id if you have auth
         meta: {
           quoteId,
           shipmentType,
@@ -219,15 +223,13 @@ export async function POST(req) {
       const wasLockedAfterEdit = updateData.editUsed === true;
 
       await logAudit({
-        entityType: "technical_quote",
-        entityId: techQuote._id,
-        action: wasLockedAfterEdit ? "edited_and_locked" : "saved_draft",
-        description: wasLockedAfterEdit
-          ? "Technical quote edited using one-time access and locked"
-          : "Technical quote saved as draft",
-        performedBy: currentUser?._id || null,
-        meta: {
-          quoteId,
+       entityType: "technical_quote",
+       entityId: techQuote._id,
+       action: "saved_draft",
+       description: "Technical quote saved as draft",
+       performedBy: null,
+       meta: {
+         quoteId,
           updatedLineItems: normalizedLineItems.length,
           wasLockedAfterEdit,
         },

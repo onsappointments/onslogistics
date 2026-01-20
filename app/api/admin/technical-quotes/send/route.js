@@ -4,13 +4,16 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 import { generateTechnicalQuotePdf } from "@/lib/GenerateTechnicalQuotePdf";
 import { logAudit } from "@/lib/audit";
 import sendClientEmail from "@/lib/sendClientEmail";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import User from "@/models/User";
 
 export async function POST(req) {
   try {
     await connectDB();
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
 
     const { quoteId } = await req.json();
 
@@ -137,7 +140,7 @@ if (technicalQuote.status === "sent_to_client" || technicalQuote.status === "cli
       entityId: technicalQuote._id,
       action: "sent_to_client",
       description: "Technical quote finalized and sent to client",
-      performedBy: null,
+      performedBy: session.user.id,
       meta: {
         clientQuoteId: quoteId,
         email: clientQuote.email,

@@ -5,11 +5,26 @@ import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import cloudinary from "@/lib/cloudinary";
 import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 
 export async function POST(req) {
   try {
     await connectDB();
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const performedBy = {
+      userId: session.user.id,
+      email: session.user.email,
+      role: session.user.role,
+      adminType: session.user.adminType,
+    };
+
 
     const formData = await req.formData();
     const jobId = formData.get("jobId");
@@ -68,7 +83,7 @@ export async function POST(req) {
       entityId: job._id,
      action: "document_uploaded",
      description: `Document "${documentName}" uploaded`,
-     performedBy: "admin", // later replace with req.user._id
+     performedBy: session.user.id,
      meta: {
        jobId: job.jobId,
        documentName,

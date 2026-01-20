@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import AuditLog from "@/models/AuditLog";
-
-/*
-  GET /api/admin/audit/logs
-  ?admin=<adminId or email>
-  &from=2026-01-01
-  &to=2026-01-31
-*/
+import mongoose from "mongoose";
 
 export async function GET(req) {
   try {
@@ -19,18 +13,17 @@ export async function GET(req) {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
 
-    if (!admin) {
+    if (!admin || !mongoose.Types.ObjectId.isValid(admin)) {
       return NextResponse.json(
-        { error: "admin parameter is required" },
+        { error: "Valid admin id required" },
         { status: 400 }
       );
     }
 
     const query = {
-      performedBy: admin, // must match how you store it in AuditLog
+      performedBy: new mongoose.Types.ObjectId(admin),
     };
 
-    /* -------- DATE FILTER (optional) -------- */
     if (from || to) {
       query.createdAt = {};
       if (from) query.createdAt.$gte = new Date(from);
@@ -38,6 +31,7 @@ export async function GET(req) {
     }
 
     const logs = await AuditLog.find(query)
+      .populate("performedBy", "fullName email")
       .sort({ createdAt: -1 })
       .limit(500)
       .lean();
