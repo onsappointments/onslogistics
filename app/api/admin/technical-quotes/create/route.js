@@ -43,7 +43,6 @@ export async function POST(req) {
 
     /* ---------------- ✅ PERMISSION CHECK FOR EDITING ---------------- */
     
-    const session = await getServerSession(authOptions);
     let currentUser = null;
     let isSuperAdmin = false;
 

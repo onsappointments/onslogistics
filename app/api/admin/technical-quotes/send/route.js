@@ -22,12 +22,6 @@ export async function POST(req) {
     }
 
     
-
-const session = await getServerSession(authOptions);
-if (!session) {
-  return Response.json({ error: "Unauthorized" }, { status: 401 });
-}
-
 const currentUser = await User.findOne({ email: session.user.email });
 if (!currentUser) {
   return Response.json({ error: "User not found" }, { status: 401 });
