@@ -15,6 +15,17 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // ✅ remarks from body
+    const body = await request.json().catch(() => ({}));
+    const remarks = (body?.remarks || "").trim();
+
+    if (!remarks) {
+      return NextResponse.json(
+        { error: "Remarks are required." },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
 
     const clientQuoteId = params.id;
@@ -69,6 +80,9 @@ export async function POST(request, { params }) {
     quote.editApprovedAt = null;
     quote.editUsed = false;
 
+    // ✅ OPTIONAL: if you add this field in TechnicalQuote schema
+    // quote.editRequestRemarks = remarks;
+
     await quote.save();
 
     // FIND SUPER ADMINS
@@ -87,16 +101,17 @@ export async function POST(request, { params }) {
     const requestedByName =
       currentUser.fullName ||
       `${currentUser.firstName || ""} ${currentUser.lastName || ""}`.trim() ||
-      currentUser.name;
+      currentUser.name ||
+      currentUser.email;
 
-    // CREATE NOTIFICATION
+    // ✅ CREATE NOTIFICATION (store remarks in message)
     const notification = await Notification.create({
       type: "EDIT_REQUEST",
       quoteId: quote._id,
       requestedBy: currentUser._id,
       requestedByEmail: currentUser.email,
       requestedByName,
-      message: `${requestedByName} (${currentUser.email}) requested edit access for technical quote ${clientQuoteId}`,
+      message: remarks, // ✅ THIS IS THE REMARKS YOU FILLED
       recipients: superAdmins.map((admin) => admin._id),
       status: "pending",
     });
@@ -106,7 +121,6 @@ export async function POST(request, { params }) {
       message: `Edit request sent to ${superAdmins.length} super admin(s)`,
       notificationId: notification._id,
     });
-
   } catch (error) {
     console.error("❌ Error processing edit request:", error);
     return NextResponse.json(

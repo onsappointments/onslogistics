@@ -17,12 +17,7 @@ export async function updateJob(formData) {
     throw new Error("Unauthorized");
   }
 
-  const performedBy = {
-    userId: session.user.id,
-    email: session.user.email,
-    role: session.user.role,
-    adminType: session.user.adminType,
-  };
+  const isSuperAdmin = session.user.adminType === "super_admin";
 
   /* ---------------- ID ---------------- */
 
@@ -36,6 +31,22 @@ export async function updateJob(formData) {
   const beforeJob = await Job.findById(id).lean();
   if (!beforeJob) {
     throw new Error("Job not found");
+  }
+
+  /* ---------------- PERMISSION CHECK (SERVER-SIDE) ---------------- */
+
+  const isNewJob = beforeJob.status === "new";
+
+  const isApprovedRequester =
+    beforeJob.editRequestedBy &&
+    String(beforeJob.editRequestedBy) === String(session.user.id) &&
+    beforeJob.editApprovedAt &&
+    beforeJob.editUsed === false;
+
+  const canEdit = isSuperAdmin || isNewJob || isApprovedRequester;
+
+  if (!canEdit) {
+    throw new Error("Edit not allowed");
   }
 
   /* ---------------- UPDATE PAYLOAD ---------------- */
@@ -73,6 +84,18 @@ export async function updateJob(formData) {
 
     commodity: formData.get("commodity") || null,
   };
+
+  // ✅ consume the edit after one successful save (only for approved requester)
+  if (!isSuperAdmin && !isNewJob) {
+    update.editUsed = true;
+
+    // optional but recommended: reset workflow fields (locks again & cleans state)
+    update.editRequestedBy = null;
+    update.editRequestedAt = null;
+    update.editApprovedBy = null;   // super admin who approved
+    update.editApprovedAt = null;
+    update.editRequestRemarks = ""; // if you added this field
+  }
 
   /* ---------------- UPDATE & FETCH AFTER ---------------- */
 

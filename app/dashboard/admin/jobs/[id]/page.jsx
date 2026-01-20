@@ -2,10 +2,14 @@ import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import Link from "next/link";
 import { initiateJob, deleteJob } from "../actions";
-import JobDocumentsPanel from "../JobDocumentsPanel"; // FIXED PATH
-import AuditTimeline from "@/Components/AuditTimeline";
-import AuditTimelineWrapper from "@/Components/AuditTimelineWrapper";
+import JobDocumentsPanel from "../JobDocumentsPanel";
 
+// ✅ NEW: client button (permission + request modal + remarks)
+import EditJobButton from "@/Components/EditJobButton";
+
+// ✅ NEW: get adminType on server (next-auth). Adjust paths if yours differ.
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 export default async function JobDetails({ params }) {
   const { id } = await params;
@@ -18,18 +22,18 @@ export default async function JobDetails({ params }) {
   // Convert ObjectId → string & dates → string
   const plainJob = JSON.parse(JSON.stringify(job));
 
+  // ✅ NEW: determine super admin
+  const session = await getServerSession(authOptions);
+  const isSuperAdmin = session?.user?.adminType === "super_admin";
+
   return (
     <div className="p-10 max-w-5xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6">Job Details</h1>
 
       {/* ACTION BUTTONS */}
       <div className="flex gap-4 mb-6">
-        <Link
-          href={`/dashboard/admin/jobs/${plainJob._id}/edit`}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-        >
-          Edit Job
-        </Link>
+        {/* ✅ Replaces Edit Job Link */}
+        <EditJobButton jobId={plainJob._id} isSuperAdmin={isSuperAdmin} />
 
         {/* Only NEW jobs show Initiate button */}
         {plainJob.status === "new" && (
@@ -49,44 +53,15 @@ export default async function JobDetails({ params }) {
         </form>
 
         {plainJob.status === "active" && (
-       <Link
-        href={`/dashboard/admin/jobs/${plainJob._id}/tracking`}
-        className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
-       >
-        Update Container Status
-       </Link>
-       )}
+          <Link
+            href={`/dashboard/admin/jobs/${plainJob._id}/tracking`}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+          >
+            Update Container Status
+          </Link>
+        )}
       </div>
-      {/* QUOTE ACTIONS */}
-{/*<div className="flex gap-4 mb-6">
-  {plainJob.quoteId && (
-    <Link
-      href={`/dashboard/admin/quotes/${plainJob.quoteId}`}
-      className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-    >
-      View Finalized Quote
-    </Link>
-  )}
 
-  {plainJob.quoteId && !plainJob.technicalQuoteId && (
-    <Link
-      href={`/dashboard/admin/technical-quotes/new?quoteId=${plainJob.quoteId}`}
-      className="px-4 py-2 bg-green-600 text-white rounded-lg"
-    >
-      Add Technical Quote
-    </Link>
-  )}
-
-  /*{plainJob.technicalQuoteId && (
-    <Link
-      href={`/dashboard/admin/technical-quotes/${plainJob.technicalQuoteId}`}
-      className="px-4 py-2 bg-purple-600 text-white rounded-lg"
-    >
-      View Technical Quote
-    </Link>
-  )}
-</div>*/}
-  
       {/* JOB FIELDS */}
       <div className="bg-white shadow rounded-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field label="Job ID" value={plainJob.jobId} />
@@ -119,7 +94,6 @@ export default async function JobDetails({ params }) {
       {plainJob.status === "active" && (
         <section className="bg-white p-6 shadow rounded-xl mt-6">
           <h2 className="text-xl font-semibold mb-4">Required Documents</h2>
-
           <JobDocumentsPanel job={plainJob} />
         </section>
       )}
