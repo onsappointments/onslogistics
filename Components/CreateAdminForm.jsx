@@ -14,6 +14,7 @@ const PERMISSION_OPTIONS = [
   { label: "Active Jobs", value: "job:view_active" },
   {label : "Audit Logs", value: "audit_logs:view"},
   {label: "Create Admin", value: "admin:create"},
+  {label  : "Approval Requests", value: "approvals:permission"},
 ];
 
 export default function CreateAdminForm() {

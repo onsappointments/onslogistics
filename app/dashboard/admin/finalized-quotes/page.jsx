@@ -9,21 +9,36 @@ export const revalidate = 0;
 export default async function FinalizedQuotesPage({ searchParams }) {
   await connectDB();
   const params = await searchParams;
-  const status = params?.status;
 
+  const status = params?.status || null;
+  const show = params?.show || null;  // 👈 NEW FLAG FOR ACTIVE JOBS
+
+  let matchStage = {};
+
+  // -------------------------------
+  // 1️⃣ FILTER LOGIC
+  // -------------------------------
+  if (show === "active_jobs") {
+    // no status filter, we want all quotes that already have a job
+    // (handled later)
+  } else if (status) {
+    matchStage.status = status;
+  } else {
+    matchStage.status = { $in: ["sent_to_client", "client_approved"] };
+  }
+
+  // -------------------------------
+  // 2️⃣ AGGREGATE PIPELINE
+  // -------------------------------
   const quotes = await TechnicalQuote.aggregate([
-    {
-      $match: status
-      ? { status }
-        : { status: { $in: ["sent_to_client", "client_approved"] } },
-    },
+    { $match: matchStage },
 
-    // Only show if grandTotalINR > 0
+    // Only show valid totals & cities
     {
       $match: {
         grandTotalINR: { $gt: 0 },
-        "clientQuote.toCity": {$ne : ""},
-        "clientQuote.fromCity": {$ne : ""},
+        "clientQuote.toCity": { $ne: "" },
+        "clientQuote.fromCity": { $ne: "" },
       },
     },
 
@@ -48,19 +63,19 @@ export default async function FinalizedQuotesPage({ searchParams }) {
       },
     },
 
-    // Hide if converted to job
-    {
-      $match: {
-        $or: [
-          { status: "sent_to_client" },
-          { status: "client_approved", job: { $size: 0 } },
-        ],
-      },
-    },
+    // -------------------------------
+    // 3️⃣ APPLY ACTIVE JOB OR NORMAL FILTERS
+    // -------------------------------
+    show === "active_jobs"
+      ? { $match: { job: { $not: { $size: 0 } } } } // show only converted jobs
+      : {
+          $match: {
+            job: { $size: 0 }, // default: hide jobs
+          },
+        },
 
     { $sort: { createdAt: -1 } },
   ]);
-
 
   console.log("📦 Quotes received:", quotes);
 
@@ -68,7 +83,7 @@ export default async function FinalizedQuotesPage({ searchParams }) {
     <div className="p-10 max-w-7xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6">Finalized Quotes</h1>
 
-      <FilterTabs active={status || "all"} />
+      <FilterTabs active={show || status || "all"} />
 
       <div className="bg-white rounded-xl shadow overflow-hidden mt-6">
         <table className="w-full text-sm">
@@ -96,7 +111,8 @@ export default async function FinalizedQuotesPage({ searchParams }) {
                 );
 
               return (
-                <tr  key={q._id} className="border-t hover:bg-gray-50">
+                <tr key={q._id} className="border-t hover:bg-gray-50">
+
                   {/* CLIENT */}
                   <td className="p-4">
                     <div className="font-semibold">{c.company}</div>
@@ -107,21 +123,20 @@ export default async function FinalizedQuotesPage({ searchParams }) {
                     <div className="text-xs text-gray-500">{c.phone}</div>
                   </td>
 
-                  {/* SHIPMENT DETAILS */}
+                  {/* SHIPMENT */}
                   <td className="p-4 text-center">
-                    <div className="capitalize font-medium ">
+                    <div className="capitalize font-medium">
                       {q.shipmentType}
                     </div>
                     <div className="text-xs">
                       <strong>Origin:</strong> {c.fromCity}, {c.fromCountry}
                     </div>
                     <div className="text-xs">
-                      <strong>Destination:</strong> {c.toCity},{" "}
-                      {c.toCountry}
+                      <strong>Destination:</strong> {c.toCity}, {c.toCountry}
                     </div>
                   </td>
 
-                  {/* CURRENCY SUMMARY */}
+                  {/* CURRENCY */}
                   <td className="p-4 text-md font-semibold text-center text-gray-700">
                     {currencyLines.length > 0
                       ? currencyLines.map((l, i) => (
@@ -138,7 +153,13 @@ export default async function FinalizedQuotesPage({ searchParams }) {
                   </td>
 
                   {/* STATUS */}
-                  <td className={`p-4 capitalize ${q.status === "sent_to_client" ? "text-red-500" : "bg-green-100 text-green-700"}`}>
+                  <td
+                    className={`p-4 capitalize ${
+                      q.status === "sent_to_client"
+                        ? "text-red-500"
+                        : " text-green-700"
+                    }`}
+                  >
                     {q.status.replaceAll("_", " ")}
                   </td>
 

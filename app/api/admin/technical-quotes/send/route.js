@@ -4,6 +4,9 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 import { generateTechnicalQuotePdf } from "@/lib/GenerateTechnicalQuotePdf";
 import { logAudit } from "@/lib/audit";
 import sendClientEmail from "@/lib/sendClientEmail";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import User from "@/models/User";
 
 export async function POST(req) {
   try {
@@ -14,6 +17,18 @@ export async function POST(req) {
     if (!quoteId) {
       return Response.json({ error: "quoteId required" }, { status: 400 });
     }
+
+    
+
+const session = await getServerSession(authOptions);
+if (!session) {
+  return Response.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+const currentUser = await User.findOne({ email: session.user.email });
+if (!currentUser) {
+  return Response.json({ error: "User not found" }, { status: 401 });
+}
 
     /* ---------------- FETCH CLIENT QUOTE ---------------- */
 
@@ -34,6 +49,32 @@ export async function POST(req) {
         { status: 404 }
       );
     }
+
+    /* ---------------- PERMISSION CHECK ---------------- */
+
+if (technicalQuote.status === "sent_to_client" || technicalQuote.status === "client_approved") {
+  const isSuperAdmin = currentUser.adminType === "super_admin";
+
+  const isApprovedAdmin =
+    technicalQuote.editApprovedBy &&
+    String(technicalQuote.editApprovedBy) === String(currentUser._id) &&
+    technicalQuote.editUsed === false;
+
+  if (!isSuperAdmin && !isApprovedAdmin) {
+    return Response.json(
+      { error: "You do not have permission to finalize again." },
+      { status: 403 }
+    );
+  }
+
+  // If approved admin → mark the edit as already used
+  if (isApprovedAdmin) {
+    technicalQuote.editUsed = true;
+    await technicalQuote.save();
+  }
+}
+
+    
 
     /* ---------------- PREVENT RESEND ---------------- */
 
@@ -70,12 +111,6 @@ export async function POST(req) {
     const approveUrl = `${baseUrl}/client/quotes/${techQuoteIdStr}/approve`;
     const rejectUrl = `${baseUrl}/client/quotes/${techQuoteIdStr}/reject`;
 
-    console.log('=== EMAIL URLS ===');
-    console.log('Base:', baseUrl);
-    console.log('View:', viewQuoteUrl);
-    console.log('Approve:', approveUrl);
-    console.log('Reject:', rejectUrl);
-    console.log('==================');
 
     /* ---------------- BUILD EMAIL HTML ---------------- */
 

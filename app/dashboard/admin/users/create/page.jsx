@@ -13,8 +13,8 @@ export default async function CreateAdminPage() {
 
 return(
     <>
-    <select name="admins" id="">
-        {admins.map(a => <option value={a.email}>{a.email}</option>)}
+    <select  name={"admins"} id="">
+        {admins.map(a => <option key={a._id} value={a.email}>{a.email}</option>)}
     </select>
     <CreateAdminForm/>
     </>
