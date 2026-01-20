@@ -14,6 +14,7 @@ export default function NotificationBell() {
   const [approvingId, setApprovingId] = useState(null);
 
   const isSuperAdmin = session?.user?.adminType === "super_admin";
+  const currentUserId = session?.user?.id;
 
   useEffect(() => {
     fetchNotifications();
@@ -22,12 +23,13 @@ export default function NotificationBell() {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/notifications");
-      if (res.ok) {
-        const data = await res.json();
-        setNotifications(data.notifications || []);
-        setUnreadCount(data.unreadCount || 0);
-      }
+      const res = await fetch("/api/notifications", { cache: "no-store" });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.unreadCount || 0);
     } catch (e) {
       console.error("Error loading notifications", e);
     } finally {
@@ -44,50 +46,68 @@ export default function NotificationBell() {
 
     fetchNotifications();
   };
-  
-  // APPROVE USING CLIENT QUOTE ID (not technical)
-const handleApproval = async (clientQuoteId) => {
-  if (!clientQuoteId) {
-    console.warn("No clientQuoteId provided");
-    alert("Missing Client Quote ID.");
-    return;
-  }
 
-  setApprovingId(clientQuoteId);
-
-  try {
-    const res = await fetch(
-      `/api/quotes/${clientQuoteId}/approve-edit`, // ← FIXED
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    let data = {};
-    try {
-      data = await res.json();
-    } catch {
-      data = { error: "Invalid server response" };
-    }
-
-    console.log("APPROVE RESPONSE:", data);
-
-    if (!res.ok) {
-      alert(data.error || "Approval failed.");
+  // Approve QUOTE edit
+  const approveQuoteEdit = async (clientQuoteId) => {
+    if (!clientQuoteId) {
+      alert("Missing Client Quote ID.");
       return;
     }
 
-    alert("Edit request approved successfully.");
+    setApprovingId(`quote:${clientQuoteId}`);
 
-    await fetchNotifications();
-  } catch (err) {
-    console.error("APPROVAL ERROR:", err);
-    alert("Something went wrong.");
-  } finally {
-    setApprovingId(null);
-  }
-};
+    try {
+      const res = await fetch(`/api/quotes/${clientQuoteId}/approve-edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error || "Approval failed.");
+        return;
+      }
+
+      alert("Quote edit request approved successfully.");
+      await fetchNotifications();
+    } catch (err) {
+      console.error("QUOTE APPROVAL ERROR:", err);
+      alert("Something went wrong.");
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
+  // Approve JOB edit
+  const approveJobEdit = async (jobId) => {
+    if (!jobId) {
+      alert("Missing Job ID.");
+      return;
+    }
+
+    setApprovingId(`job:${jobId}`);
+
+    try {
+      const res = await fetch(`/api/admin/jobs/${jobId}/approve-edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error || "Approval failed.");
+        return;
+      }
+
+      alert("Job edit request approved successfully.");
+      await fetchNotifications();
+    } catch (err) {
+      console.error("JOB APPROVAL ERROR:", err);
+      alert("Something went wrong.");
+    } finally {
+      setApprovingId(null);
+    }
+  };
 
   const getTimeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -101,7 +121,6 @@ const handleApproval = async (clientQuoteId) => {
 
   return (
     <div className="relative">
-      {/* Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-blue-50 w-full text-left relative"
@@ -114,7 +133,6 @@ const handleApproval = async (clientQuoteId) => {
         )}
       </button>
 
-      {/* Dropdown */}
       {isOpen && (
         <div className="absolute bottom-full mb-2 w-96 bg-white rounded-lg shadow-xl border z-50 max-h-[500px] overflow-y-auto">
           <div className="p-4 border-b">
@@ -131,17 +149,62 @@ const handleApproval = async (clientQuoteId) => {
 
           {!loading &&
             notifications.map((notif) => {
-              const isRead = notif.readBy?.length > 0;
+              const isRead = Boolean(
+                notif.readBy?.some(
+                  (r) =>
+                    String(r.userId) === String(currentUserId) ||
+                    String(r.userId?._id) === String(currentUserId)
+                )
+              );
 
-              const technicalQuote = notif.quoteId;
+              // jobId can be string or populated object
+              const rawJob = notif.jobId;
+              const jobId =
+                typeof rawJob === "string"
+                  ? rawJob
+                  : rawJob?._id
+                  ? String(rawJob._id)
+                  : null;
 
-              // Safe extraction
+              const rawTechQuote = notif.quoteId;
+
               const clientQuoteId =
-                typeof technicalQuote?.clientQuoteId === "string"
-                  ? technicalQuote.clientQuoteId
-                  : technicalQuote?.clientQuoteId?._id;
+                typeof rawTechQuote?.clientQuoteId === "string"
+                  ? rawTechQuote.clientQuoteId
+                  : rawTechQuote?.clientQuoteId?._id
+                  ? String(rawTechQuote.clientQuoteId._id)
+                  : null;
 
-              const technicalQuoteId = technicalQuote?._id;
+              const isJobNotif = Boolean(jobId);
+              const isQuoteNotif = Boolean(clientQuoteId);
+
+              const title =
+                notif.type === "EDIT_REQUEST"
+                  ? "Edit Request"
+                  : notif.type === "EDIT_APPROVED"
+                  ? "Edit Approved"
+                  : notif.type === "EDIT_REJECTED"
+                  ? "Edit Rejected"
+                  : "Notification";
+
+              const jobReadable = rawJob?.jobId || jobId || "";
+
+              const description = isJobNotif
+                ? `${notif.requestedByName} requested to edit job ${jobReadable}`
+                : `${notif.requestedByName} requested to edit this quote`;
+
+              // ✅ show remarks/message
+              const remarkText =
+                (notif.remarks && notif.remarks.trim()) ||
+                (notif.message && notif.message.trim()) ||
+                "";
+
+              const canApprove =
+  Boolean(isSuperAdmin) &&
+  notif.status === "pending" &&
+  (notif.type === "EDIT_REQUEST" || notif.type === "JOB_EDIT_REQUEST") &&
+  (isJobNotif || isQuoteNotif);
+
 
               return (
                 <div
@@ -151,17 +214,21 @@ const handleApproval = async (clientQuoteId) => {
                   }`}
                 >
                   <div className="flex justify-between items-start gap-3">
-                    {/* LEFT */}
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">
-                        {notif.type === "EDIT_REQUEST" && "Edit Request"}
+                        {title}
                       </p>
 
-                      <p className="text-sm text-gray-600 mt-1">
-                        {notif.requestedByName} requested to edit this quote
-                      </p>
+                      <p className="text-sm text-gray-600 mt-1">{description}</p>
 
-                      <p className="text-xs mt-1">
+                      {remarkText && (
+                        <p className="text-sm text-gray-700 mt-2">
+                          <span className="font-medium">Remarks: </span>
+                          {remarkText}
+                        </p>
+                      )}
+
+                      <p className="text-xs mt-2">
                         {notif.status === "pending" && (
                           <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded">
                             Pending
@@ -172,13 +239,28 @@ const handleApproval = async (clientQuoteId) => {
                             Approved
                           </span>
                         )}
+                        {notif.status === "rejected" && (
+                          <span className="px-2 py-1 bg-red-100 text-red-700 rounded">
+                            Rejected
+                          </span>
+                        )}
                       </p>
 
                       <p className="text-xs text-gray-500 mt-2">
                         {getTimeAgo(notif.createdAt)}
                       </p>
 
-                      {clientQuoteId && (
+                      {isJobNotif && jobId && (
+                        <Link
+                          href={`/dashboard/admin/jobs/${jobId}`}
+                          className="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          View Job →
+                        </Link>
+                      )}
+
+                      {!isJobNotif && isQuoteNotif && clientQuoteId && (
                         <Link
                           href={`/dashboard/admin/quotes/${clientQuoteId}`}
                           className="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800"
@@ -189,7 +271,6 @@ const handleApproval = async (clientQuoteId) => {
                       )}
                     </div>
 
-                    {/* RIGHT */}
                     <div className="flex flex-col items-end gap-2">
                       <button
                         onClick={() => markAsRead(notif._id)}
@@ -198,20 +279,29 @@ const handleApproval = async (clientQuoteId) => {
                         Mark as read
                       </button>
 
-                      {isSuperAdmin &&
-                        notif.type === "EDIT_REQUEST" &&
-                        notif.status === "pending" &&
-                        technicalQuoteId && (
-                          <button
-                            onClick={() => handleApproval(clientQuoteId)}
-                            disabled={approvingId === clientQuoteId}
-                            className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 disabled:opacity-50"
-                          >
-                            {approvingId === clientQuoteId
-                              ? "Approving..."
-                              : "Approve"}
-                          </button>
-                        )}
+                      {canApprove && (
+                        <button
+                          onClick={() =>
+                            isJobNotif
+                              ? approveJobEdit(jobId)
+                              : approveQuoteEdit(clientQuoteId)
+                          }
+                          disabled={
+                            approvingId ===
+                            (isJobNotif
+                              ? `job:${jobId}`
+                              : `quote:${clientQuoteId}`)
+                          }
+                          className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 disabled:opacity-50"
+                        >
+                          {approvingId ===
+                          (isJobNotif
+                            ? `job:${jobId}`
+                            : `quote:${clientQuoteId}`)
+                            ? "Approving..."
+                            : "Approve"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -7,6 +7,11 @@ import connectDB from "@/lib/mongodb";
 import Notification from "@/models/Notification";
 import User from "@/models/User";
 
+// ✅ IMPORTANT: register models used in populate
+import TechnicalQuote from "@/models/TechnicalQuote";
+import Quote from "@/models/Quote";
+import Job from "@/models/Job";
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -27,7 +32,7 @@ export async function GET() {
     const notifications = await Notification.find({
       recipients: currentUser._id,
     })
-      .populate("requestedBy", "name email")
+      .populate("requestedBy", "fullName email") // ✅ your User field is fullName
       .populate({
         path: "quoteId",
         model: "TechnicalQuote",
@@ -36,9 +41,13 @@ export async function GET() {
           model: "Quote",
         },
       })
+      .populate({
+        path: "jobId",
+        model: "Job",
+      })
       .sort({ createdAt: -1 })
       .limit(50)
-      .lean(); // Convert to plain JS objects
+      .lean();
 
     // Count unread notifications
     const unreadCount = notifications.filter(
