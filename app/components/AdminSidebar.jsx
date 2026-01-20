@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { permission } from "process";
+import NotificationBell from "./NotificationBell";
+
+
+
 
 /* ---------------- MENU CONFIG ---------------- */
 
@@ -47,7 +50,7 @@ const ADMIN_MENU = [
     name: "Create Admin",
     href: "/dashboard/admin/users/create",
     permission: "admin:create",
-  }
+  },
 ];
 
 export default function AdminSidebar() {
@@ -55,7 +58,7 @@ export default function AdminSidebar() {
   const { data: session } = useSession();
 
   const permissions = session?.user?.permissions || [];
-
+  const adminType = session?.user?.adminType || null;
   return (
     <aside className="w-64  bg-white/80 border-r border-gray-200 shadow-md p-6 flex flex-col">
       {/* HEADER */}
@@ -80,6 +83,12 @@ export default function AdminSidebar() {
             {item.name}
           </Link>
         ))}
+
+        {
+          adminType === "super_admin" && (
+          <NotificationBell session={session} />
+          )
+        }
 
         {/* Fallback if no permissions */}
         {permissions.length === 0 && (

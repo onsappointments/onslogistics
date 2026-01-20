@@ -13,44 +13,56 @@ export default function TechnicalQuotePage() {
   const [status, setStatus] = useState("draft");
   const [loading, setLoading] = useState(true);
 
-  /* ---------------- FETCH DATA ---------------- */
+  const [permission, setPermission] = useState(null);
+
+  /* -------------------------------------------
+      LOAD QUOTE + TECHNICAL QUOTE
+  --------------------------------------------- */
   useEffect(() => {
     const fetchData = async () => {
       const res = await fetch(`/api/admin/quotes/${id}`);
       const data = await res.json();
 
-      setQuote(data.quote);
+      const q =
+        data?.quote ||
+        data?.clientQuote ||
+        data?.data?.quote ||
+        null;
+
+      if (!q) {
+        alert("Quote not found");
+        setLoading(false);
+        return;
+      }
+
+      setQuote(q);
 
       if (data.technicalQuote) {
         setCharges(data.technicalQuote.lineItems || []);
         setStatus(data.technicalQuote.status);
       } else {
+        // new quote → allow ANY admin to create a technical quote
         const heads =
-          data.quote.shipmentType === "import"
-            ? IMPORT_HEADS
-            : EXPORT_HEADS;
+          q.shipmentType === "import" ? IMPORT_HEADS : EXPORT_HEADS;
 
         setCharges(
-          heads.map((head) => ({
-            head,
+          heads.map((h) => ({
+            head: h,
             quantity: 0,
             rate: 0,
             currency: "INR",
             exchangeRate: 1,
-
             igstPercent: 0,
             igstAmount: 0,
-
             cgstPercent: 0,
             cgstAmount: 0,
-
             sgstPercent: 0,
             sgstAmount: 0,
-
             baseAmount: 0,
             totalAmount: 0,
           }))
         );
+        setStatus("draft");
       }
 
       setLoading(false);
@@ -59,11 +71,47 @@ export default function TechnicalQuotePage() {
     fetchData();
   }, [id]);
 
-  const isFinal = status === "sent_to_client";
+  /* -------------------------------------------
+      FETCH PERMISSION
+  --------------------------------------------- */
+  useEffect(() => {
+    const loadPermission = async () => {
+      try {
+        const res = await fetch(`/api/quotes/${id}/check-permission`);
+        const p = await res.json();
+        setPermission(p);
+      } catch (err) {
+        console.error("Permission check failed:", err);
+      }
+    };
 
-  /* ---------------- UPDATE LINE ---------------- */
+    loadPermission();
+  }, [id]);
+
+  /* -------------------------------------------
+      EDIT LOCK LOGIC
+  --------------------------------------------- */
+
+  const isSuperAdmin = permission?.role === "super_admin";
+
+  const isNewQuote = !status || status === "draft";
+
+  // Only user with approval can edit sent/approved quotes
+  const canEdit =
+    isSuperAdmin ||
+    permission?.canEdit === true ||
+    isNewQuote;
+
+  const isFinalLocked =
+    (status === "sent_to_client" ||
+      status === "client_approved") &&
+    !canEdit;
+
+  /* -------------------------------------------
+      UPDATE LINE
+  --------------------------------------------- */
   const updateLine = (index, field, value) => {
-    if (isFinal) return;
+    if (isFinalLocked) return;
 
     const updated = [...charges];
     const row = { ...updated[index], [field]: value };
@@ -89,8 +137,15 @@ export default function TechnicalQuotePage() {
     setCharges(updated);
   };
 
-  /* ---------------- SAVE ---------------- */
+  /* -------------------------------------------
+      SAVE DRAFT
+  --------------------------------------------- */
   const saveDraft = async () => {
+    if (isFinalLocked) {
+      alert("You don't have permission to edit.");
+      return;
+    }
+
     await fetch("/api/admin/technical-quotes/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -105,9 +160,16 @@ export default function TechnicalQuotePage() {
     router.push(`/dashboard/admin/quotes/${id}`);
   };
 
-  /* ---------------- FINALIZE ---------------- */
+  /* -------------------------------------------
+      FINALIZE & SEND
+  --------------------------------------------- */
   const finalizeQuote = async () => {
-    if (!confirm("After sending, quote cannot be edited. Continue?")) return;
+    if (isFinalLocked) {
+      alert("You don't have permission to finalize this quote");
+      return;
+    }
+
+    if (!confirm("After sending, quote will lock. Continue?")) return;
 
     await fetch("/api/admin/technical-quotes/send", {
       method: "POST",
@@ -119,22 +181,29 @@ export default function TechnicalQuotePage() {
     router.push(`/dashboard/admin/quotes/${id}`);
   };
 
-  if (loading) return <p className="p-10">Loading…</p>;
-
-  /* ---------------- TOTALS (DISPLAY ONLY) ---------------- */
+  /* -------------------------------------------
+      TOTALS
+  --------------------------------------------- */
   const subtotal = charges.reduce((s, i) => s + i.baseAmount, 0);
   const igstTotal = charges.reduce((s, i) => s + i.igstAmount, 0);
   const cgstTotal = charges.reduce((s, i) => s + i.cgstAmount, 0);
   const sgstTotal = charges.reduce((s, i) => s + i.sgstAmount, 0);
-  const grandTotal = subtotal + igstTotal + cgstTotal + sgstTotal;
+  const grandTotal =
+    subtotal + igstTotal + cgstTotal + sgstTotal;
 
-  /* ---------------- UI ---------------- */
+  /* -------------------------------------------
+      UI
+  --------------------------------------------- */
+
+  if (loading) return <p className="p-10">Loading…</p>;
+
   return (
     <div className="p-10 max-w-7xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6">
-        Technical Quote ({quote.shipmentType.toUpperCase()})
+        Technical Quote
       </h1>
 
+      {/* Table */}
       <div className="overflow-x-auto bg-white border rounded-xl">
         <table className="w-full text-sm">
           <thead className="bg-gray-100">
@@ -165,7 +234,7 @@ export default function TechnicalQuotePage() {
                       updateLine(i, "quantity", e.target.value)
                     }
                     className="border w-16 p-1"
-                    disabled={isFinal}
+                    disabled={isFinalLocked}
                   />
                 </td>
 
@@ -178,7 +247,7 @@ export default function TechnicalQuotePage() {
                       updateLine(i, "rate", e.target.value)
                     }
                     className="border w-24 p-1"
-                    disabled={isFinal}
+                    disabled={isFinalLocked}
                   />
                 </td>
 
@@ -188,8 +257,8 @@ export default function TechnicalQuotePage() {
                     onChange={(e) =>
                       updateLine(i, "currency", e.target.value)
                     }
-                    disabled={isFinal}
                     className="border p-1"
+                    disabled={isFinalLocked}
                   >
                     <option>INR</option>
                     <option>USD</option>
@@ -206,7 +275,7 @@ export default function TechnicalQuotePage() {
                       updateLine(i, "exchangeRate", e.target.value)
                     }
                     className="border w-20 p-1"
-                    disabled={isFinal}
+                    disabled={isFinalLocked}
                   />
                 </td>
 
@@ -219,7 +288,7 @@ export default function TechnicalQuotePage() {
                       updateLine(i, "igstPercent", e.target.value)
                     }
                     className="border w-16 p-1"
-                    disabled={isFinal}
+                    disabled={isFinalLocked}
                   />
                 </td>
 
@@ -232,7 +301,7 @@ export default function TechnicalQuotePage() {
                       updateLine(i, "cgstPercent", e.target.value)
                     }
                     className="border w-16 p-1"
-                    disabled={isFinal}
+                    disabled={isFinalLocked}
                   />
                 </td>
 
@@ -245,7 +314,7 @@ export default function TechnicalQuotePage() {
                       updateLine(i, "sgstPercent", e.target.value)
                     }
                     className="border w-16 p-1"
-                    disabled={isFinal}
+                    disabled={isFinalLocked}
                   />
                 </td>
 
@@ -258,7 +327,7 @@ export default function TechnicalQuotePage() {
         </table>
       </div>
 
-      {/* TOTALS */}
+      {/* Totals */}
       <div className="mt-6 max-w-md ml-auto bg-gray-50 p-4 rounded">
         <p>Subtotal: ₹{subtotal.toFixed(2)}</p>
         <p>IGST: ₹{igstTotal.toFixed(2)}</p>
@@ -269,11 +338,13 @@ export default function TechnicalQuotePage() {
         </p>
       </div>
 
-      {!isFinal && (
+      {/* Buttons */}
+      {!isFinalLocked && (
         <div className="mt-8 flex gap-4">
           <button onClick={saveDraft} className="btn-primary">
             Save Draft
           </button>
+
           <button onClick={finalizeQuote} className="btn-success">
             Finalize & Send
           </button>

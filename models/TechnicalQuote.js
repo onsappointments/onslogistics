@@ -103,11 +103,32 @@ const TechnicalQuoteSchema = new mongoose.Schema(
     type: String,
     default: "",
 },
-
-
-    createdBy: {
+  editRequestedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: null,
+    },
+
+    // Step 2: Super admin approves
+    editApprovedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    editApprovedAt: {
+      type: Date,
+      default: null,
+    },
+    editRequestedAt: {
+  type: Date,
+  default: null,
+},
+
+    // Step 3: After the admin edits once, lock again
+    editUsed: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
