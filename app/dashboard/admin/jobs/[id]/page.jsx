@@ -58,7 +58,7 @@ export default async function JobDetails({ params }) {
        )}
       </div>
       {/* QUOTE ACTIONS */}
-<div className="flex gap-4 mb-6">
+{/*<div className="flex gap-4 mb-6">
   {plainJob.quoteId && (
     <Link
       href={`/dashboard/admin/quotes/${plainJob.quoteId}`}
@@ -68,7 +68,7 @@ export default async function JobDetails({ params }) {
     </Link>
   )}
 
-  {/*{plainJob.quoteId && !plainJob.technicalQuoteId && (
+  {plainJob.quoteId && !plainJob.technicalQuoteId && (
     <Link
       href={`/dashboard/admin/technical-quotes/new?quoteId=${plainJob.quoteId}`}
       className="px-4 py-2 bg-green-600 text-white rounded-lg"
@@ -84,8 +84,8 @@ export default async function JobDetails({ params }) {
     >
       View Technical Quote
     </Link>
-  )}*/}
-</div>
+  )}
+</div>*/}
   
       {/* JOB FIELDS */}
       <div className="bg-white shadow rounded-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-4">

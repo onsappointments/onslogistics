@@ -138,7 +138,7 @@ export default function JobDocumentsPanel({ job }) {
         ),
       }));
 
-      alert("Document confirmed. Email sent to client.");
+      alert("Document confirmed. ");
     } catch (err) {
       alert("Error confirming document");
     } finally {
