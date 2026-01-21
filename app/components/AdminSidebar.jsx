@@ -15,11 +15,38 @@ const ADMIN_MENU = [
     href: "/dashboard/admin/finalized-quotes",
     permission: "quote:view_finalized",
   },
-  { name: "Create a Job", href: "/dashboard/admin/jobs/create", permission: "job:create" },
-  { name: "New Jobs", href: "/dashboard/admin/jobs/new", permission: "job:view_new" },
-  { name: "Active Jobs", href: "/dashboard/admin/jobs/active", permission: "job:view_active" },
-  { name: "Audit Logs", href: "/dashboard/admin/audit", permission: "audit_logs:view" },
-  { name: "Create Admin", href: "/dashboard/admin/users/create", permission: "admin:create" },
+
+  {
+    name: "Create a Job",
+    href: "/dashboard/admin/jobs/create",
+    permission: "job:create",
+  },
+  {
+    name: "New Jobs",
+    href: "/dashboard/admin/jobs/new",
+    permission: "job:view_new",
+  },
+  {
+    name: "Active Jobs",
+    href: "/dashboard/admin/jobs/active",
+    permission: "job:view_active",
+  },
+  {
+    name: "Couriers",
+    href: "/dashboard/admin/reception/dispatch",
+    permission: "couriers:view",
+  },
+  {
+    name: "Audit Logs",
+    href: "/dashboard/admin/audit",
+    permission: "audit_logs:view",
+  },
+  {
+    name: "Create Admin",
+    href: "/dashboard/admin/users/create",
+    permission: "admin:create",
+  },
+
 ];
 
 export default function AdminSidebar() {
