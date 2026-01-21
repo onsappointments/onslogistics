@@ -1,5 +1,5 @@
 import connectDB from "@/lib/mongodb";
-import Quote from "@/models/Quote";
+import Job from "@/models/Job";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
@@ -11,18 +11,30 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const query = searchParams.get("q") || "";
+    const query = (searchParams.get("company") || "").trim();
 
     await connectDB();
 
-    const clients = await User.find({
-      role: "client",
-      businessName: { $regex: query || "", $options: "i" },
-    }).select("-password"); // hide passwords
+    const filter = query
+      ? { company: { $regex: query, $options: "i" } }
+      : {};
 
-    return new Response(JSON.stringify(companies), { status: 200 });
+    const jobs = await Job.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .select(
+        "jobId jobNumber company customerName shipper consignee portOfLoading portOfDischarge status stage createdAt"
+      );
+
+    return new Response(JSON.stringify({ jobs }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err) {
-    console.error("Company search error:", err);
-    return new Response("Server error", { status: 500 });
+    console.error("Job search error:", err);
+    return new Response(JSON.stringify({ error: "Server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

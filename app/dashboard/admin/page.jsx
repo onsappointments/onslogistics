@@ -6,13 +6,18 @@ import { useState, useEffect } from "react";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [clients, setClients] = useState([]);
+
+  // ----- CLIENT SEARCH -----
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedClientDetails, setSelectedClientDetails] = useState(null);
   const [shipments, setShipments] = useState([]);
   const [docs, setDocs] = useState([]);
   const [uploading, setUploading] = useState(false);
+
+  // ----- JOB SEARCH (NEW) -----
+  const [jobSearchTerm, setJobSearchTerm] = useState("");
+  const [jobs, setJobs] = useState([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
 
   // Protect admin route
   useEffect(() => {
@@ -22,22 +27,20 @@ export default function AdminDashboard() {
     }
   }, [status, session]);
 
-  // Search client by business name
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) return;
-
-    const res = await fetch(`/api/clients?company=${searchTerm}`);
-    const data = await res.json();
-    setClients(data);
-  };
 
   // Fetch shipments + docs
   const handleSelectClient = async (companyName, clientData) => {
     setSelectedClient(companyName);
     setSelectedClientDetails(clientData);
 
-    const shipmentRes = await fetch(`/api/shipments?company=${companyName}`);
-    const docsRes = await fetch(`/api/documents?company=${companyName}`);
+    const shipmentRes = await fetch(
+      `/api/shipments?company=${encodeURIComponent(companyName)}`,
+      { cache: "no-store" }
+    );
+    const docsRes = await fetch(
+      `/api/documents?company=${encodeURIComponent(companyName)}`,
+      { cache: "no-store" }
+    );
 
     setShipments(await shipmentRes.json());
     setDocs(await docsRes.json());
@@ -82,109 +85,149 @@ export default function AdminDashboard() {
     }
   };
 
+  // ✅ Search jobs by company (NEW)
+  const handleJobSearch = async () => {
+    if (!jobSearchTerm.trim()) return;
+
+    setJobsLoading(true);
+    try {
+      const res = await fetch(
+        `/api/clients?company=${encodeURIComponent(jobSearchTerm)}`,
+        { cache: "no-store" }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Job search failed:", data);
+        setJobs([]);
+        return;
+      }
+
+      setJobs(Array.isArray(data) ? data : data.jobs || []);
+    } catch (err) {
+      console.error("Job search error:", err);
+      setJobs([]);
+    } finally {
+      setJobsLoading(false);
+    }
+  };
+
   if (status === "loading")
     return <p className="text-center mt-20">Loading admin dashboard...</p>;
 
   return (
     <div className="space-y-12">
-      
       {/* ================= HEADER ================= */}
       <section className="flex flex-col md:flex-row items-center justify-between bg-white/80 backdrop-blur-xl rounded-3xl shadow p-8 gap-6">
         <div>
           <h1 className="text-4xl font-semibold mb-2">
-          Welcome, {session?.user?.name || "Admin"} 👋
-        </h1>
-        <p className="text-gray-600 text-lg">
-          Manage clients, shipments, and documents efficiently.
-        </p>
+            Welcome, {session?.user?.name || "Admin"} 👋
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Manage clients, shipments, and documents efficiently.
+          </p>
         </div>
       </section>
 
-       
-
-      {/* ================= SEARCH CLIENT ================= */}
+      {/* ================= SEARCH JOBS (NEW) ================= */}
       <section className="bg-white/80 backdrop-blur-xl rounded-3xl shadow p-8">
-        <h2 className="text-2xl font-semibold mb-6">Search Client</h2>
+        <h2 className="text-2xl font-semibold mb-6">Search Companies</h2>
 
         <div className="flex gap-4">
           <input
             type="text"
-            placeholder="Enter Business Name"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            placeholder="Enter Company Name"
+            value={jobSearchTerm}
+            onChange={(e) => setJobSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleJobSearch()}
             className="flex-1 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
           />
           <button
-            onClick={handleSearch}
+            onClick={handleJobSearch}
             className="bg-blue-600 text-white px-6 rounded-xl hover:bg-blue-700 transition"
           >
             Search
           </button>
         </div>
 
-        {clients.length > 0 && (
+        {jobsLoading && (
+          <p className="text-sm text-gray-500 mt-4">Searching...</p>
+        )}
+
+        {!jobsLoading && jobs.length > 0 && (
           <div className="mt-6 space-y-3">
-            {clients.map((c) => (
-              <div
-                key={c._id}
-                onClick={() => handleSelectClient(c.company, c)}
-                className={`cursor-pointer p-6 rounded-xl transition ${
-                  selectedClient === c.company
-                    ? "bg-blue-100 border-2 border-blue-400"
-                    : "bg-gray-50 hover:bg-gray-100 border-2 border-transparent"
-                }`}
+            <p className="text-sm text-gray-500 mb-2">
+              Found {jobs.length} job(s)
+            </p>
+
+            {jobs.map((job) => (
+              <Link
+                key={job._id}
+                href={`/dashboard/admin/jobs/${job._id}`}
+                className="block cursor-pointer p-6 rounded-xl transition bg-gray-50 hover:bg-gray-100 border-2 border-transparent"
               >
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
-                    <p className="font-semibold text-xl text-gray-800 mb-2">{c.company}</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-500">📧 Email:</span>
-                        <span className="text-gray-700">{c.email}</span>
+                    <p className="font-semibold text-xl text-gray-800 mb-1">
+                      {job.company || "—"}
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
+                      <div>
+                        <span className="text-gray-500">🆔 Job ID: </span>
+                        {job.jobId || job.jobNumber || job._id}
                       </div>
-                      {c.phone && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500">📞 Phone:</span>
-                          <span className="text-gray-700">{c.phone}</span>
+
+                      {job.customerName && (
+                        <div>
+                          <span className="text-gray-500">👤 Customer: </span>
+                          {job.customerName}
                         </div>
                       )}
-                      {c.address && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500">📍 Address:</span>
-                          <span className="text-gray-700">{c.address}</span>
+
+                      {job.portOfLoading && (
+                        <div>
+                          <span className="text-gray-500">🚢 POL: </span>
+                          {job.portOfLoading}
                         </div>
                       )}
-                      {c.contactPerson && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500">👤 Contact:</span>
-                          <span className="text-gray-700">{c.contactPerson}</span>
+
+                      {job.portOfDischarge && (
+                        <div>
+                          <span className="text-gray-500">🏝️ POD: </span>
+                          {job.portOfDischarge}
                         </div>
                       )}
-                      {c.gstin && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500">🏢 GSTIN:</span>
-                          <span className="text-gray-700">{c.gstin}</span>
+
+                      {job.status && (
+                        <div>
+                          <span className="text-gray-500">📌 Status: </span>
+                          {job.status}
                         </div>
                       )}
-                      {c.iecCode && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500">🌐 IEC:</span>
-                          <span className="text-gray-700">{c.iecCode}</span>
+
+                      {job.stage && (
+                        <div>
+                          <span className="text-gray-500">🧭 Stage: </span>
+                          {job.stage}
                         </div>
                       )}
                     </div>
                   </div>
-                  {selectedClient === c.company && (
-                    <div className="ml-4">
-                      <span className="inline-block bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
-                        Selected
-                      </span>
-                    </div>
-                  )}
+
+                  <div className="text-blue-600 font-medium">Open →</div>
                 </div>
-              </div>
+              </Link>
             ))}
+          </div>
+        )}
+
+        { jobs.length === 0 && jobSearchTerm.trim() && (
+          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <p className="text-yellow-800">
+              No jobs found matching "{jobSearchTerm}"
+            </p>
           </div>
         )}
       </section>
@@ -192,7 +235,6 @@ export default function AdminDashboard() {
       {/* ================= CLIENT DATA SECTION ================= */}
       {selectedClient && (
         <section className="space-y-10">
-          
           {/* ---------- CLIENT DETAILS SUMMARY ---------- */}
           {selectedClientDetails && (
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-xl rounded-3xl shadow-lg p-8 border border-blue-200">
@@ -202,46 +244,60 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white rounded-xl p-5 shadow-sm">
                   <p className="text-gray-500 text-sm mb-1">Company Name</p>
-                  <p className="font-semibold text-lg text-gray-800">{selectedClientDetails.company}</p>
+                  <p className="font-semibold text-lg text-gray-800">
+                    {selectedClientDetails.company}
+                  </p>
                 </div>
                 <div className="bg-white rounded-xl p-5 shadow-sm">
                   <p className="text-gray-500 text-sm mb-1">Email</p>
-                  <p className="font-semibold text-gray-800">{selectedClientDetails.email}</p>
+                  <p className="font-semibold text-gray-800">
+                    {selectedClientDetails.email}
+                  </p>
                 </div>
                 {selectedClientDetails.phone && (
                   <div className="bg-white rounded-xl p-5 shadow-sm">
                     <p className="text-gray-500 text-sm mb-1">Phone</p>
-                    <p className="font-semibold text-gray-800">{selectedClientDetails.phone}</p>
+                    <p className="font-semibold text-gray-800">
+                      {selectedClientDetails.phone}
+                    </p>
                   </div>
                 )}
                 {selectedClientDetails.address && (
                   <div className="bg-white rounded-xl p-5 shadow-sm">
                     <p className="text-gray-500 text-sm mb-1">Address</p>
-                    <p className="font-semibold text-gray-800">{selectedClientDetails.address}</p>
+                    <p className="font-semibold text-gray-800">
+                      {selectedClientDetails.address}
+                    </p>
                   </div>
                 )}
                 {selectedClientDetails.contactPerson && (
                   <div className="bg-white rounded-xl p-5 shadow-sm">
                     <p className="text-gray-500 text-sm mb-1">Contact Person</p>
-                    <p className="font-semibold text-gray-800">{selectedClientDetails.contactPerson}</p>
+                    <p className="font-semibold text-gray-800">
+                      {selectedClientDetails.contactPerson}
+                    </p>
                   </div>
                 )}
                 {selectedClientDetails.gstin && (
                   <div className="bg-white rounded-xl p-5 shadow-sm">
                     <p className="text-gray-500 text-sm mb-1">GSTIN</p>
-                    <p className="font-semibold text-gray-800">{selectedClientDetails.gstin}</p>
+                    <p className="font-semibold text-gray-800">
+                      {selectedClientDetails.gstin}
+                    </p>
                   </div>
                 )}
                 {selectedClientDetails.iecCode && (
                   <div className="bg-white rounded-xl p-5 shadow-sm">
                     <p className="text-gray-500 text-sm mb-1">IEC Code</p>
-                    <p className="font-semibold text-gray-800">{selectedClientDetails.iecCode}</p>
+                    <p className="font-semibold text-gray-800">
+                      {selectedClientDetails.iecCode}
+                    </p>
                   </div>
                 )}
               </div>
             </div>
           )}
-          
+
           {/* ---------- ACTIVE SHIPMENTS ---------- */}
           <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow p-8">
             <h2 className="text-2xl font-semibold mb-6">
@@ -377,11 +433,7 @@ export default function AdminDashboard() {
                         {d.shipmentId || "General Document"}
                       </p>
                     </div>
-                    <a
-                      href={d.fileUrl}
-                      download
-                      className="text-blue-600 font-medium"
-                    >
+                    <a href={d.fileUrl} download className="text-blue-600 font-medium">
                       Download
                     </a>
                   </div>
@@ -400,12 +452,7 @@ export default function AdminDashboard() {
                 placeholder="Shipment Ref ID (optional)"
                 className="p-4 border rounded-xl"
               />
-              <input
-                type="file"
-                name="file"
-                required
-                className="p-4 border rounded-xl"
-              />
+              <input type="file" name="file" required className="p-4 border rounded-xl" />
 
               <button
                 className="bg-blue-600 text-white py-3 rounded-xl"
