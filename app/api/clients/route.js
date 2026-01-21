@@ -17,7 +17,7 @@ export async function GET(req) {
 
     const clients = await User.find({
       role: "client",
-      businessName: { $regex: query || "", $options: "i" },
+      company: { $regex: query || "", $options: "i" },
     }).select("-password"); // hide passwords
 
     return new Response(JSON.stringify(clients), { status: 200 });

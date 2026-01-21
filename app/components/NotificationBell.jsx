@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 
 export default function NotificationBell() {
-  const { data: session } = useSession();
+ const { data: session } = useSession();
+
+const permissions = session?.user?.permissions || [];
+
+
 
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -15,6 +19,9 @@ export default function NotificationBell() {
 
   const isSuperAdmin = session?.user?.adminType === "super_admin";
   const currentUserId = session?.user?.id;
+
+  const canApproveEdits =
+  isSuperAdmin || permissions.includes("approvals:permission");
 
   useEffect(() => {
     fetchNotifications();
@@ -199,11 +206,12 @@ export default function NotificationBell() {
                 (notif.message && notif.message.trim()) ||
                 "";
 
-              const canApprove =
-  Boolean(isSuperAdmin) &&
+            const canApprove =
+  Boolean(canApproveEdits) &&
   notif.status === "pending" &&
   (notif.type === "EDIT_REQUEST" || notif.type === "JOB_EDIT_REQUEST") &&
   (isJobNotif || isQuoteNotif);
+
 
 
               return (
