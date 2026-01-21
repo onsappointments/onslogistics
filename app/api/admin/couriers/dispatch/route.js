@@ -9,49 +9,60 @@ import { logAudit } from "@/lib/audit";
 /* ===================== POST (CREATE DISPATCH) ===================== */
 
 export async function POST(req) {
-  await connectDB();
-  const session = await getServerSession(authOptions);
+  try {
+    await connectDB();
 
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const body = await req.json();
+    const body = await req.json();
 
-  if (!body.name || !body.address || !body.place || !body.courierService) {
+    if (!body.name || !body.address || !body.place || !body.courierService) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const serialNo = await getNextCourierSerial("dispatch");
+
+    const entry = await Courier.create({
+      entryType: "dispatch",
+      serialNo,
+      name: body.name,
+      address: body.address,
+      place: body.place,
+      subject: body.subject,
+      courierService: body.courierService,
+      dockNo: body.dockNo,
+      remarks: body.remarks,
+      createdBy: session.user.id,
+    });
+
+    await logAudit({
+      entityType: "Courier",
+      entityId: entry._id,
+      action: "COURIER_DISPATCHED",
+      description: `Courier dispatched to ${body.name}`,
+      performedBy: session.user,
+      meta: {
+        courierService: body.courierService,
+        place: body.place,
+      },
+    });
+
+    // ✅ THIS WAS MISSING
+    return NextResponse.json(entry, { status: 201 });
+
+  } catch (err) {
+    console.error("DISPATCH API ERROR:", err);
     return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 }
+      { error: "Internal Server Error" },
+      { status: 500 }
     );
   }
-
-  const serialNo = await getNextCourierSerial("dispatch");
-
-  const entry = await Courier.create({
-    entryType: "dispatch",
-    serialNo,
-    name: body.name,
-    address: body.address,
-    place: body.place,
-    subject: body.subject,
-    courierService: body.courierService,
-    dockNo: body.dockNo,
-    remarks: body.remarks,
-    createdBy: session.user.id,
-  });
-
-  await logAudit({
-    entityType: "Courier",
-    entityId: entry._id,
-    action: "COURIER_DISPATCHED",
-    description: `Courier dispatched to ${body.name}`,
-    performedBy: session.user,
-    meta: {
-      courierService: body.courierService,
-      place: body.place,
-    },
-  });
-  
 }
 
 /* ===================== GET (FETCH DISPATCH) ===================== */
@@ -60,7 +71,7 @@ export async function GET() {
   await connectDB();
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session || !session.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
