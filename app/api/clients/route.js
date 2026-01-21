@@ -1,5 +1,5 @@
 import connectDB from "@/lib/mongodb";
-import User from "@/models/User";
+import Quote from "@/models/Quote";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
@@ -11,18 +11,18 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const query = searchParams.get("q");
+    const query = searchParams.get("q") || "";
 
     await connectDB();
 
     const clients = await User.find({
       role: "client",
-      company: { $regex: query || "", $options: "i" },
+      businessName: { $regex: query || "", $options: "i" },
     }).select("-password"); // hide passwords
 
-    return new Response(JSON.stringify(clients), { status: 200 });
+    return new Response(JSON.stringify(companies), { status: 200 });
   } catch (err) {
-    console.error("Error fetching clients:", err);
+    console.error("Company search error:", err);
     return new Response("Server error", { status: 500 });
   }
 }
