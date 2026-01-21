@@ -5,52 +5,21 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import NotificationBell from "./NotificationBell";
 
-
-
-
 /* ---------------- MENU CONFIG ---------------- */
 
 const ADMIN_MENU = [
-  {
-    name: "Search Clients",
-    href: "/dashboard/admin",
-    permission: "client:view",
-  },
-  {
-    name: "View Quotes",
-    href: "/dashboard/admin/quotes",
-    permission: "quote:view",
-  },
+  { name: "Search Clients", href: "/dashboard/admin", permission: "client:view" },
+  { name: "View Quotes", href: "/dashboard/admin/quotes", permission: "quote:view" },
   {
     name: "View Finalized Quotes",
     href: "/dashboard/admin/finalized-quotes",
     permission: "quote:view_finalized",
   },
-  {
-    name: "Create a Job",
-    href: "/dashboard/admin/jobs/create",
-    permission: "job:create",
-  },
-  {
-    name: "New Jobs",
-    href: "/dashboard/admin/jobs/new",
-    permission: "job:view_new",
-  },
-  {
-    name: "Active Jobs",
-    href: "/dashboard/admin/jobs/active",
-    permission: "job:view_active",
-  },
-  {
-    name: "Audit Logs",
-    href: "/dashboard/admin/audit",
-    permission: "audit_logs:view",
-  },
-  {
-    name: "Create Admin",
-    href: "/dashboard/admin/users/create",
-    permission: "admin:create",
-  },
+  { name: "Create a Job", href: "/dashboard/admin/jobs/create", permission: "job:create" },
+  { name: "New Jobs", href: "/dashboard/admin/jobs/new", permission: "job:view_new" },
+  { name: "Active Jobs", href: "/dashboard/admin/jobs/active", permission: "job:view_active" },
+  { name: "Audit Logs", href: "/dashboard/admin/audit", permission: "audit_logs:view" },
+  { name: "Create Admin", href: "/dashboard/admin/users/create", permission: "admin:create" },
 ];
 
 export default function AdminSidebar() {
@@ -59,18 +28,19 @@ export default function AdminSidebar() {
 
   const permissions = session?.user?.permissions || [];
   const adminType = session?.user?.adminType || null;
+
+  // ✅ Only super admin OR approvals permission can see NotificationBell
+  const canSeeApprovalBell =
+    adminType === "super_admin" || permissions.includes("approvals:permission");
+
   return (
-    <aside className="w-64  bg-white/80 border-r border-gray-200 shadow-md p-6 flex flex-col">
+    <aside className="w-64 bg-white/80 border-r border-gray-200 shadow-md p-6 flex flex-col">
       {/* HEADER */}
-      <div className="text-xl font-semibold text-gray-900 mb-6">
-        ONS Admin
-      </div>
+      <div className="text-xl font-semibold text-gray-900 mb-6">ONS Admin</div>
 
       {/* MENU */}
       <nav className="flex flex-col gap-2 flex-1">
-        {ADMIN_MENU.filter((item) =>
-          permissions.includes(item.permission)
-        ).map((item) => (
+        {ADMIN_MENU.filter((item) => permissions.includes(item.permission)).map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -84,24 +54,19 @@ export default function AdminSidebar() {
           </Link>
         ))}
 
-        {
-          adminType === "super_admin" && (
-          <NotificationBell session={session} />
-          )
-        }
+        {/* ✅ Conditionally render the approvals bell */}
+        {canSeeApprovalBell && <NotificationBell />}
 
         {/* Fallback if no permissions */}
         {permissions.length === 0 && (
-          <p className="text-sm text-gray-500 mt-4">
-            No menu access assigned
-          </p>
+          <p className="text-sm text-gray-500 mt-4">No menu access assigned</p>
         )}
       </nav>
 
       {/* LOGOUT */}
       <button
         onClick={() => signOut({ callbackUrl: "/login" })}
-        className=" bg-blue-600 text-white py-2 px-6 rounded-xl hover:bg-blue-700 transition font-medium shadow-md"
+        className="bg-blue-600 text-white py-2 px-6 rounded-xl hover:bg-blue-700 transition font-medium shadow-md"
       >
         Logout
       </button>

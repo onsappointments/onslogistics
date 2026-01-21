@@ -1,22 +1,25 @@
 import CreateAdminForm from '@/Components/CreateAdminForm';
 import connectDB from '@/lib/mongodb';
-import User from '@/models/User';
+import User from '@/models/User'; // Adjust path based on your project structure
 
 export default async function CreateAdminPage() {
     await connectDB();
-    const admins = await User.find({ role: "admin" });
-    if (!admins || admins.length === 0) {
-        return <p className='font-semibold text-lg'>No admin found</p>
-    }
 
-    console.log("Admins:", admins.map(a => a.email));
+    // Fetch all users with role 'admin' from database
+    const adminUsers = await User.find({ role: 'admin' })
+        .select('_id fullName email adminType permissions phone')
+        .lean()
+        .sort({ createdAt: -1 });
 
-return(
-    <>
-    <select  name={"admins"} id="">
-        {admins.map(a => <option key={a._id} value={a.email}>{a.email}</option>)}
-    </select>
-    <CreateAdminForm/>
-    </>
-)
+    // Convert MongoDB ObjectIds to strings for client component
+    const adminsData = adminUsers.map(admin => ({
+        ...admin,
+        _id: admin._id.toString(),
+    }));
+
+    return (
+        <>
+            <CreateAdminForm adminsData={adminsData} />
+        </>
+    );
 }

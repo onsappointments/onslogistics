@@ -1,5 +1,5 @@
 import connectDB from "@/lib/mongodb";
-import User from "@/models/User";
+import Job from "@/models/Job";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
@@ -11,18 +11,92 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const query = searchParams.get("q");
+
+    // mode=companies (debounced typing suggestions) OR mode=jobs (fetch jobs by company)
+    const mode = (searchParams.get("mode") || "companies").trim();
+
+    // for suggestions
+    const q = (searchParams.get("q") || "").trim();
+
+    // for jobs fetch
+    const company = (searchParams.get("company") || "").trim();
 
     await connectDB();
 
-    const clients = await User.find({
-      role: "client",
-      businessName: { $regex: query || "", $options: "i" },
-    }).select("-password"); // hide passwords
+    if (mode === "companies") {
+      if (!q) {
+        return new Response(JSON.stringify({ companies: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+const companies = await Job.aggregate([
+  // only non-empty companies
+  { $match: { company: { $nin: ["", null] } } },
 
-    return new Response(JSON.stringify(clients), { status: 200 });
+  // trim + lowercase key for uniqueness
+  { $addFields: { companyTrimmed: { $trim: { input: "$company" } } } },
+  { $addFields: { companyKey: { $toLower: "$companyTrimmed" } } },
+
+  // ✅ IMPORTANT: prefix match (starts with)
+  {
+    $match: {
+      companyTrimmed: {
+        $regex: `^${escapeRegex(q)}`, // <-- "on" matches only starting with "on"
+        $options: "i",
+      },
+    },
+  },
+
+  { $group: { _id: "$companyKey", name: { $first: "$companyTrimmed" } } },
+  { $sort: { name: 1 } },
+  { $limit: 20 },
+  { $project: { _id: 0, name: 1 } },
+]);
+
+
+      return new Response(JSON.stringify({ companies }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (mode === "jobs") {
+      if (!company) {
+        return new Response(JSON.stringify({ jobs: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // case-insensitive exact match
+      const jobs = await Job.find({
+        company: { $regex: `^${escapeRegex(company)}$`, $options: "i" },
+      })
+        .sort({ createdAt: -1 })
+        .select(
+          "jobId jobNumber company customerName shipper consignee portOfLoading portOfDischarge status stage createdAt"
+        );
+
+      return new Response(JSON.stringify({ jobs }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ error: "Invalid mode" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err) {
-    console.error("Error fetching clients:", err);
-    return new Response("Server error", { status: 500 });
+    console.error("Clients route error:", err);
+    return new Response(JSON.stringify({ error: "Server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
