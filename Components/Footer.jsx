@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Facebook,
   Instagram,
@@ -10,7 +8,6 @@ import {
   MapPin,
   Clock,
 } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
 
 export default function Footer() {
@@ -26,140 +23,195 @@ export default function Footer() {
 
   return (
     <footer className="bg-white text-gray-900">
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slideInRight {
+          from {
+            opacity: 0;
+            transform: translateX(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        .fade-in {
+          animation: fadeIn 0.6s ease-out;
+        }
+
+        .fade-in-delay-1 {
+          animation: fadeIn 0.6s ease-out 0.1s backwards;
+        }
+
+        .fade-in-delay-2 {
+          animation: fadeIn 0.6s ease-out 0.2s backwards;
+        }
+
+        .fade-in-delay-3 {
+          animation: fadeIn 0.6s ease-out 0.3s backwards;
+        }
+
+        .slide-in-left {
+          animation: slideInLeft 0.6s ease-out;
+        }
+
+        .slide-in-right {
+          animation: slideInRight 0.6s ease-out;
+        }
+      `}</style>
+
       {/* Main Footer */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
 
           {/* Company Info */}
-          <div className="flex flex-col space-y-4 sm:space-y-6 sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/logo.png"
-                alt="ONS Logistics Logo"
-                width={60}
-                height={60}
-                className="w-14 h-14 sm:w-16 sm:h-16 lg:w-[70px] lg:h-[70px]"
-              />
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+          <div className="flex flex-col space-y-4 sm:space-y-6 sm:col-span-2 lg:col-span-1 fade-in">
+            <div className="flex items-center gap-3 group">
+              <div className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  <Image src={"/logo.png"} alt="logo" width={70} height={70} />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-blue-600">
                 ONS
               </h2>
             </div>
 
-            <p className="text-sm sm:text-md leading-relaxed text-gray-900 max-w-md lg:max-w-xs">
+            <p className="text-sm sm:text-md leading-relaxed text-gray-900 max-w-md lg:max-w-xs transition-all duration-300 hover:text-gray-700">
               Leading provider of end-to-end logistics solutions. We deliver
               excellence in shipping, customs clearance, and supply chain
               management across India and globally.
             </p>
 
             <div className="flex gap-3 sm:gap-4 pt-2">
-              <Link
+              <a
                 href="https://www.facebook.com/bestcustombroker"
                 target="_blank"
-                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 hover:scale-110 hover:-translate-y-1 hover:shadow-lg"
               >
                 <Facebook className="h-4 w-4 sm:h-5 sm:w-5" />
-              </Link>
-              <Link
+              </a>
+              <a
                 href="https://www.instagram.com/onslogistics486"
                 target="_blank"
-                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-500 hover:text-white transition-all"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-500 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1 hover:shadow-lg"
               >
                 <Instagram className="h-4 w-4 sm:h-5 sm:w-5" />
-              </Link>
-              <Link
+              </a>
+              <a
                 href="https://www.linkedin.com/in/anil-verma-62691333"
                 target="_blank"
-                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-blue-700 hover:text-white transition-all"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-blue-700 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1 hover:shadow-lg"
               >
                 <Linkedin className="h-4 w-4 sm:h-5 sm:w-5" />
-              </Link>
-              <Link
+              </a>
+              <a
                 href="https://x.com/OnsPvt"
                 target="_blank"
-                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-sky-500 hover:text-white transition-all"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-sky-500 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1 hover:shadow-lg"
               >
                 <Twitter className="h-4 w-4 sm:h-5 sm:w-5" />
-              </Link>
+              </a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-col">
-            <h3 className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider">
+          <div className="flex flex-col fade-in-delay-1">
+            <h3 className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider transition-colors duration-300 hover:text-blue-600">
               Quick Links
             </h3>
             <ul className="space-y-3 sm:space-y-4 text-sm">
-              <li>
-                <Link href="/" className="hover:text-blue-600 transition-all">
+              <li className="transform transition-all duration-300 hover:translate-x-2">
+                <a href="/" className="hover:text-blue-600 transition-all duration-300 inline-block">
                   → Home
-                </Link>
+                </a>
               </li>
-              <li>
-                <Link href="/#about" className="hover:text-blue-600 transition-all">
+              <li className="transform transition-all duration-300 hover:translate-x-2">
+                <a href="/#about" className="hover:text-blue-600 transition-all duration-300 inline-block">
                   → About Us
-                </Link>
+                </a>
               </li>
-              <li>
-                <Link href="/contact" className="hover:text-blue-600 transition-all">
+              <li className="transform transition-all duration-300 hover:translate-x-2">
+                <a href="/contact" className="hover:text-blue-600 transition-all duration-300 inline-block">
                   → Contact Us
-                </Link>
+                </a>
               </li>
-              <li>
-                <Link href="/tracking" className="hover:text-blue-600 transition-all">
+              <li className="transform transition-all duration-300 hover:translate-x-2">
+                <a href="/tracking" className="hover:text-blue-600 transition-all duration-300 inline-block">
                   → Track Your Shipment 
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
 
           {/* Services Column */}
-          <div className="flex flex-col">
-            <Link  href="/services" className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider">
+          <div className="flex flex-col fade-in-delay-2">
+            <a href="/services" className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider transition-colors duration-300 hover:text-blue-600">
               Services
-            </Link>
+            </a>
             <ul className="space-y-3 sm:space-y-4 text-sm">
               {services.map((service, idx) => (
-                <li key={idx}>
-                  <Link
+                <li key={idx} className="transform transition-all duration-300 hover:translate-x-2">
+                  <a
                     href={service.href}
-                    className="hover:text-blue-600 transition-all"
+                    className="hover:text-blue-600 transition-all duration-300 inline-block"
                   >
                     → {service.name}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Contact Info */}
-          <div className="flex flex-col">
-            <h3 className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider">
+          <div className="flex flex-col fade-in-delay-3">
+            <h3 className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider transition-colors duration-300 hover:text-blue-600">
               Contact Us
             </h3>
             <ul className="space-y-3 sm:space-y-4 text-sm">
-              <li className="flex gap-2 sm:gap-3 hover:text-blue-600 transition-all">
-                <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <Link href="tel:18008907365" className="break-words">1800-890-7365</Link>
+              <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
+                <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
+                <a href="tel:18008907365" className="break-words hover:text-blue-600 transition-colors duration-300">1800-890-7365</a>
               </li>
-              <li className="flex gap-2 sm:gap-3 hover:text-blue-600 transition-all">
-                <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <Link href="mailto:info@onslogistics.com" className="break-words">
+              <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
+                <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110" />
+                <a href="mailto:info@onslogistics.com" className="break-words hover:text-blue-600 transition-colors duration-300">
                   info@onslogistics.com
-                </Link>
+                </a>
               </li>
-              <li className="hover:text-blue-600 transition-all flex gap-2 sm:gap-3">
-                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <Link 
-                  href="https://www.google.com/maps?sca_esv=8b6848c6fe0124b8&rlz=1C1CHBD_enIN1132IN1133&uact=5&gs_lp=Egxnd3Mtd2l6LXNlcnAiFG9uc2xvZ2lzdGljcyBsdWhkaW5hMgYQABgeGA0yCxAAGIAEGIoFGIYDMgsQABiABBiKBRiGAzILEAAYgAQYigUYhgMyCBAAGIAEGKIEMggQABiABBiiBDIIEAAYgAQYogQyCBAAGIAEGKIEMggQABiJBRiiBEiALFCdBFj3KXACeAGQAQOYAcQIoAHVLKoBDzAuMy4yLjEuMi4xLjEuMrgBA8gBAPgBAZgCCqACvxbCAgoQABhHGNYEGLADwgINEAAYRxjWBBjJAxiwA8ICDhAAGIAEGIoFGJIDGLADwgINEAAYgAQYigUYQxiwA8ICDhAAGOQCGNYEGLAD2AEBwgITEC4YgAQYigUYQxjIAxiwA9gBAcICBBAAGB7CAgIQJsICBxAAGIAEGA3CAhAQLhgNGK8BGMcBGIAEGI4FwgIIEAAYCBgeGA3CAhAQLhiABBgNGMcBGK8BGI4FwgIGEAAYFhgemAMA4gMFEgExIECIBgGQBhG6BgYIARABGAmSBwsyLjMuMS4xLjIuMaAH01qyBwswLjMuMS4xLjIuMbgHkxbCBwkwLjEuNi4yLjHIB1iACAE&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KREglzUFnRo5McSbvqdJ73eS&daddr=24,+Aatma+Nagar,+Near+Radha+Soami+Satsang+Bhawan+Gate+No.7,+Chandigarh+Road,+Mundian+Kalan,+National+Highway+95,+Focal+Point,+Ludhiana,+Punjab+141003"
+              <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1" />
+                <a 
+                  href="https://maps.google.com"
                   target="_blank"
-                  className="break-words"
+                  className="break-words hover:text-blue-600 transition-colors duration-300"
                 >
                   Ludhiana, Punjab, India
-                </Link>
+                </a>
               </li>
-              <li className="flex gap-2 sm:gap-3 hover:text-blue-600 transition-all">
-                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <span className="break-words">Mon - Sat: 9:00 AM - 6:00 PM</span>
+              <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:rotate-180" />
+                <span className="break-words hover:text-blue-600 transition-colors duration-300">Mon - Sat: 9:00 AM - 6:00 PM</span>
               </li>
             </ul>
           </div>
@@ -168,38 +220,38 @@ export default function Footer() {
       </div>
 
       {/* Call to Action Bar */}
-      <div className="bg-gray-300 py-6 sm:py-8">
+      <div className="bg-gray-300 py-6 sm:py-8 transition-all duration-500">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
-            <div className="text-center md:text-left">
-              <h3 className="text-slate-900 font-semibold text-base sm:text-lg mb-1">
+            <div className="text-center md:text-left slide-in-left">
+              <h3 className="text-slate-900 font-semibold text-base sm:text-lg mb-1 transition-colors duration-300 hover:text-blue-600">
                 Ready to streamline your logistics?
               </h3>
-              <p className="text-gray-600 text-xs sm:text-sm">
+              <p className="text-gray-600 text-xs sm:text-sm transition-colors duration-300 hover:text-gray-800">
                 Get a free quote or book a consultation today
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full md:w-auto">
-              <Link 
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full md:w-auto slide-in-right">
+              <a 
                 href="/request-quote"
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base"
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base transform hover:-translate-y-1 hover:scale-105"
               >
                 Request Quote
-              </Link>
-              <Link 
+              </a>
+              <a 
                 href="/book-appointment"
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base"
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base transform hover:-translate-y-1 hover:scale-105"
               >
                 Book Appointment
-              </Link>
+              </a>
             </div>
           </div>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t bg-gray-400 py-4 sm:py-6">
-        <p className="text-center text-xs sm:text-sm text-slate-900 px-4">
+      <div className="border-t bg-gray-400 py-4 sm:py-6 transition-all duration-300">
+        <p className="text-center text-xs sm:text-sm text-slate-900 px-4 transition-all duration-300 hover:text-blue-600">
           © {new Date().getFullYear()} ONS Logistics India Pvt. Ltd. All Rights Reserved.
         </p>
       </div>

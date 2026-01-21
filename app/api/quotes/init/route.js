@@ -3,6 +3,7 @@ import crypto from "crypto";
 import connectDB from "@/lib/mongodb";
 import QuoteOtp from "@/models/QuoteOtp";
 import sendClientOTP from "@/lib/sendClientOTP";
+import User from "@/models/User"; // ✅ ADD
 
 export async function POST(req) {
   try {
@@ -24,7 +25,7 @@ export async function POST(req) {
       "email",
       "phoneCountryCode",
       "phone",
-      "containerType", // ADD THIS - it's required!
+      "containerType",
     ];
 
     const missing = requiredFields.filter(
@@ -40,6 +41,25 @@ export async function POST(req) {
         },
         { status: 400 }
       );
+    }
+
+    // ✅ ADD: Auto-link to registered client (minimal change)
+    try {
+      const existingUser = await User.findOne({
+        email: data.email,
+      })
+        .select("_id")
+        .lean();
+
+      if (existingUser?._id) {
+        data.clientUser = existingUser._id; // stored in quoteData
+        console.log("INIT: Linked clientUser:", existingUser._id.toString());
+      } else {
+        console.log("INIT: No user found for email, keeping as lead");
+      }
+    } catch (e) {
+      console.log("INIT: client linking skipped due to error:", e?.message);
+      // do nothing, don't break OTP flow
     }
 
     // Delete older OTP attempts for this email
@@ -67,7 +87,8 @@ export async function POST(req) {
       email: otpRecord.quoteData?.email,
       phone: otpRecord.quoteData?.phone,
       fromCity: otpRecord.quoteData?.fromCity,
-      hasAllData: !!otpRecord.quoteData
+      clientUser: otpRecord.quoteData?.clientUser || null, // ✅ helpful log
+      hasAllData: !!otpRecord.quoteData,
     });
 
     // Send OTP email
@@ -83,7 +104,6 @@ export async function POST(req) {
       message: "OTP sent successfully.",
       otpId: otpRecord._id,
     });
-
   } catch (error) {
     console.error("INIT: Error:", error);
     console.error("INIT: Error message:", error.message);
