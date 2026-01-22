@@ -10,6 +10,8 @@ export default function DispatchPage() {
   const [dispatchData, setDispatchData] = useState([]);
   const [openReceival, setOpenReceival] = useState(false);
   const [openDispatch, setOpenDispatch] = useState(false);
+  const [serialSort, setSerialSort] = useState("asc"); 
+
 
   /* ---------- FETCH FUNCTIONS ---------- */
 
@@ -29,6 +31,14 @@ export default function DispatchPage() {
     }
   };
 
+  const sortBySerial = (data) => {
+    return [...data].sort((a, b) =>
+      serialSort === "asc"
+        ? a.serialNo - b.serialNo
+        : b.serialNo - a.serialNo
+    );
+  };
+  
   /* ---------- AUTO FETCH ON TAB CHANGE ---------- */
 
   useEffect(() => {
@@ -83,7 +93,15 @@ export default function DispatchPage() {
           <table style={tableStyle}>
             <thead>
               <tr>
-                <th style={thStyle}>No.</th>
+              <th
+                style={{ ...thStyle, cursor: "pointer" }}
+                onClick={() =>
+                  setSerialSort(serialSort === "asc" ? "desc" : "asc")
+                }
+              >
+                No. {serialSort === "asc" ? "▲" : "▼"}
+              </th>
+
                 <th style={thStyle}>Date</th>
                 <th style={thStyle}>Letter No.</th>
                 <th style={thStyle}>From</th>
@@ -93,7 +111,7 @@ export default function DispatchPage() {
               </tr>
             </thead>
             <tbody>
-              {receivalData.map((r, index) => (
+              {sortBySerial(receivalData).map((r, index) => (
                 <tr key={r._id} style={zebraRow(index)}>
                   <td style={tdStyle}>{r.serialNo}</td>
                   <td style={tdStyle}>{new Date(r.date).toLocaleDateString()}</td>
@@ -116,7 +134,15 @@ export default function DispatchPage() {
   <table style={tableStyle}>
     <thead>
       <tr>
-        <th style={thStyle}>No.</th>
+      <th
+        style={{ ...thStyle, cursor: "pointer" }}
+        onClick={() =>
+          setSerialSort(serialSort === "asc" ? "desc" : "asc")
+        }
+      >
+        No. {serialSort === "asc" ? "▲" : "▼"}
+      </th>
+
         <th style={thStyle}>Date</th>
         <th style={thStyle}>Name</th>
         <th style={thStyle}>Address</th>
@@ -128,7 +154,7 @@ export default function DispatchPage() {
       </tr>
     </thead>
     <tbody>
-      {dispatchData.map((d, index) => (
+      {sortBySerial(dispatchData).map((d, index) => (
         <tr key={d._id} style={zebraRow(index)}>
           <td style={tdStyle}>{d.serialNo}</td>
           <td style={tdStyle}>{new Date(d.date).toLocaleDateString()}</td>
