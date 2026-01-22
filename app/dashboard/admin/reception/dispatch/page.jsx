@@ -79,56 +79,72 @@ export default function DispatchPage() {
         receivalData.length === 0 ? (
           <p>No receival entries yet.</p>
         ) : (
-          <table border="1" cellPadding="6">
+          <div style={tableContainer}>
+          <table style={tableStyle}>
             <thead>
               <tr>
-                <th>No.</th>
-                <th>Date</th>
-                <th>From</th>
-                <th>Courier Service</th>
-                <th>Receiver</th>
+                <th style={thStyle}>No.</th>
+                <th style={thStyle}>Date</th>
+                <th style={thStyle}>Letter No.</th>
+                <th style={thStyle}>From</th>
+                <th style={thStyle}>Subject</th>
+                <th style={thStyle}>Courier Service</th>
+                <th style={thStyle}>Receiver</th>
               </tr>
             </thead>
             <tbody>
-              {receivalData.map((r) => (
-                <tr key={r._id}>
-                  <td>{r.serialNo}</td>
-                  <td>{new Date(r.date).toLocaleDateString()}</td>
-                  <td>{r.fromWho}</td>
-                  <td>{r.courierService}</td>
-                  <td>{r.receiver}</td>
+              {receivalData.map((r, index) => (
+                <tr key={r._id} style={zebraRow(index)}>
+                  <td style={tdStyle}>{r.serialNo}</td>
+                  <td style={tdStyle}>{new Date(r.date).toLocaleDateString()}</td>
+                  <td style={tdStyle}>{r.letterNo || "-"}</td>
+                  <td style={tdStyle}>{r.fromWho}</td>
+                  <td style={tdStyle}>{r.subject || "-"}</td>
+                  <td style={tdStyle}>{r.courierService}</td>
+                  <td style={tdStyle}>{r.receiver}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+        
         )
       ) : dispatchData.length === 0 ? (
         <p>No dispatch entries yet.</p>
       ) : (
-        <table border="1" cellPadding="6">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Date</th>
-              <th>Name</th>
-              <th>Place</th>
-              <th>Courier Service</th>
-              <th>Dock No.</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dispatchData.map((d) => (
-              <tr key={d._id}>
-                <td>{d.serialNo}</td>
-                <td>{new Date(d.date).toLocaleDateString()}</td>
-                <td>{d.name}</td>
-                <td>{d.place}</td>
-                <td>{d.courierService}</td>
-                <td>{d.dockNo || "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={tableContainer}>
+  <table style={tableStyle}>
+    <thead>
+      <tr>
+        <th style={thStyle}>No.</th>
+        <th style={thStyle}>Date</th>
+        <th style={thStyle}>Name</th>
+        <th style={thStyle}>Address</th>
+        <th style={thStyle}>Place</th>
+        <th style={thStyle}>Subject</th>
+        <th style={thStyle}>Courier Service</th>
+        <th style={thStyle}>Remarks</th>
+        <th style={thStyle}>Dock No.</th>
+      </tr>
+    </thead>
+    <tbody>
+      {dispatchData.map((d, index) => (
+        <tr key={d._id} style={zebraRow(index)}>
+          <td style={tdStyle}>{d.serialNo}</td>
+          <td style={tdStyle}>{new Date(d.date).toLocaleDateString()}</td>
+          <td style={tdStyle}>{d.name}</td>
+          <td style={tdStyle}>{d.address}</td>
+          <td style={tdStyle}>{d.place}</td>
+          <td style={tdStyle}>{d.subject || "-"}</td>
+          <td style={tdStyle}>{d.courierService}</td>
+          <td style={tdStyle}>{d.remarks || "-"}</td>
+          <td style={tdStyle}>{d.dockNo || "-"}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       )}
 
       {/* MODALS */}
@@ -184,3 +200,35 @@ const inactiveToggle = {
   borderRadius: "4px",
   cursor: "pointer",
 };
+const tableContainer = {
+  background: "#ffffff",
+  borderRadius: "8px",
+  boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+  overflowX: "auto",
+};
+
+const tableStyle = {
+  width: "100%",
+  borderCollapse: "collapse",
+  fontSize: "14px",
+};
+
+const thStyle = {
+  background: "#f3f4f6",
+  textAlign: "left",
+  padding: "10px",
+  borderBottom: "1px solid #e5e7eb",
+  fontWeight: "600",
+  whiteSpace: "nowrap",
+};
+
+const tdStyle = {
+  padding: "10px",
+  borderBottom: "1px solid #e5e7eb",
+  whiteSpace: "nowrap",
+};
+
+const zebraRow = (index) => ({
+  background: index % 2 === 0 ? "#ffffff" : "#f9fafb",
+});
+
