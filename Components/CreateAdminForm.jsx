@@ -15,6 +15,7 @@ const PERMISSION_OPTIONS = [
   { label: "Audit Logs", value: "audit_logs:view" },
   { label: "Create Admin", value: "admin:create" },
   { label: "Approval Requests", value: "approvals:permission" },
+  { label: "Couriers", value: "couriers:view" },
 ];
 
 export default function CreateAdminForm({ adminsData = [] }) {
