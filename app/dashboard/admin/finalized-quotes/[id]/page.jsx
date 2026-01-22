@@ -158,7 +158,7 @@ export default async function FinalizedQuoteDetails({ params }) {
       </Section>
 
       {/* CLIENT APPROVAL CTA */}
-      {job && (
+      {!job && (
         <ConvertToJobPanel
           technicalQuoteId={technicalQuote._id.toString()}
           status={technicalQuote.status}

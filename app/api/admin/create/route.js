@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 
@@ -9,9 +8,14 @@ export const runtime = "nodejs";
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { fullName, email, password, adminType, permissions } = body;
 
-    // ❌ Basic validation
+    const fullName = body?.fullName?.trim();
+    const email = body?.email?.trim()?.toLowerCase();
+    const password = body?.password;
+    const adminType = body?.adminType;
+    const permissions = body?.permissions;
+
+    // ✅ Basic validation
     if (!fullName || !email || !password || !adminType) {
       return NextResponse.json(
         { message: "Missing required fields" },
@@ -19,13 +23,7 @@ export async function POST(req) {
       );
     }
 
-    if (permissions.length === 0) {
-        return NextResponse.json(
-          { message: "At least one permission must be assigned" },
-          { status: 400 }
-        );
-    }
-
+    // ✅ validate permissions safely
     if (!Array.isArray(permissions)) {
       return NextResponse.json(
         { message: "Permissions must be an array" },
@@ -33,9 +31,16 @@ export async function POST(req) {
       );
     }
 
+    if (permissions.length === 0) {
+      return NextResponse.json(
+        { message: "At least one permission must be assigned" },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
 
-    // ❌ Email already exists
+    // ✅ Email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
@@ -47,14 +52,15 @@ export async function POST(req) {
     // 🔐 Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Create admin with permissions
+    // ✅ Create admin
     const newAdmin = await User.create({
       fullName,
       email,
       password: hashedPassword,
       role: "admin",
       adminType,
-      permissions, // 👈 IMPORTANT
+      permissions,
+      company: undefined, // ✅ guarantee it won't validate for admin
     });
 
     return NextResponse.json(
@@ -73,7 +79,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("CREATE ADMIN ERROR:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: error?.message || "Internal server error" },
       { status: 500 }
     );
   }

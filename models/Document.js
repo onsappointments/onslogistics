@@ -6,6 +6,7 @@ const DocumentSchema = new mongoose.Schema(
       type: String,
       required: true, // ✅ now we store the client's business name
     },
+  
     shipmentId: {
   type: String, // ✅ accept text like “12345” or “SHIP-12”
   required: false,

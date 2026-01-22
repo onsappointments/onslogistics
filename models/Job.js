@@ -114,6 +114,10 @@ const JobSchema = new mongoose.Schema(
       ref: "TechnicalQuote",
       default: null,
     },
+    
+    clientUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    leadStatus: { type: String, enum: ["lead","otp_sent","verified","converted"], default: "lead" },
+    leadVerifiedAt: { type: Date, default: null },
 
     stage: { type: String, default: "New Job" },
     documents: [DocumentSchema],
@@ -122,7 +126,7 @@ const JobSchema = new mongoose.Schema(
     approvedBy: { type: String, default: "admin" },
 
     /* -----------------------------------------------------
-     🔐 EDIT REQUEST WORKFLOW (Same as Technical Quote)
+    EDIT REQUEST WORKFLOW (Same as Technical Quote)
     ------------------------------------------------------ */
 
     // Step 1: Admin requests editing

@@ -3,6 +3,7 @@ import crypto from "crypto";
 import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import QuoteOtp from "@/models/QuoteOtp";
+import User from "@/models/User"; // ✅ ADD
 
 export async function POST(req) {
   try {
@@ -41,23 +42,50 @@ export async function POST(req) {
 
     console.log("VERIFY: OTP Record found!");
     console.log("VERIFY: quoteData exists?", !!otpRecord.quoteData);
-    console.log("VERIFY: quoteData type:", typeof otpRecord.quoteData);
-    console.log("VERIFY: quoteData keys:", otpRecord.quoteData ? Object.keys(otpRecord.quoteData) : "NULL");
+    console.log(
+      "VERIFY: quoteData keys:",
+      otpRecord.quoteData ? Object.keys(otpRecord.quoteData) : "NULL"
+    );
 
     // Mark OTP used
     otpRecord.verified = true;
     await otpRecord.save();
     console.log("VERIFY: OTP marked as verified");
 
+    // ✅ ADD: Link quote to client if email belongs to a registered user
+    // (only if clientUser not already present from init)
+    let linkedClientUser = otpRecord.quoteData?.clientUser;
+
+    if (!linkedClientUser && otpRecord.quoteData?.email) {
+      try {
+        const existingUser = await User.findOne({ email: otpRecord.quoteData.email })
+          .select("_id")
+          .lean();
+
+        if (existingUser?._id) {
+          linkedClientUser = existingUser._id;
+          console.log("VERIFY: Linked clientUser:", existingUser._id.toString());
+        } else {
+          console.log("VERIFY: No user found for email, keeping as lead");
+        }
+      } catch (e) {
+        console.log("VERIFY: client linking skipped due to error:", e?.message);
+      }
+    }
+
     // Use the quoteData directly from the OTP record
     const quoteDataToSave = {
       ...otpRecord.quoteData,
+      ...(linkedClientUser ? { clientUser: linkedClientUser } : {}), // ✅ ADD
       status: "pending",
       verifiedEmail: true,
       createdAt: new Date(),
     };
 
-    console.log("VERIFY: Creating Quote with fields:", Object.keys(quoteDataToSave));
+    console.log(
+      "VERIFY: Creating Quote with fields:",
+      Object.keys(quoteDataToSave)
+    );
 
     // Create final Quote
     const finalQuote = await Quote.create(quoteDataToSave);
@@ -73,14 +101,16 @@ export async function POST(req) {
       message: "OTP verified. Quote created successfully.",
       quoteId: finalQuote._id,
     });
-
   } catch (error) {
     console.error("VERIFY: OTP verification error:", error);
     console.error("VERIFY: Error details:", error.message);
     if (error.errors) {
-      console.error("VERIFY: Validation errors:", JSON.stringify(error.errors, null, 2));
+      console.error(
+        "VERIFY: Validation errors:",
+        JSON.stringify(error.errors, null, 2)
+      );
     }
-    
+
     return NextResponse.json(
       { error: "Server error during OTP verification", details: error.message },
       { status: 500 }

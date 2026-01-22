@@ -2,12 +2,11 @@ import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import Job from "@/models/Job";
+import User from "@/models/User";
 import generateJobId from "@/lib/generateJobId";
 import { logAudit } from "@/lib/audit";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-
-
 
 export async function POST(req) {
   await connectDB();
@@ -19,8 +18,9 @@ export async function POST(req) {
 
   const { technicalQuoteId } = await req.json();
 
-  const technicalQuote = await TechnicalQuote.findById(technicalQuoteId)
-    .populate("clientQuoteId");
+  const technicalQuote = await TechnicalQuote.findById(technicalQuoteId).populate(
+    "clientQuoteId"
+  );
 
   if (!technicalQuote) {
     return Response.json({ error: "Technical quote not found" }, { status: 404 });
@@ -38,10 +38,7 @@ export async function POST(req) {
   // 🔐 Prevent duplicate jobs
   const existingJob = await Job.findOne({ quoteId: quote._id });
   if (existingJob) {
-    return Response.json(
-      { error: "Job already exists for this quote" },
-      { status: 400 }
-    );
+    return Response.json({ error: "Job already exists for this quote" }, { status: 400 });
   }
 
   /* ---------------- DOCUMENTS ---------------- */
@@ -64,8 +61,7 @@ export async function POST(req) {
     "Certificate of Origin",
   ];
 
-  const documentList =
-    quote.shipmentType === "import" ? IM_DOCUMENTS : EX_DOCUMENTS;
+  const documentList = quote.shipmentType === "import" ? IM_DOCUMENTS : EX_DOCUMENTS;
 
   const documents = documentList.map((doc) => ({
     name: doc,
@@ -88,11 +84,23 @@ export async function POST(req) {
 
   const jobId = await generateJobId(quote);
 
+  /* ---------------- CLIENT LINKING ---------------- */
+
+  // Prefer quote.clientUser if present, else fallback to user by quote.email
+  let clientUser = quote.clientUser || null;
+
+  if (!clientUser && quote.email) {
+    const u = await User.findOne({ email: quote.email }).select("_id").lean();
+    clientUser = u?._id || null;
+  }
+
   /* ---------------- CREATE JOB ---------------- */
 
   const job = await Job.create({
     jobId,
     quoteId: quote._id,
+
+    clientUser, // ✅ LINKED TO CLIENT
 
     company: quote.company || "",
     shipmentType: quote.shipmentType,
@@ -106,7 +114,7 @@ export async function POST(req) {
     documents,
     currentStage: 2,
   });
-  
+
   /* ---------------- AUDIT LOG ---------------- */
   await logAudit({
     entityType: "job",
@@ -120,6 +128,7 @@ export async function POST(req) {
       technicalQuoteId: technicalQuote._id,
       shipmentType: quote.shipmentType,
       company: quote.company,
+      clientUser: clientUser || null,
     },
   });
 

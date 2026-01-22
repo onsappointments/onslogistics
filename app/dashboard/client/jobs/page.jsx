@@ -1,30 +1,26 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-export default function ClientDashboard() {
+export default function ClientJobsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  const isClient = useMemo(() => session?.user?.role === "client", [session]);
+  const userId = session?.user?.id;
 
   const [jobs, setJobs] = useState([]);
   const [jobsLoading, setJobsLoading] = useState(false);
 
-  const isClient = useMemo(() => session?.user?.role === "client", [session]);
-  const userId = session?.user?.id;
-  const company = session?.user?.company;
-
   // Redirect if not authenticated / not client
   useEffect(() => {
     if (status === "loading") return;
-
-    if (status !== "authenticated" || !isClient) {
-      router.push("/login");
-    }
+    if (status !== "authenticated" || !isClient) router.push("/login");
   }, [status, isClient, router]);
 
-  // Fetch ongoing jobs (basic fields only)
+  // Fetch ALL jobs (same fields as dashboard reminder table)
   useEffect(() => {
     if (status !== "authenticated" || !isClient) return;
 
@@ -36,7 +32,9 @@ export default function ClientDashboard() {
     const fetchJobs = async () => {
       setJobsLoading(true);
       try {
-        const res = await fetch("/api/client/jobs", { cache: "no-store" });
+        // IMPORTANT: your API should return all jobs for this page.
+        // If your API currently returns only ongoing, update it OR create /api/client/jobs/all
+        const res = await fetch("/api/client/jobs?scope=all", { cache: "no-store" });
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
@@ -58,46 +56,40 @@ export default function ClientDashboard() {
   }, [status, isClient, userId]);
 
   if (status === "loading") {
-    return <p className="text-center mt-20">Loading your dashboard...</p>;
+    return <p className="text-center mt-20">Loading...</p>;
   }
 
   return (
-    <div className="space-y-12">
-      {/* Welcome */}
-      <section>
-        <h1 className="text-4xl font-semibold mb-2">
-          Welcome back, {session?.user?.name || session?.user?.fullName || "Client"}{" "}
-          👋
-        </h1>
-        <p className="text-gray-600 text-lg">
-          {company ? `Company: ${company}` : "Track your ongoing jobs here."}
-        </p>
+    <div className="space-y-8">
+      {/* Header */}
+      <section className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-semibold mb-1">My Jobs</h1>
+          <p className="text-gray-600">Same view as dashboard — click a job to open details.</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard/client")}
+          className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition"
+        >
+          ← Back
+        </button>
       </section>
 
-      {/* Ongoing Jobs */}
+      {/* Jobs Table (exact same columns as dashboard) */}
       <section
         className="bg-white/70 backdrop-blur-2xl rounded-[2rem] p-8 shadow-[0_8px_40px_rgba(0,0,0,0.06)]
         border border-white/40 transition hover:shadow-[0_12px_50px_rgba(0,0,0,0.1)]"
       >
         <div className="flex items-center justify-between gap-4 mb-4">
-          <h2 className="text-2xl font-semibold">Ongoing Jobs</h2>
-
-          {/* show button only when there are jobs */}
-          {jobs?.length > 0 && (
-            <button
-              type="button"
-              onClick={() => router.push("/dashboard/client/jobs")}
-              className="text-blue-600 hover:underline font-medium"
-            >
-              View all →
-            </button>
-          )}
+          <h2 className="text-2xl font-semibold">All Jobs</h2>
         </div>
 
         {jobsLoading && <p className="text-gray-600">Fetching your jobs...</p>}
 
         {!jobsLoading && jobs?.length === 0 && (
-          <p className="text-gray-600">You don’t have any ongoing jobs yet.</p>
+          <p className="text-gray-600">You don’t have any jobs yet.</p>
         )}
 
         {!jobsLoading && jobs?.length > 0 && (
@@ -119,13 +111,12 @@ export default function ClientDashboard() {
                     className="bg-white hover:bg-gray-50 transition rounded-xl shadow-sm cursor-pointer"
                     onClick={() => router.push(`/dashboard/client/jobs/${j._id}`)}
                   >
-                    {console.log(j)}
-                    <td className="px-4 py-3 text-gray-900 font-medium">
-                      {j.jobId}
-                    </td>
+                    <td className="px-4 py-3 text-gray-900 font-medium">{j.jobId}</td>
+
                     <td className="px-4 py-3 text-gray-700">
-                      {j.quoteId.shipmentType || "-"}
+                      {j?.quoteId?.shipmentType || "-"}
                     </td>
+
                     <td className="px-4 py-3">
                       <span
                         className={`px-3 py-1 rounded-full text-sm ${
@@ -139,8 +130,9 @@ export default function ClientDashboard() {
                         {j.status}
                       </span>
                     </td>
+
                     <td className="px-4 py-3 text-gray-600 text-sm">
-                      {j.quoteId.createdAt ? new Date(j.createdAt).toLocaleDateString() : "-"}
+                      {j.createdAt ? new Date(j.createdAt).toLocaleDateString() : "-"}
                     </td>
                   </tr>
                 ))}
@@ -152,21 +144,6 @@ export default function ClientDashboard() {
             </p>
           </div>
         )}
-      </section>
-
-      {/* Support */}
-      <section
-        id="support"
-        className="bg-white/70 backdrop-blur-2xl rounded-[2rem] p-8 shadow-[0_8px_40px_rgba(0,0,0,0.06)]
-        border border-white/40 transition hover:shadow-[0_12px_50px_rgba(0,0,0,0.1)]"
-      >
-        <h2 className="text-2xl font-semibold mb-4">Need Help?</h2>
-        <p className="text-gray-600 mb-3">
-          Contact our support team for shipment updates or documentation help.
-        </p>
-        <a href="/contact" className="text-blue-600 hover:underline font-medium">
-          Contact Us
-        </a>
       </section>
     </div>
   );

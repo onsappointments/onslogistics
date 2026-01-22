@@ -44,6 +44,17 @@ const QuoteSchema = new mongoose.Schema(
       enum: ["import", "export", "courier" , "Not set"],
     },
 
+        clientUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+
+leadStatus: {
+  type: String,
+  enum: ["lead", "otp_sent", "verified", "converted"],
+  default: "lead",
+},
+
+leadVerifiedAt: { type: Date, default: null },
+
+
     // Goods information
     goodsPurpose: String,
     valueOfGoods: String,
@@ -119,6 +130,8 @@ const QuoteSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+
+
   },
   { timestamps: true }
 );
