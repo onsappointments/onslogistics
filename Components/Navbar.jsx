@@ -57,24 +57,24 @@ export default function Navbar() {
         .nav-link {
           position: relative;
           transition: all 0.3s ease;
+          diplay :  inline-block;
         }
 
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          bottom: -6px;
-          left: 50%;
-          width: 0;
-          height: 2px;
-          background: #2563eb;
-          transition: all 0.3s ease;
-          transform: translateX(-50%);
-        }
+        .nav-link::after{
+        content: "";           /* ✅ critical */
+        position: absolute;
+        left: 0;
+        bottom: -6px;          /* adjust */
+        height: 2px;
+        width: 0;
+        background: currentColor;
+        transition: width 250ms ease;
+      }
 
-        .nav-link:hover::after,
-        .nav-link.active::after {
-          width: 100%;
-        }
+      .nav-link:hover::after,
+      .nav-link.active::after{
+        width: 100%;
+      }
 
         .dropdown-animate {
           animation: slideDown 0.3s ease-out;
@@ -194,7 +194,7 @@ export default function Navbar() {
                     <Link
                       key={idx}
                       href={service.href}
-                      className="service-item block px-4 py-2.5 text-sm text-black hover:bg-blue-600 hover:text-white"
+                      className="service-item  block px-4 py-2.5 text-sm text-black hover:bg-blue-600 hover:text-white"
                     >
                       {service.name}
                     </Link>
@@ -220,7 +220,7 @@ export default function Navbar() {
                   <li key={item.label}>
                     <Link
                       href={item.path}
-                      className={`nav-link text-sm lg:text-md font-semibold transition-colors ${
+                      className={`nav-link text-sm lg:text-md font-semibold transition-colors  ${
                         pathname === item.path
                           ? "text-blue-600 active"
                           : "text-black hover:text-blue-600"
