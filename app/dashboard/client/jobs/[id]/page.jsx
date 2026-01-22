@@ -116,18 +116,6 @@ export default function ClientJobDetailsPage() {
 
           <button
             type="button"
-            onClick={() => setActiveTab("tracking")}
-            className={`px-5 py-2 rounded-full border transition ${
-              activeTab === "tracking"
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white border-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            Tracking
-          </button>
-
-          <button
-            type="button"
             onClick={() => setActiveTab("documents")}
             className={`px-5 py-2 rounded-full border transition ${
               activeTab === "documents"
@@ -157,17 +145,7 @@ export default function ClientJobDetailsPage() {
             {activeTab === "overview" && (
               <div className="space-y-8">
                 {/* Quick Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="rounded-2xl bg-white p-5 border border-gray-200">
-                    <p className="text-sm text-gray-600">Stage</p>
-                    <p className="text-xl font-semibold text-gray-900 mt-1">
-                      {job.stage || "-"}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2">
-                      Current stage: {job.currentStage || "-"}
-                    </p>
-                  </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                   <div className="rounded-2xl bg-white p-5 border border-gray-200">
                     <p className="text-sm text-gray-600">BL Numbers</p>
                     <p className="text-sm text-gray-900 mt-2">
@@ -238,126 +216,54 @@ export default function ClientJobDetailsPage() {
                 </div>
 
                 {/* Stage Timeline */}
-                <div className="rounded-2xl bg-white p-6 border border-gray-200">
-                  <h3 className="text-xl font-semibold mb-4">Progress</h3>
+              <div className="rounded-2xl bg-white p-6 border border-gray-200">
+  <h3 className="text-xl font-semibold mb-4">Tracking Timeline</h3>
 
-                  {Array.isArray(job.stages) && job.stages.length > 0 ? (
-                    <div className="space-y-3">
-                      {job.stages
-                        .slice()
-                        .sort((a, b) => (a.number || 0) - (b.number || 0))
-                        .map((s) => (
-                          <div
-                            key={`${s.number}-${s.name}`}
-                            className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4"
-                          >
-                            <div>
-                              <p className="font-medium text-gray-900">
-                                {s.number}. {s.name}
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {s.completedAt
-                                  ? `Completed on ${new Date(s.completedAt).toLocaleString()}`
-                                  : "Not completed yet"}
-                              </p>
-                            </div>
+  {/* Quote header like public tracking */}
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 text-sm">
+    <Field label="Shipment Type" value={job.quoteId?.shipmentType} />
+    <Field label="From" value={job.quoteId?.fromCity} />
+    <Field label="To" value={job.quoteId?.toCity} />
+    <Field label="Mode" value={job.quoteId?.modeOfShipment} />
+  </div>
 
-                            <span
-                              className={`px-3 py-1 rounded-full text-sm ${
-                                s.completed
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-gray-100 text-gray-600"
-                              }`}
-                            >
-                              {s.completed ? "Done" : "Pending"}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-600 text-sm">No stage data available.</p>
-                  )}
-                </div>
-              </div>
+  {(job?.containers || []).length === 0 && (
+    <p className="text-sm text-gray-600">No container tracking available yet.</p>
+  )}
+
+  {(job?.containers || []).map((container) => (
+    <div key={container.containerNumber} className="mb-6">
+      <h4 className="text-base font-semibold mb-3">
+        Container {container.containerNumber || "—"}
+      </h4>
+
+      <ol className="relative border-l border-gray-300 space-y-6 pl-6">
+        {(container.events || []).length === 0 && (
+          <li className="text-sm text-gray-600">No events yet.</li>
+        )}
+
+        {(container.events || []).map((event, idx) => (
+          <li key={idx} className="relative">
+            <span className="absolute -left-[9px] top-1.5 w-3 h-3 bg-blue-600 rounded-full" />
+            <p className="font-medium">{event.status || "—"}</p>
+
+            <p className="text-sm text-gray-500">
+              {event.location || "—"}
+              {event.eventDate && !isNaN(new Date(event.eventDate)) && (
+                <> • {new Date(event.eventDate).toLocaleDateString()}</>
+              )}
+            </p>
+
+            {event.remarks && (
+              <p className="mt-1 text-sm text-gray-600 italic">{event.remarks}</p>
             )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  ))}
+</div>
 
-            {/* TRACKING */}
-            {activeTab === "tracking" && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold">Container Tracking</h3>
-
-                {Array.isArray(job.containers) && job.containers.length > 0 ? (
-                  <div className="space-y-4">
-                    {job.containers.map((c, idx) => (
-                      <div
-                        key={`${c.containerNumber}-${idx}`}
-                        className="rounded-2xl border border-gray-200 bg-white p-6"
-                      >
-                        <div className="flex items-center justify-between gap-4">
-                          <div>
-                            <p className="text-lg font-semibold text-gray-900">
-                              {c.containerNumber}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Size/Type: {c.sizeType || "-"}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="mt-4">
-                          <p className="text-sm font-medium text-gray-700 mb-2">
-                            Events
-                          </p>
-
-                          {Array.isArray(c.events) && c.events.length > 0 ? (
-                            <div className="space-y-3">
-                              {c.events
-                                .slice()
-                                .sort(
-                                  (a, b) =>
-                                    new Date(b.eventDate).getTime() -
-                                    new Date(a.eventDate).getTime()
-                                )
-                                .map((ev, i) => (
-                                  <div
-                                    key={`${ev.status}-${i}`}
-                                    className="rounded-xl border border-gray-200 bg-white p-4"
-                                  >
-                                    <div className="flex items-center justify-between gap-4">
-                                      <p className="font-medium text-gray-900">
-                                        {ev.status}
-                                      </p>
-                                      <p className="text-xs text-gray-500">
-                                        {ev.eventDate
-                                          ? new Date(ev.eventDate).toLocaleString()
-                                          : "-"}
-                                      </p>
-                                    </div>
-                                    <p className="text-sm text-gray-600 mt-1">
-                                      {ev.location || "-"}
-                                    </p>
-                                    {ev.remarks && (
-                                      <p className="text-sm text-gray-500 mt-2">
-                                        {ev.remarks}
-                                      </p>
-                                    )}
-                                  </div>
-                                ))}
-                            </div>
-                          ) : (
-                            <p className="text-gray-600 text-sm">
-                              No tracking events yet.
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-600">
-                    No container tracking available yet.
-                  </p>
-                )}
               </div>
             )}
 
@@ -438,6 +344,15 @@ function Row({ label, value }) {
     <div className="flex items-center justify-between gap-6">
       <p className="text-gray-600">{label}</p>
       <p className="text-gray-900 font-medium text-right">{v}</p>
+    </div>
+  );
+}
+
+function Field({ label, value }) {
+  return (
+    <div>
+      <p className="text-gray-500">{label}</p>
+      <p className="font-medium">{value || "—"}</p>
     </div>
   );
 }

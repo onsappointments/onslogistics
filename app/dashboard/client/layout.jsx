@@ -9,32 +9,38 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
 
-  const [hasJobs, setHasJobs] = useState(true); // default true to avoid flicker
+  const [hasJobs, setHasJobs] = useState(true);
   const [checkingJobs, setCheckingJobs] = useState(false);
+
+  // ✅ track hash for #support active state
+  const [hash, setHash] = useState("");
 
   const isClient = useMemo(() => session?.user?.role === "client", [session]);
 
-  // Check if client has any jobs (ongoing OR any—choose what you want)
+  useEffect(() => {
+    const updateHash = () => setHash(window.location.hash || "");
+    updateHash();
+    window.addEventListener("hashchange", updateHash);
+    return () => window.removeEventListener("hashchange", updateHash);
+  }, []);
+
   useEffect(() => {
     if (status !== "authenticated" || !isClient) return;
 
     const check = async () => {
       setCheckingJobs(true);
       try {
-        // If you want "any jobs ever", add ?scope=all and implement it in API
         const res = await fetch("/api/client/jobs", { cache: "no-store" });
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
-          // Don’t hide jobs button on error—keep it visible
           setHasJobs(true);
           return;
         }
 
         const jobs = Array.isArray(data.jobs) ? data.jobs : [];
         setHasJobs(jobs.length > 0);
-      } catch (e) {
-        // On network errors, keep it visible
+      } catch {
         setHasJobs(true);
       } finally {
         setCheckingJobs(false);
@@ -45,22 +51,30 @@ export default function DashboardLayout({ children }) {
   }, [status, isClient]);
 
   const menuItems = useMemo(() => {
-    const items = [
-      { label: "Dashboard", path: "/dashboard/client" },
-      // show only if jobs exist (or while checking to prevent jumpy UI)
+    return [
+      { label: "Dashboard", path: "/dashboard/client", exact: true },
       ...(hasJobs || checkingJobs
-        ? [{ label: "My Jobs", path: "/dashboard/client/jobs" }]
+        ? [{ label: "My Jobs", path: "/dashboard/client/jobs", startsWith: true }]
         : []),
-      { label: "Support", path: "/dashboard/client#support" },
-      { label: "My Profile", path: "/dashboard/client/profile" },
     ];
-    return items;
   }, [hasJobs, checkingJobs]);
 
-  const isActive = (path) => {
-    const basePath = path.split("#")[0];
-    if (pathname === basePath) return path.includes("#");
-    return pathname === path;
+  const isActive = (item) => {
+    // hash-based active (Support)
+    if (item.hash) {
+      // active only when on dashboard page AND hash matches
+      return pathname === "/dashboard/client" && hash === item.hash;
+    }
+
+    // startsWith-based active (Jobs + Profile)
+    if (item.startsWith) {
+      return pathname === item.path || pathname.startsWith(item.path + "/");
+    }
+
+    // exact match (Dashboard)
+    if (item.exact) return pathname === item.path;
+
+    return pathname === item.path;
   };
 
   return (
@@ -82,7 +96,7 @@ export default function DashboardLayout({ children }) {
                 href={item.path}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition
                 ${
-                  isActive(item.path)
+                  isActive(item)
                     ? "bg-blue-600 text-white"
                     : "hover:bg-blue-100/70 text-gray-800"
                 }`}

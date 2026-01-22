@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
+import "@/models/Quote"; // ✅ ensures Quote is registered for populate
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
@@ -22,7 +23,6 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: "Job id is required" }, { status: 400 });
     }
 
-    // Fetch job (include embedded documents, stages, containers)
     const job = await Job.findById(id)
       .select(
         [
@@ -67,15 +67,18 @@ export async function GET(req, { params }) {
           "updatedAt",
         ].join(" ")
       )
-      .populate("quoteId", "shipmentType createdAt")
+      .populate({
+        path: "quoteId",
+        select:
+          "shipmentType fromCity toCity modeOfShipment company firstName lastName referenceNo status createdAt",
+        strictPopulate: false,
+      })
       .lean();
 
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    // Access control: only the owner client can see it
-    // If you want company fallback, you can add it, but clientUser is best.
     if (!job.clientUser || String(job.clientUser) !== String(session.user.id)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
