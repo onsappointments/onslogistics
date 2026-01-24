@@ -84,7 +84,7 @@ export default function AdminSidebar() {
       <div className="flex items-center justify-between mb-6">
         <div className="text-xl font-semibold text-gray-900">ONS Admin</div>
         {isSuperAdmin && (
-          <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+          <span className="text-xs px-2 py-1 rounded-full bg-blue-100 font-semibold text-blue-700">
             Super Admin
           </span>
         )}
