@@ -2,7 +2,7 @@ import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import { updateJob } from "./actions";
 
 export default async function EditJobPage({ params }) {
