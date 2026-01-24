@@ -57,24 +57,24 @@ export default function Navbar() {
         .nav-link {
           position: relative;
           transition: all 0.3s ease;
-          diplay :  inline-block;
         }
 
-        .nav-link::after{
-        content: "";           /* ✅ critical */
-        position: absolute;
-        left: 0;
-        bottom: -6px;          /* adjust */
-        height: 2px;
-        width: 0;
-        background: currentColor;
-        transition: width 250ms ease;
-      }
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          bottom: -6px;
+          left: 50%;
+          width: 0;
+          height: 2px;
+          background: #2563eb;
+          transition: all 0.3s ease;
+          transform: translateX(-50%);
+        }
 
-      .nav-link:hover::after,
-      .nav-link.active::after{
-        width: 100%;
-      }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+          width: 100%;
+        }
 
         .dropdown-animate {
           animation: slideDown 0.3s ease-out;
@@ -135,7 +135,8 @@ export default function Navbar() {
         id="site-navbar"
         className="fixed top-0 left-0 z-50 w-full bg-[--color-background]/90 backdrop-blur-md border-b border-gray-200"
       >
-        <div className="max-w-[1440px] mx-auto h-[64px] lg:h-[72px] px-4 sm:px-6 flex items-center justify-between">
+        <div 
+        className="max-w-[1440px] mx-auto h-[64px] lg:h-[72px] px-4 sm:px-6 flex items-center justify-between">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0 logo-container">

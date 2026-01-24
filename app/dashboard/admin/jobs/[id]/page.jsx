@@ -4,15 +4,20 @@ import Link from "next/link";
 import { initiateJob, deleteJob } from "../actions";
 import JobDocumentsPanel from "../JobDocumentsPanel";
 
-// ✅ NEW: client button (permission + request modal + remarks)
 import EditJobButton from "@/Components/EditJobButton";
 
-// ✅ NEW: get adminType on server (next-auth). Adjust paths if yours differ.
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import mongoose from "mongoose";
 
 export default async function JobDetails({ params }) {
-  const { id } = await params;
+  // ✅ FIX: params is an object, id is params.id (not destructuring from params.id)
+  const id = params?.id;
+
+  // ✅ FIX: guard invalid ids to avoid CastError
+  if (!id || id === "undefined" || !mongoose.Types.ObjectId.isValid(id)) {
+    return <div className="p-10">Invalid job id.</div>;
+  }
 
   await connectDB();
   const job = await Job.findById(id).lean();
@@ -22,7 +27,6 @@ export default async function JobDetails({ params }) {
   // Convert ObjectId → string & dates → string
   const plainJob = JSON.parse(JSON.stringify(job));
 
-  // ✅ NEW: determine super admin
   const session = await getServerSession(authOptions);
   const isSuperAdmin = session?.user?.adminType === "super_admin";
 
@@ -32,8 +36,11 @@ export default async function JobDetails({ params }) {
 
       {/* ACTION BUTTONS */}
       <div className="flex gap-4 mb-6">
-        {/* ✅ Replaces Edit Job Link */}
-        <EditJobButton jobId={plainJob._id} isSuperAdmin={isSuperAdmin} />
+        {job.status === "new" ? (
+          <EditJobButton id={plainJob._id} isNew={true} />
+        ) : (
+          <EditJobButton id={plainJob._id} isSuperAdmin={isSuperAdmin} />
+        )}
 
         {/* Only NEW jobs show Initiate button */}
         {plainJob.status === "new" && (
@@ -45,12 +52,14 @@ export default async function JobDetails({ params }) {
           </form>
         )}
 
-        <form action={deleteJob}>
-          <input type="hidden" name="id" value={plainJob._id} />
-          <button className="px-4 py-2 bg-red-600 text-white rounded-lg">
-            Delete Job
-          </button>
-        </form>
+        {isSuperAdmin && (
+          <form action={deleteJob}>
+            <input type="hidden" name="id" value={plainJob._id} />
+            <button className="px-4 py-2 bg-red-600 text-white rounded-lg">
+              Delete Job
+            </button>
+          </form>
+        )}
 
         {plainJob.status === "active" && (
           <Link

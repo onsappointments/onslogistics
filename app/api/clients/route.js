@@ -2,7 +2,7 @@ import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { escapeRegex } from "@/lib/escapeRegex";
+import escapeRegex from "@/lib/escapeRegex";
 
 export async function GET(req) {
   try {

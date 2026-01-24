@@ -40,7 +40,45 @@ export default async function PublicTrackingPage({ params }) {
     .populate("quoteId")
     .lean();
 
-  if (!job) notFound();
+  if (!job) {
+  return (
+    <main className="bg-[#F5F5F7] min-h-screen px-6 py-12">
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="bg-white rounded-xl shadow p-6">
+          <h1 className="text-2xl font-semibold">Shipment Tracking</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Reference: <span className="font-medium">{ref}</span>
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-10 text-center">
+          <p className="text-xl font-semibold text-gray-900">
+            No shipment found
+          </p>
+          <p className="text-gray-600 mt-2">
+            The reference you entered looks incorrect or is not in our system.
+          </p>
+
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <a
+              href="/tracking"
+              className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+            >
+              Search Again
+            </a>
+            <a
+              href="/"
+              className="px-5 py-2 rounded-full border border-gray-300 text-gray-800 font-medium hover:bg-gray-50 transition"
+            >
+              Go Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 
   const quote = job.quoteId;
 
