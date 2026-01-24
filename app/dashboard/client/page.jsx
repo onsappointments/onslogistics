@@ -525,7 +525,7 @@ export default function ClientDashboard() {
             </div>
 
             {/* Right: small checklist */}
-            <div className="hidden lg:block w-80">
+          {kycStatus !== "approved" && ( <div className="hidden lg:block w-80">
               <div className="bg-gradient-to-br from-gray-50 to-blue-50 border border-gray-200 rounded-2xl p-5">
                 <p className="font-bold text-gray-900 mb-3">Checklist</p>
                 <ul className="space-y-2 text-sm text-gray-700">
@@ -547,6 +547,7 @@ export default function ClientDashboard() {
                 </p>
               </div>
             </div>
+          )}
           </div>
         </section>
 

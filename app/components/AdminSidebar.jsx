@@ -52,7 +52,7 @@ export default function AdminSidebar() {
   const isActive = (href) => {
     // ignore query params for active matching
     const cleanHref = href.split("?")[0];
-    return pathname === cleanHref || pathname.startsWith(cleanHref + "/");
+    return pathname === cleanHref || pathname.startsWith(cleanHref + "/admin");
   };
 
   // ✅ pending badge count (only if can see KYC)
