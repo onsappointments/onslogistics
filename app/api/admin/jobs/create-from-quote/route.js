@@ -99,16 +99,19 @@ export async function POST(req) {
   const job = await Job.create({
     jobId,
     quoteId: quote._id,
+    technicalQuoteId: technicalQuote._id, // ✅ FIXED: Link to technical quote for revenue tracking
 
     clientUser, // ✅ LINKED TO CLIENT
 
     company: quote.company || "",
+    customerName: `${quote.firstName} ${quote.lastName}`.trim(),
     shipmentType: quote.shipmentType,
 
     containerType: quote.containerType || null,
     commodity: quote.natureOfGoods || null,
 
     status: "new",
+    source: "quote", // ✅ Mark as created from quote
     stage: "Documentation",
     stages,
     documents,
