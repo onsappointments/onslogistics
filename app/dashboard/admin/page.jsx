@@ -161,9 +161,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-12">
-      {/* ================= HEADER ================= */}
+      {/* ================= HEADER WITH ANALYTICS LINKS ================= */}
       <section className="flex flex-col md:flex-row items-center justify-between bg-white/80 backdrop-blur-xl rounded-3xl shadow p-8 gap-6">
-        <div>
+        <div className="flex-1">
           <h1 className="text-4xl font-semibold mb-2">
             Welcome, {session?.user?.name || "Admin"} 👋
           </h1>
@@ -171,7 +171,113 @@ export default function AdminDashboard() {
             Manage clients, shipments, and documents efficiently.
           </p>
         </div>
+        
+        {/* Quick Actions - Analytics Links (Super Admin Only) */}
+        {session?.user?.adminType === "super_admin" && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              href="/dashboard/admin/analytics"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+              <span className="font-medium">Analytics Dashboard</span>
+            </Link>
+            
+            <Link
+              href="/dashboard/admin/analytics-detailed"
+              className="flex items-center justify-center gap-2 bg-white text-gray-700 border-2 border-gray-300 px-6 py-3 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span className="font-medium">Detailed Reports</span>
+            </Link>
+          </div>
+        )}
       </section>
+
+      {/* Optional: Quick Stats Cards */}
+      {session?.user?.adminType === "super_admin" && (
+        <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm mb-1">Quick Access</p>
+                <h3 className="text-2xl font-bold">Analytics</h3>
+              </div>
+              <svg className="w-12 h-12 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+              </svg>
+            </div>
+            <Link href="/dashboard/admin/analytics" className="mt-4 inline-block text-sm text-blue-100 hover:text-white">
+              View Dashboard →
+            </Link>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm mb-1">Detailed View</p>
+                <h3 className="text-2xl font-bold">Reports</h3>
+              </div>
+              <svg className="w-12 h-12 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <Link href="/dashboard/admin/analytics-detailed" className="mt-4 inline-block text-sm text-purple-100 hover:text-white">
+              View Details →
+            </Link>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm mb-1">Management</p>
+                <h3 className="text-2xl font-bold">Jobs</h3>
+              </div>
+              <svg className="w-12 h-12 text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+            </div>
+            <p className="mt-4 text-sm text-green-100">Search companies below</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-orange-100 text-sm mb-1">Track</p>
+                <h3 className="text-2xl font-bold">Shipments</h3>
+              </div>
+              <svg className="w-12 h-12 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+            </div>
+            <p className="mt-4 text-sm text-orange-100">Select client below</p>
+          </div>
+        </section>
+      )}
 
       {/* ================= SEARCH COMPANIES (DEBOUNCED) ================= */}
       <section className="bg-white/80 backdrop-blur-xl rounded-3xl shadow p-8">

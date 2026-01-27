@@ -6,7 +6,7 @@ import CurrencyConverter from "@/Components/CurrencyConverter";
 import Job from "@/models/Job";
 import User from "@/models/User";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import EditQuoteButton from "@/Components/EditQuoteButton";
 import Link from "next/link";
 
