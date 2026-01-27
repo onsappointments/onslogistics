@@ -2,6 +2,7 @@
 
 import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
+import {redirect} from "next/navigation";
 
 // INITIATE JOB → Moves to Active Jobs
 export async function initiateJob(formData) {
@@ -12,6 +13,7 @@ export async function initiateJob(formData) {
     status: "active",
     stage: "Documentation",
   });
+    redirect("/dashboard/admin/jobs/active");
 
   return { success: true };
 }

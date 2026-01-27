@@ -19,7 +19,12 @@ const UserSchema = new mongoose.Schema(
     country: { type: String, default: undefined, trim: true },
 
     password: { type: String, required: true },
-
+    verified: { type: Boolean, default: false },
+    clientOtp: { type: String, default: null },
+    clientOtpExpiresAt: { type: Date, default: null },
+    clientOtpAttempts: { type: Number, default: 0 },
+    clientOtpLastSentAt: { type: Date, default: null },
+    kycVerified: { type: Boolean, default: false },
     adminType: {
       type: String,
       enum: ["super_admin", "manager", "accounts", "sales", "operations", "IT", "reception"],

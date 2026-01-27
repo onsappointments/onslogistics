@@ -16,6 +16,7 @@ const PERMISSION_OPTIONS = [
   { label: "Create Admin", value: "admin:create" },
   { label: "Approval Requests", value: "approvals:permission" },
   { label: "Couriers", value: "couriers:view" },
+  { label: "KYC Verification", value: "kyc:view" },
 ];
 
 export default function CreateAdminForm({ adminsData = [] }) {

@@ -17,7 +17,7 @@ export default async function ClientQuotePage({ params }) {
   const technicalQuote = await TechnicalQuote.findOne({
     clientQuoteId: id,
     status: { $in: ["sent_to_client", "client_approved"] },
-  }).lean();
+  }).lean().populate("clientQuoteId");
 
   if (!technicalQuote) {
     return <div className="p-10">Quotation not available</div>;
@@ -29,9 +29,9 @@ export default async function ClientQuotePage({ params }) {
     igstTotal = 0,
     cgstTotal = 0,
     sgstTotal = 0,
-    grandTotal = 0,
-    status,
+    grandTotalINR = 0,
   } = technicalQuote;
+
 
   return (
     <div className="p-10 max-w-6xl mx-auto">
@@ -39,13 +39,6 @@ export default async function ClientQuotePage({ params }) {
       <h1 className="text-3xl font-semibold mb-2">
         Quotation from ONS Logistics
       </h1>
-
-      <p className="text-gray-600 mb-6">
-        Status:{" "}
-        <span className="font-medium capitalize">
-          {status.replaceAll("_", " ")}
-        </span>
-      </p>
 
       {/* CLIENT DETAILS */}
       <Section title="Client Information">
@@ -88,7 +81,7 @@ export default async function ClientQuotePage({ params }) {
             </thead>
 
             <tbody>
-              {lineItems.map((item, i) => (
+              {lineItems.map((item, i) => item.quantity > 0 && ( (
                 <tr key={i} className="border-t">
                   <td className="p-2 font-medium">{item.head}</td>
 
@@ -130,7 +123,7 @@ export default async function ClientQuotePage({ params }) {
                     ₹{Number(item.totalAmount).toFixed(2)}
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>
@@ -159,7 +152,7 @@ export default async function ClientQuotePage({ params }) {
 
           <div className="flex justify-between font-semibold text-lg border-t pt-2">
             <span>Total Payable (INR)</span>
-            <span>₹{grandTotal.toFixed(2)}</span>
+            <span>₹{grandTotalINR.toFixed(2)}</span>
           </div>
         </div>
       </div>

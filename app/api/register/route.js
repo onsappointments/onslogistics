@@ -115,6 +115,7 @@ export async function POST(req) {
         country: (country || "").trim(),
         password: hashedPassword,
         role: "client",
+        verified: true,
       });
 
       const quoteIds = quotes.map((q) => q._id);
