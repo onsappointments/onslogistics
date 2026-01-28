@@ -11,6 +11,9 @@ export default function DispatchPage() {
   const [openReceival, setOpenReceival] = useState(false);
   const [openDispatch, setOpenDispatch] = useState(false);
   const [serialSort, setSerialSort] = useState("asc"); 
+  const [editingReceival, setEditingReceival] = useState(null);
+  const [editingDispatch, setEditingDispatch] = useState(null);
+
 
 
   /* ---------- FETCH FUNCTIONS ---------- */
@@ -38,6 +41,40 @@ export default function DispatchPage() {
         : b.serialNo - a.serialNo
     );
   };
+  const openEditReceival = (row) => {
+    setEditingReceival(row);
+    setOpenReceival(true);
+  };
+  
+  const openEditDispatch = (row) => {
+    setEditingDispatch(row);
+    setOpenDispatch(true);
+  };
+  
+  const deleteReceival = async (id) => {
+    if (!confirm("Delete this receival entry?")) return;
+  
+    await fetch("/api/admin/couriers/receival", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+  
+    fetchReceival();
+  };
+  
+  const deleteDispatch = async (id) => {
+    if (!confirm("Delete this dispatch entry?")) return;
+  
+    await fetch("/api/admin/couriers/dispatch", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+  
+    fetchDispatch();
+  };
+  
   
   /* ---------- AUTO FETCH ON TAB CHANGE ---------- */
 
@@ -108,6 +145,7 @@ export default function DispatchPage() {
                 <th style={thStyle}>Subject</th>
                 <th style={thStyle}>Courier Service</th>
                 <th style={thStyle}>Receiver</th>
+                <th style={thStyle}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -120,6 +158,15 @@ export default function DispatchPage() {
                   <td style={tdStyle}>{r.subject || "-"}</td>
                   <td style={tdStyle}>{r.courierService}</td>
                   <td style={tdStyle}>{r.receiver}</td>
+                  <td style={tdStyle}>
+                   <button onClick={() => openEditReceival(r)} style={{ marginRight: 6 }}>
+                      ✏️
+                   </button>
+                   <button onClick={() => deleteReceival(r._id)}>
+                       🗑
+                   </button>
+                 </td>
+
                 </tr>
               ))}
             </tbody>
@@ -151,6 +198,7 @@ export default function DispatchPage() {
         <th style={thStyle}>Courier Service</th>
         <th style={thStyle}>Remarks</th>
         <th style={thStyle}>Dock No.</th>
+        <th style={thStyle}>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -165,6 +213,15 @@ export default function DispatchPage() {
           <td style={tdStyle}>{d.courierService}</td>
           <td style={tdStyle}>{d.remarks || "-"}</td>
           <td style={tdStyle}>{d.dockNo || "-"}</td>
+          <td style={tdStyle}>
+           <button onClick={() => openEditDispatch(d)} style={{ marginRight: 6 }}>
+             ✏️
+           </button>
+           <button onClick={() => deleteDispatch(d._id)}>
+             🗑
+           </button>
+         </td>
+
         </tr>
       ))}
     </tbody>
@@ -176,15 +233,25 @@ export default function DispatchPage() {
       {/* MODALS */}
       <AddReceivalModal
         open={openReceival}
-        onClose={() => setOpenReceival(false)}
+        initialData={editingReceival}
+        onClose={() => {
+          setOpenReceival(false);
+          setEditingReceival(null);
+        }}
         onSuccess={fetchReceival}
       />
 
+      
       <AddDispatchModal
         open={openDispatch}
-        onClose={() => setOpenDispatch(false)}
+        initialData={editingDispatch}
+        onClose={() => {
+          setOpenDispatch(false);
+          setEditingDispatch(null);
+        }}
         onSuccess={fetchDispatch}
       />
+
     </div>
   );
 }

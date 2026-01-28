@@ -1,8 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function AddDispatchModal({ open, onClose, onSuccess }) {
+export default function AddDispatchModal({
+  open,
+  onClose,
+  onSuccess,
+  initialData = null,
+}) {
+  const [saving, setSaving] = useState(false);
+
   const [form, setForm] = useState({
     name: "",
     address: "",
@@ -11,62 +18,121 @@ export default function AddDispatchModal({ open, onClose, onSuccess }) {
     courierService: "",
     dockNo: "",
     remarks: "",
+    _id: null, // 👈 needed for edit
   });
+
+  /* ===================== PRELOAD DATA FOR EDIT ===================== */
+
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        name: initialData.name || "",
+        address: initialData.address || "",
+        place: initialData.place || "",
+        subject: initialData.subject || "",
+        courierService: initialData.courierService || "",
+        dockNo: initialData.dockNo || "",
+        remarks: initialData.remarks || "",
+        _id: initialData._id,
+      });
+    } else {
+      // reset when adding new
+      setForm({
+        name: "",
+        address: "",
+        place: "",
+        subject: "",
+        courierService: "",
+        dockNo: "",
+        remarks: "",
+        _id: null,
+      });
+    }
+  }, [initialData]);
 
   if (!open) return null;
 
+  /* ===================== SUBMIT ===================== */
+
   const submit = async () => {
+    if (saving) return;
+
     if (!form.name || !form.address || !form.place || !form.courierService) {
       alert("Name, Address, Place and Courier Service are required");
       return;
     }
 
-    const res = await fetch("/api/admin/couriers/dispatch", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    setSaving(true);
 
-    if (res.ok) {
+    try {
+      const method = form._id ? "PUT" : "POST";
+
+      const res = await fetch("/api/admin/couriers/dispatch", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error("Failed");
+
       onSuccess?.();
       onClose();
-    } else {
-      alert("Failed to dispatch courier");
+    } catch (err) {
+      alert("Failed to save dispatch");
+    } finally {
+      setSaving(false);
     }
   };
+
+  /* ===================== UI ===================== */
 
   return (
     <div style={overlay}>
       <div style={modal}>
-        <h2 style={{ marginBottom: "10px" }}>Add Courier – Dispatch</h2>
+        <h2 style={{ marginBottom: "10px" }}>
+          {form._id ? "Edit Courier – Dispatch" : "Add Courier – Dispatch"}
+        </h2>
 
         <input
           style={input}
           placeholder="Name *"
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          value={form.name}
+          onChange={(e) =>
+            setForm({ ...form, name: e.target.value })
+          }
         />
 
         <textarea
           style={input}
           placeholder="Address *"
-          onChange={(e) => setForm({ ...form, address: e.target.value })}
+          value={form.address}
+          onChange={(e) =>
+            setForm({ ...form, address: e.target.value })
+          }
         />
 
         <input
           style={input}
           placeholder="Place *"
-          onChange={(e) => setForm({ ...form, place: e.target.value })}
+          value={form.place}
+          onChange={(e) =>
+            setForm({ ...form, place: e.target.value })
+          }
         />
 
         <input
           style={input}
           placeholder="Subject"
-          onChange={(e) => setForm({ ...form, subject: e.target.value })}
+          value={form.subject}
+          onChange={(e) =>
+            setForm({ ...form, subject: e.target.value })
+          }
         />
 
         <input
           style={input}
           placeholder="Courier Service *"
+          value={form.courierService}
           onChange={(e) =>
             setForm({ ...form, courierService: e.target.value })
           }
@@ -75,21 +141,40 @@ export default function AddDispatchModal({ open, onClose, onSuccess }) {
         <input
           style={input}
           placeholder="Dock No."
-          onChange={(e) => setForm({ ...form, dockNo: e.target.value })}
+          value={form.dockNo}
+          onChange={(e) =>
+            setForm({ ...form, dockNo: e.target.value })
+          }
         />
 
         <textarea
           style={input}
           placeholder="Remarks"
-          onChange={(e) => setForm({ ...form, remarks: e.target.value })}
+          value={form.remarks}
+          onChange={(e) =>
+            setForm({ ...form, remarks: e.target.value })
+          }
         />
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-          <button style={btnOutline} onClick={onClose}>
+          <button style={btnOutline} onClick={onClose} disabled={saving}>
             Cancel
           </button>
-          <button style={btnPrimary} onClick={submit}>
-            Save
+
+          <button
+            onClick={submit}
+            disabled={saving}
+            style={{
+              ...btnPrimary,
+              opacity: saving ? 0.6 : 1,
+              cursor: saving ? "not-allowed" : "pointer",
+            }}
+          >
+            {saving
+              ? "Saving..."
+              : form._id
+              ? "Update"
+              : "Save"}
           </button>
         </div>
       </div>
@@ -127,12 +212,10 @@ const btnPrimary = {
   background: "#2563eb",
   color: "#fff",
   border: "none",
-  cursor: "pointer",
 };
 
 const btnOutline = {
   padding: "6px 12px",
   background: "#e5e7eb",
   border: "none",
-  cursor: "pointer",
 };
