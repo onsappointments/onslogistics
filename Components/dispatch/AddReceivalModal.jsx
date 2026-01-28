@@ -90,61 +90,63 @@ export default function AddReceivalModal({
           {form._id ? "Edit Courier – Receival" : "Add Courier – Receival"}
         </h2>
 
-        <input
-          style={input}
-          placeholder="Letter No."
-          value={form.letterNo}
-          onChange={(e) =>
-            setForm({ ...form, letterNo: e.target.value })
-          }
-        />
+        <div style={formContainer}>
+          <input
+            style={input}
+            placeholder="Letter No."
+            value={form.letterNo}
+            onChange={(e) =>
+              setForm({ ...form, letterNo: e.target.value })
+            }
+          />
 
-        <input
-          style={input}
-          placeholder="From Who *"
-          value={form.fromWho}
-          onChange={(e) =>
-            setForm({ ...form, fromWho: e.target.value })
-          }
-        />
+          <input
+            style={input}
+            placeholder="From Who *"
+            value={form.fromWho}
+            onChange={(e) =>
+              setForm({ ...form, fromWho: e.target.value })
+            }
+          />
 
-        <input
-          style={input}
-          placeholder="Subject"
-          value={form.subject}
-          onChange={(e) =>
-            setForm({ ...form, subject: e.target.value })
-          }
-        />
+          <input
+            style={input}
+            placeholder="Subject"
+            value={form.subject}
+            onChange={(e) =>
+              setForm({ ...form, subject: e.target.value })
+            }
+          />
 
-        <input
-          style={input}
-          placeholder="Courier Service *"
-          value={form.courierService}
-          onChange={(e) =>
-            setForm({ ...form, courierService: e.target.value })
-          }
-        />
+          <input
+            style={input}
+            placeholder="Courier Service *"
+            value={form.courierService}
+            onChange={(e) =>
+              setForm({ ...form, courierService: e.target.value })
+            }
+          />
 
-        <input
-          style={input}
-          placeholder="Receiver *"
-          value={form.receiver}
-          onChange={(e) =>
-            setForm({ ...form, receiver: e.target.value })
-          }
-        />
+          <input
+            style={input}
+            placeholder="Receiver *"
+            value={form.receiver}
+            onChange={(e) =>
+              setForm({ ...form, receiver: e.target.value })
+            }
+          />
 
-        <textarea
-          style={input}
-          placeholder="Remarks"
-          value={form.remarks}
-          onChange={(e) =>
-            setForm({ ...form, remarks: e.target.value })
-          }
-        />
+          <textarea
+            style={input}
+            placeholder="Remarks"
+            value={form.remarks}
+            onChange={(e) =>
+              setForm({ ...form, remarks: e.target.value })
+            }
+          />
+        </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px" }}>
           <button style={btnOutline} onClick={onClose} disabled={saving}>
             Cancel
           </button>
@@ -180,19 +182,31 @@ const overlay = {
   alignItems: "center",
   justifyContent: "center",
   zIndex: 50,
+  padding: "16px",
 };
 
 const modal = {
   background: "#fff",
-  padding: "16px",
-  width: "420px",
-  borderRadius: "6px",
+  padding: "20px",
+  width: "100%",
+  maxWidth: "500px",
+  maxHeight: "90vh",
+  borderRadius: "8px",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const formContainer = {
+  overflowY: "auto",
+  maxHeight: "calc(90vh - 120px)",
+  paddingRight: "8px",
 };
 
 const input = {
   width: "100%",
   padding: "8px",
   marginBottom: "8px",
+  boxSizing: "border-box",
 };
 
 const btnPrimary = {
@@ -200,10 +214,14 @@ const btnPrimary = {
   background: "#2563eb",
   color: "#fff",
   border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
 };
 
 const btnOutline = {
   padding: "6px 12px",
   background: "#e5e7eb",
   border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
 };

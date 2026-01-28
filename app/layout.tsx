@@ -72,7 +72,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
         <SessionWrapper>
           <Navbar />
-          <main className="pt-[72px] min-h-screen">{children}</main>
+          <main className="pt-[72px] min-h-screen ">{children}</main>
           <Footer />
         </SessionWrapper>
 
