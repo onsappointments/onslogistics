@@ -45,6 +45,46 @@ export async function GET(request: NextRequest) {
     // QUOTE METRICS
     // ====================
     const allQuotes = await Quote.find(dateFilter);
+    
+    // Get the IDs of quotes in our date range
+    const quoteIds = allQuotes.map(q => q._id);
+    
+    // Find ALL technical quotes (regardless of date) that are linked to these quotes
+    // This is important because a quote from last month might have a tech quote from this month
+    const linkedTechQuotes = await TechnicalQuote.find({
+      clientQuoteId: { $in: quoteIds }
+    });
+    
+    // Calculate how many of these quotes have approved technical quotes
+    const approvedTechQuoteIds = linkedTechQuotes
+      .filter(tq => tq.status === "client_approved")
+      .map(tq => tq.clientQuoteId.toString());
+    
+    const quotesWithApprovedTechQuotes = new Set(approvedTechQuoteIds).size;
+    
+    // Calculate ACTUAL conversion to Jobs (quotes that became real sales)
+    // Find all jobs that have technical quotes linked to our quotes
+    const jobsFromQuotes = await Job.find({
+      technicalQuoteId: { $in: linkedTechQuotes.map(tq => tq._id) }
+    });
+    
+    // Count unique quotes that resulted in jobs
+    const techQuoteIdsWithJobs = new Set(
+      jobsFromQuotes.map(job => job.technicalQuoteId?.toString()).filter(Boolean)
+    );
+    
+    const linkedTechQuotesWithJobs = linkedTechQuotes.filter(tq => 
+      techQuoteIdsWithJobs.has(tq._id.toString())
+    );
+    
+    const quoteIdsWithJobs = new Set(
+      linkedTechQuotesWithJobs.map(tq => tq.clientQuoteId.toString())
+    );
+    
+    const quotesToJobConversionRate = allQuotes.length > 0
+      ? Math.round((quoteIdsWithJobs.size / allQuotes.length) * 100)
+      : 0;
+    
     const quoteMetrics = {
       total: allQuotes.length,
       pending: allQuotes.filter((q) => q.status === "pending").length,
@@ -53,14 +93,15 @@ export async function GET(request: NextRequest) {
         .length,
       approved: allQuotes.filter((q) => q.status === "approved").length,
       rejected: allQuotes.filter((q) => q.status === "rejected").length,
+      // Conversion rate: Quotes where client approved the Technical Quote
+      // Note: This means client accepted, but admin still needs to manually create Job
       conversionRate:
         allQuotes.length > 0
-          ? Math.round(
-              (allQuotes.filter((q) => q.status === "approved").length /
-                allQuotes.length) *
-                100
-            )
+          ? Math.round((quotesWithApprovedTechQuotes / allQuotes.length) * 100)
           : 0,
+      // Actual sales conversion: Quotes that became Jobs
+      quotesToJobConversionRate,
+      quotesConvertedToJobs: quoteIdsWithJobs.size,
     };
 
     // ====================
@@ -157,11 +198,14 @@ export async function GET(request: NextRequest) {
     // CLIENT METRICS
     // ====================
     const allClients = await User.find({ role: "client", ...dateFilter });
+    
+    // FIXED: Active clients are those who are verified (email verified)
+    // The kycVerified field doesn't exist in your schema
     const clientMetrics = {
       total: allClients.length,
-      verified: allClients.filter((c) => c.verified).length,
-      leads: allClients.filter((c) => !c.verified).length,
-      converted: allClients.filter((c) => c.verified && c.kycVerified).length,
+      verified: allClients.filter((c) => c.verified).length, // Email verified
+      leads: allClients.filter((c) => !c.verified).length, // Not yet verified
+      converted: allClients.filter((c) => c.verified).length, // Active clients = verified
       topClients: [] as Array<{
         name: string;
         revenue: number;
@@ -321,13 +365,12 @@ export async function GET(request: NextRequest) {
       }))
       .slice(-12);
 
-
-      console.log("Sample jobs:", jobsWithTechQuotes.slice(0, 3).map(j => ({
-  company: j.company,
-  hasTechQuote: !!j.technicalQuoteId,
-  status: (j.technicalQuoteId as any)?.status,
-  revenue: (j.technicalQuoteId as any)?.grandTotalINR
-})));
+    console.log("Sample jobs:", jobsWithTechQuotes.slice(0, 3).map(j => ({
+      company: j.company,
+      hasTechQuote: !!j.technicalQuoteId,
+      status: (j.technicalQuoteId as any)?.status,
+      revenue: (j.technicalQuoteId as any)?.grandTotalINR
+    })));
 
     // ====================
     // FINAL RESPONSE

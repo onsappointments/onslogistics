@@ -100,7 +100,8 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`px-4 py-3 rounded-xl font-medium transition flex items-center justify-between ${
+              prefetch
+              className={`px-4 py-3 rounded-xl font-medium transition flex items-center justify-between active:scale-[0.98] transition ${
                 active
                   ? "bg-blue-600 text-white"
                   : "text-gray-700 hover:bg-blue-50"
