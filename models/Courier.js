@@ -22,11 +22,15 @@ const CourierSchema = new mongoose.Schema(
     address: String,
     place: String,
     dockNo: String,
+    delivereddate: String , 
+    status: String ,
 
     // COMMON
     subject: String,
     courierService: String,
     remarks: String,
+    handoverby: String ,
+    handoverto: String ,
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

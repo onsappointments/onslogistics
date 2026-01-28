@@ -38,6 +38,10 @@ export async function POST(req) {
       courierService: body.courierService,
       dockNo: body.dockNo,
       remarks: body.remarks,
+      handoverby: body.handoverby,
+      handoverto: body.handoverto,
+      status: body.status,
+      delivereddate: body.delivereddate,
       createdBy: session.user.id,
     });
 
@@ -111,6 +115,11 @@ export async function PUT(req) {
         courierService: body.courierService,
         dockNo: body.dockNo,
         remarks: body.remarks,
+        handoverby: body.handoverby,
+        handoverto: body.handoverto,
+        status: body.status,
+        delivereddate: body.delivereddate,
+
       },
       { new: true }
     );

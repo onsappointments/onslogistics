@@ -18,6 +18,10 @@ export default function AddDispatchModal({
     courierService: "",
     dockNo: "",
     remarks: "",
+    handoverby: "",
+    handoverto: "",
+    status:"" ,
+    delivereddate:"",
     _id: null, // 👈 needed for edit
   });
 
@@ -33,6 +37,10 @@ export default function AddDispatchModal({
         courierService: initialData.courierService || "",
         dockNo: initialData.dockNo || "",
         remarks: initialData.remarks || "",
+        handoverby: initialData.handoverby || "",
+        handoverto: initialData.handoverto || "",
+        status: initialData.status || "",
+        delivereddate: initialData.delivereddate || "",
         _id: initialData._id,
       });
     } else {
@@ -45,6 +53,10 @@ export default function AddDispatchModal({
         courierService: "",
         dockNo: "",
         remarks: "",
+        handoverby: "",
+        handoverto: "",
+        status:"" ,
+        delivereddate:"",
         _id: null,
       });
     }
@@ -153,6 +165,38 @@ export default function AddDispatchModal({
           value={form.remarks}
           onChange={(e) =>
             setForm({ ...form, remarks: e.target.value })
+          }
+        />
+        <textarea
+          style={input}
+          placeholder="Handover By"
+          value={form.handoverby}
+          onChange={(e) =>
+            setForm({ ...form, handoverby: e.target.value })
+          }
+        />
+        <textarea
+          style={input}
+          placeholder="Handover To"
+          value={form.handoverto}
+          onChange={(e) =>
+            setForm({ ...form, handoverto: e.target.value })
+          }
+        />
+        <textarea
+          style={input}
+          placeholder="Status"
+          value={form.status}
+          onChange={(e) =>
+            setForm({ ...form, status: e.target.value })
+          }
+        />
+        <textarea
+          style={input}
+          placeholder="Delivered Date"
+          value={form.delivereddate}
+          onChange={(e) =>
+            setForm({ ...form, delivereddate: e.target.value })
           }
         />
 
