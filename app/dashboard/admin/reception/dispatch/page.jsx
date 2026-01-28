@@ -141,17 +141,62 @@ function DetailViewModal({ isOpen, onClose, data, type }) {
                   </div>
                 )}
 
-                {/* Dock No */}
-                {data.dockNo && (
+                {/* Handover By */}
+                {data.handoverby && (
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                      <Package className="w-5 h-5 text-purple-600" />
+                    <div className="w-10 h-10 rounded-lg bg-cyan-100 flex items-center justify-center flex-shrink-0">
+                      <User className="w-5 h-5 text-cyan-600" />
                     </div>
                     <div className="flex-1">
                       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                        Dock Number
+                        Handover By
                       </p>
-                      <p className="text-gray-900 font-medium">{data.dockNo}</p>
+                      <p className="text-gray-900 font-medium">{data.handoverby}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Handover To */}
+                {data.handoverto && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-lime-100 flex items-center justify-center flex-shrink-0">
+                      <User className="w-5 h-5 text-lime-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                        Handover To
+                      </p>
+                      <p className="text-gray-900 font-medium">{data.handoverto}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Status */}
+                {data.status && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                      <Package className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                        Status
+                      </p>
+                      <p className="text-gray-900 font-medium">{data.status}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Delivered Date */}
+                {data.delivereddate && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-5 h-5 text-violet-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                        Delivered Date
+                      </p>
+                      <p className="text-gray-900 font-medium">{data.delivereddate}</p>
                     </div>
                   </div>
                 )}
@@ -288,19 +333,19 @@ export default function DispatchPage() {
   };
 
   const openEditReceival = (row, e) => {
-    e.stopPropagation(); // Prevent row click
+    e.stopPropagation();
     setEditingReceival(row);
     setOpenReceival(true);
   };
 
   const openEditDispatch = (row, e) => {
-    e.stopPropagation(); // Prevent row click
+    e.stopPropagation();
     setEditingDispatch(row);
     setOpenDispatch(true);
   };
 
   const deleteReceival = async (id, e) => {
-    e.stopPropagation(); // Prevent row click
+    e.stopPropagation();
     if (!confirm("Delete this receival entry?")) return;
 
     await fetch("/api/admin/couriers/receival", {
@@ -313,7 +358,7 @@ export default function DispatchPage() {
   };
 
   const deleteDispatch = async (id, e) => {
-    e.stopPropagation(); // Prevent row click
+    e.stopPropagation();
     if (!confirm("Delete this dispatch entry?")) return;
 
     await fetch("/api/admin/couriers/dispatch", {
@@ -355,8 +400,8 @@ export default function DispatchPage() {
   const sortedData = sortBySerial(filteredData);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-[1800px] mx-auto">
+    <div className="min-h-screen bg-gray-50 p-6 overflow-x-hidden">
+      <div className="w-full max-w-[1600px] mx-auto overflow-visible">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -384,7 +429,7 @@ export default function DispatchPage() {
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 w-full overflow-hidden">
           {/* Toggle Tabs */}
           <div className="border-b border-gray-200 bg-gray-50 px-6">
             <div className="flex gap-1">
@@ -500,249 +545,257 @@ export default function DispatchPage() {
             )}
           </div>
 
-          {/* Table Content */}
-          <div className="overflow-x-auto">
-            {activeView === "receival" ? (
-              sortedData.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <p className="text-gray-500 font-medium">No receival entries found</p>
-                  <p className="text-gray-400 text-sm mt-1">
-                    {searchTerm || dateFrom || dateTo || courierServiceFilter !== "all"
-                      ? "Try adjusting your filters"
-                      : "Click 'Add Receival' to create your first entry"}
-                  </p>
-                </div>
-              ) : (
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200">
-                      <th
-                        onClick={() => setSerialSort(serialSort === "asc" ? "desc" : "asc")}
-                        className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          No.
-                          <ArrowUpDown className="w-4 h-4" />
-                        </div>
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Letter No.
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        From
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Subject
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Courier Service
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Receiver
-                      </th>
-                      <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {sortedData.map((r, index) => (
-                      <tr
-                        key={r._id}
-                        onClick={() => openDetailView(r, "receival")}
-                        className={`${
-                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        } hover:bg-blue-50 transition-colors cursor-pointer`}
-                      >
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {r.serialNo}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
-                          {new Date(r.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
-                          {r.letterNo || "-"}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-700 font-medium">
-                          {r.fromWho}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
-                          <div className="line-clamp-2">
-                            {r.subject || "-"}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm">
-                          <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                            {r.courierService}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">{r.receiver}</td>
-                        <td className="px-6 py-4 text-sm text-center" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={(e) => openEditReceival(r, e)}
-                              className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                              title="Edit"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={(e) => deleteReceival(r._id, e)}
-                              className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )
-            ) : sortedData.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-8 h-8 text-gray-400" />
-                </div>
-                <p className="text-gray-500 font-medium">No dispatch entries found</p>
-                <p className="text-gray-400 text-sm mt-1">
-                  {searchTerm || dateFrom || dateTo || courierServiceFilter !== "all"
-                    ? "Try adjusting your filters"
-                    : "Click 'Add Dispatch' to create your first entry"}
-                </p>
-              </div>
-            ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th
-                      onClick={() => setSerialSort(serialSort === "asc" ? "desc" : "asc")}
-                      className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        No.
-                        <ArrowUpDown className="w-4 h-4" />
+          {/* Table Container - Horizontal Scroll Area */}
+          <div className="relative w-full">
+            <div className="overflow-x-auto overflow-y-hidden" style={{ maxWidth: '100%' }}>
+              <div className="inline-block min-w-full align-middle">
+                <div className="overflow-hidden">
+                {activeView === "receival" ? (
+                  sortedData.length === 0 ? (
+                    <div className="text-center py-16">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Search className="w-8 h-8 text-gray-400" />
                       </div>
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Address
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Place
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Subject
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Courier Service
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Handover By
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Handover To
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Delivered Date 
-                    </th>
-                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {sortedData.map((d, index) => (
-                    <tr
-                      key={d._id}
-                      onClick={() => openDetailView(d, "dispatch")}
-                      className={`${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      } hover:bg-blue-50 transition-colors cursor-pointer`}
-                    >
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                        {d.serialNo}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        {new Date(d.date).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700 font-medium">
-                        {d.name}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
-                        <div className="line-clamp-2">
-                          {d.address}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{d.place}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
-                        <div className="line-clamp-2">
-                          {d.subject || "-"}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                          {d.courierService}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                          {d.handoverby}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                          {d.handoverto}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                          {d.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                          {d.delivereddate}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-center" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={(e) => openEditDispatch(d, e)}
-                            className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                            title="Edit"
+                      <p className="text-gray-500 font-medium">No receival entries found</p>
+                      <p className="text-gray-400 text-sm mt-1">
+                        {searchTerm || dateFrom || dateTo || courierServiceFilter !== "all"
+                          ? "Try adjusting your filters"
+                          : "Click 'Add Receival' to create your first entry"}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="max-h-[600px] overflow-y-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50 sticky top-0 z-10">
+                          <tr>
+                            <th
+                              onClick={() => setSerialSort(serialSort === "asc" ? "desc" : "asc")}
+                              className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap"
+                            >
+                              <div className="flex items-center gap-2">
+                                No.
+                                <ArrowUpDown className="w-4 h-4" />
+                              </div>
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                              Date
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                              Letter No.
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                              From
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                              Subject
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                              Courier Service
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                              Receiver
+                            </th>
+                            <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {sortedData.map((r, index) => (
+                            <tr
+                              key={r._id}
+                              onClick={() => openDetailView(r, "receival")}
+                              className={`${
+                                index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                              } hover:bg-blue-50 transition-colors cursor-pointer`}
+                            >
+                              <td className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">
+                                {r.serialNo}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                {new Date(r.date).toLocaleDateString()}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                {r.letterNo || "-"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">
+                                {r.fromWho}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
+                                <div className="line-clamp-2">
+                                  {r.subject || "-"}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-sm whitespace-nowrap">
+                                <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
+                                  {r.courierService}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{r.receiver}</td>
+                              <td className="px-6 py-4 text-sm text-center whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={(e) => openEditReceival(r, e)}
+                                    className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                    title="Edit"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => deleteReceival(r._id, e)}
+                                    className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                                    title="Delete"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )
+                ) : sortedData.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500 font-medium">No dispatch entries found</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      {searchTerm || dateFrom || dateTo || courierServiceFilter !== "all"
+                        ? "Try adjusting your filters"
+                        : "Click 'Add Dispatch' to create your first entry"}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="max-h-[600px] overflow-y-auto">
+                    <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '1400px' }}>
+                      <thead className="bg-gray-50 sticky top-0 z-10">
+                        <tr>
+                          <th
+                            onClick={() => setSerialSort(serialSort === "asc" ? "desc" : "asc")}
+                            className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap"
                           >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => deleteDispatch(d._id, e)}
-                            className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                            title="Delete"
+                            <div className="flex items-center gap-2">
+                              No.
+                              <ArrowUpDown className="w-4 h-4" />
+                            </div>
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Date
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Name
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Address
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Place
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Subject
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Courier Service
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Handover By
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Handover To
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Status
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Delivered Date
+                          </th>
+                          <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {sortedData.map((d, index) => (
+                          <tr
+                            key={d._id}
+                            onClick={() => openDetailView(d, "dispatch")}
+                            className={`${
+                              index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                            } hover:bg-blue-50 transition-colors cursor-pointer`}
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">
+                              {d.serialNo}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                              {new Date(d.date).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">
+                              {d.name}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
+                              <div className="line-clamp-2">
+                                {d.address}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{d.place}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
+                              <div className="line-clamp-2">
+                                {d.subject || "-"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm whitespace-nowrap">
+                              <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
+                                {d.courierService}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm whitespace-nowrap">
+                              <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">
+                                {d.handoverby}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm whitespace-nowrap">
+                              <span className="px-2.5 py-1 bg-purple-100 text-purple-700 rounded-md text-xs font-medium">
+                                {d.handoverto}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm whitespace-nowrap">
+                              <span className="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-md text-xs font-medium">
+                                {d.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                              {d.delivereddate || "-"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-center whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center justify-center gap-2">
+                                <button
+                                  onClick={(e) => openEditDispatch(d, e)}
+                                  className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                  title="Edit"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={(e) => deleteDispatch(d._id, e)}
+                                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+            </div>
           </div>
         </div>
       </div>
@@ -784,6 +837,31 @@ export default function DispatchPage() {
           -webkit-box-orient: vertical;
           overflow: hidden;
           word-break: break-word;
+        }
+        
+        /* Make horizontal scrollbar visible and styled */
+        .overflow-x-auto {
+          scrollbar-width: thin;
+          scrollbar-color: #9ca3af #f3f4f6;
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar {
+          height: 12px;
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar-track {
+          background: #f3f4f6;
+          border-radius: 0;
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+          background-color: #9ca3af;
+          border-radius: 6px;
+          border: 2px solid #f3f4f6;
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+          background-color: #6b7280;
         }
       `}</style>
     </div>
