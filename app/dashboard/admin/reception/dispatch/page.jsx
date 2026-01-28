@@ -649,6 +649,18 @@ export default function DispatchPage() {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Courier Service
                     </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Handover By
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Handover To
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Delivered Date 
+                    </th>
                     <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Actions
                     </th>
@@ -686,6 +698,26 @@ export default function DispatchPage() {
                       <td className="px-6 py-4 text-sm">
                         <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
                           {d.courierService}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
+                          {d.handoverby}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
+                          {d.handoverto}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
+                          {d.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
+                          {d.delivereddate}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-center" onClick={(e) => e.stopPropagation()}>
