@@ -816,7 +816,7 @@ name="toICD"
 
       {/* Personal Details */}
       <section>
-        <h2 className="text-2xl font-semibold mb-4">Personal Details</h2>
+        <h2 className="text-2xl font-semibold mb-4">{adminMode ? "Client Details" : "Personal Details"}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* First Name */}
           <div>
