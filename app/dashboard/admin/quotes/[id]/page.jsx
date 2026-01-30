@@ -105,6 +105,8 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
         )}
       </div>
 
+      {console.log("quote details render", quote)}
+
       {/* PERSONAL INFO */}
       <Section title="Personal Information">
         <Field label="First Name" value={quote.firstName} />
@@ -136,6 +138,12 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
         <Field label="To Postal" value={quote.toPostal} />
         <Field label="From Location Type" value={quote.fromLocationType} />
         <Field label="To Location Type" value={quote.toLocationType} />
+        {quote.fromLocationType === "ICD" && (
+          <Field label="From ICD" value={quote.fromICD} />
+        )}
+        {quote.toLocationType === "ICD" && (
+          <Field label="To ICD" value={quote.toICD} />
+        )}
       </Section>
 
       {/* SHIPMENT */}
