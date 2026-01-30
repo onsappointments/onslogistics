@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import  connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import Quote from "@/models/Quote";
@@ -6,17 +6,85 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 import User from "@/models/User";
 import AuditLog from "@/models/AuditLog";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
-    // ====================
-    // JOBS LIST WITH REVENUE
-    // ====================
-    const jobs = await Job.find({})
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const search =  searchParams.get("search") || "";
+    const skip = (page - 1) * limit || 0;
+
+      let filters   = {};
+      
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+      filters = {
+        $or: [
+          { jobNumber: searchRegex },
+          { jobId: searchRegex },
+          {status: searchRegex },
+          {shipmentType: searchRegex},
+          {dateFrom: searchRegex },
+          {dateTo: searchRegex },
+          { company: searchRegex },
+          { customerName: searchRegex },
+        ],
+      };
+    }
+
+const [
+  totalJobs,
+  totalQuotes,
+  totalAdmins,
+  totalClients,
+  totalAuditLogs,
+] = await Promise.all([
+  Job.countDocuments(),
+  Quote.countDocuments(),
+  User.countDocuments({ role: "admin" }),
+  User.countDocuments({ role: "client" }),
+  AuditLog.countDocuments(),
+]);
+
+const totalJobPage = Math.ceil(totalJobs / limit);
+const totalQuotePage = Math.ceil(totalQuotes / limit);
+const totalClientPage = Math.ceil(totalClients / limit);
+const totalAdminPage = Math.ceil(totalAdmins / limit);
+const totalAuditPage = Math.ceil(totalAuditLogs / limit);
+ 
+
+
+    const pageCounts = {
+      jobs: {
+        total: totalJobs,
+        totalPages: totalJobPage,
+      },
+      quotes: {
+        total: totalQuotes,
+        totalPages: totalQuotePage,
+      },
+      clients: {
+        total: totalClients,
+        totalPages: totalClientPage,
+      },
+      admins: {
+        total: totalAdmins,
+        totalPages: totalAdminPage,
+      },
+      audit: {
+        total: totalAuditLogs,
+        totalPages: totalAuditPage,
+      },
+    };
+
+
+    const jobs = await Job.find(filters)
       .populate("technicalQuoteId")
       .sort({ createdAt: -1 })
-      .limit(1000)
+      .limit(limit)
+      .skip(skip)
       .lean();
 
     const jobsList = jobs.map((job: any) => {
@@ -40,13 +108,14 @@ export async function GET() {
     // ====================
     const quotes = await Quote.find({})
       .sort({ createdAt: -1 })
-      .limit(1000)
+      .limit(limit)
+      .skip(skip)
       .lean();
 
     // Check which quotes have linked jobs
     const quotesWithJobs = await Job.find({
       quoteId: { $in: quotes.map((q: any) => q._id) },
-    }).select("quoteId");
+    }).select("quoteId").lean().skip(skip).limit(limit);
     
     const quoteIdsWithJobs = new Set(
       quotesWithJobs.map((j: any) => j.quoteId?.toString())
@@ -68,18 +137,18 @@ export async function GET() {
     // ====================
     // CLIENT ACTIVITY
     // ====================
-    const clients = await User.find({ role: "client" }).lean();
+    const clients = await User.find({ role: "client" }).lean().skip(skip).limit(limit);
 
     const clientActivityPromises = clients.map(async (client: any) => {
       const clientJobs = await Job.find({
         clientUser: client._id,
       })
         .populate("technicalQuoteId")
-        .lean();
+        .lean().skip(skip).limit(limit);
 
       const clientQuotes = await Quote.find({
         clientUser: client._id,
-      }).lean();
+      }).lean().skip(skip).limit(limit);
 
       const totalRevenue = clientJobs.reduce((sum, job: any) => {
         const techQuote = job.technicalQuoteId as any;
@@ -131,7 +200,7 @@ export async function GET() {
     // ====================
     // ADMIN PERFORMANCE
     // ====================
-    const admins = await User.find({ role: "admin" }).lean();
+    const admins = await User.find({ role: "admin" }).lean().skip(skip).limit(limit);
 
     const adminPerformancePromises = admins.map(async (admin: any) => {
       const adminLogs = await AuditLog.find({
@@ -203,7 +272,8 @@ export async function GET() {
     const recentLogs = await AuditLog.find({})
       .populate("performedBy", "fullName adminType")
       .sort({ createdAt: -1 })
-      .limit(500)
+      .limit(limit)
+      .skip(skip)
       .lean();
 
     const recentAuditLogs = recentLogs.map((log: any) => ({
@@ -226,6 +296,7 @@ export async function GET() {
       clientActivity,
       adminPerformance,
       recentAuditLogs,
+      pageCounts
     });
   } catch (error) {
     console.error("Detailed Analytics API Error:", error);
