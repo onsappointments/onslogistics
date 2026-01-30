@@ -114,6 +114,7 @@ export async function POST(req) {
     const emailHtml = `
       <div style="font-family:Arial,sans-serif;line-height:1.6">
         <h2>Quotation from ONS Logistics</h2>
+        <h3 style="margin-top:12px">Quote No: ${clientQuote.quoteNo || quoteId}</h3>
         <p>Hello ${clientQuote.firstName},</p>
         <p>Please review your quotation and choose an action below.</p>
 
@@ -141,7 +142,7 @@ export async function POST(req) {
       html: emailHtml,
       attachments: [
         {
-          name: `Quotation-${clientQuote.referenceNo || quoteId}.pdf`,
+          name: `Quotation-${clientQuote.quoteNo || quoteId}.pdf`,
           content: pdfBuffer.toString("base64"),
         },
       ],

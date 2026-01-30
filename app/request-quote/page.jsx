@@ -83,11 +83,11 @@ export default function RequestQuotePage() {
         <div className="flex flex-col items-center gap-4 mt-8">
           <button
             type="button"
-            disabled={formRef.current?.loading}
+            disabled={loading}
             onClick={handleSubmitClick}
             className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition disabled:bg-blue-300"
           >
-            {formRef.current?.loading ? "Submitting..." : "Submit"}
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </div>
 

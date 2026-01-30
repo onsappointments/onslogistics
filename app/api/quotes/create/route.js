@@ -4,6 +4,7 @@ import Quote from "@/models/Quote";
 import User from "@/models/User";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
+import { getNextQuoteNumber } from "@/lib/getNextQuoteNumber";
 
 export async function POST(req) {
   try {
@@ -74,8 +75,27 @@ export async function POST(req) {
       console.log("ADMIN CREATE: user lookup skipped:", e?.message);
     }
 
+    const { modeOfTransport, shipmentType } = data;
+
+    if (!modeOfTransport || !shipmentType || shipmentType === "Not set") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "modeOfTransport and shipmentType are required to generate quote number",
+        },
+         { status: 400 }
+      );
+    }
+
+    const quoteNo = await getNextQuoteNumber({
+      mode: modeOfTransport,
+      trade: shipmentType, // import | export | courier
+     });
+
+
     // ✅ Create Quote directly
     const quote = await Quote.create({
+      quoteNo,
       ...data,
       ...(clientUser ? { clientUser } : {}),
       status: "pending",

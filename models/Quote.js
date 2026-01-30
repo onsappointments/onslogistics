@@ -28,6 +28,9 @@ const QuoteSchema = new mongoose.Schema(
       enum : ["Port" , "Door" , "ICD"],
       required: true,
     },
+      fromICD: String,
+      toICD: String,
+
     fromState: String,
     toState: String,
     fromPostal: String,
@@ -134,8 +137,10 @@ leadVerifiedAt: { type: Date, default: null },
       default: "pending",
     },
     
-    referenceNo: {
-      type: String, // RFQ-2025-00123
+    quoteNo: {
+      type: String, 
+      unique: true ,
+      required: false ,
     },
     
     createdAt: {

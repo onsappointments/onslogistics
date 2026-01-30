@@ -71,8 +71,22 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
 
       
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-semibold">Quote Details</h1>
+      <div className="flex justify-between items-start mb-6">
+       <div>
+         <h1 className="text-3xl font-semibold">Quote Details</h1>
+
+         {quote.quoteNo && (
+           <p className="mt-1 text-sm text-gray-600">
+             <span className="font-medium text-gray-800">
+               Quotation No:
+             </span>{" "}
+             <span className="font-mono text-blue-700">
+               {quote.quoteNo}
+             </span>
+           </p>
+          )}
+       </div>
+
 
         {/* ✅ FIX 2: show button only when editable */}
          { quote.shipmentType !== "Not set" && canEditTechnicalQuote && (
@@ -90,6 +104,8 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
           </Link>
         )}
       </div>
+
+      {console.log("quote details render", quote)}
 
       {/* PERSONAL INFO */}
       <Section title="Personal Information">
@@ -122,6 +138,12 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
         <Field label="To Postal" value={quote.toPostal} />
         <Field label="From Location Type" value={quote.fromLocationType} />
         <Field label="To Location Type" value={quote.toLocationType} />
+        {quote.fromLocationType === "ICD" && (
+          <Field label="From ICD" value={quote.fromICD} />
+        )}
+        {quote.toLocationType === "ICD" && (
+          <Field label="To ICD" value={quote.toICD} />
+        )}
       </Section>
 
       {/* SHIPMENT */}

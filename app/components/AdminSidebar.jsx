@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 
 const ADMIN_MENU = [
   { name: "Search Clients", href: "/dashboard/admin", permission: "client:view" },
-  {name : "Request Quotes", href: "/dashboard/admin/quotes/request", permission: "quote:request"},
+  {name : "Create Quote", href: "/dashboard/admin/quotes/request", permission: "quote:request"},
   { name: "View Requested Quotes", href: "/dashboard/admin/quotes", permission: "quote:view" },
   {
     name: "View Finalized Quotes",
