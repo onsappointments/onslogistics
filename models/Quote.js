@@ -134,8 +134,10 @@ leadVerifiedAt: { type: Date, default: null },
       default: "pending",
     },
     
-    referenceNo: {
-      type: String, // RFQ-2025-00123
+    quoteNo: {
+      type: String, 
+      unique: true ,
+      required: false ,
     },
     
     createdAt: {

@@ -4,6 +4,8 @@ import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import QuoteOtp from "@/models/QuoteOtp";
 import User from "@/models/User"; // ✅ ADD
+import { getNextQuoteNumber } from "@/lib/getNextQuoteNumber";
+
 
 export async function POST(req) {
   try {
@@ -72,14 +74,28 @@ export async function POST(req) {
         console.log("VERIFY: client linking skipped due to error:", e?.message);
       }
     }
+    const modeOfTransport = otpRecord.quoteData?.modeOfTransport;
+    const shipmentType = otpRecord.quoteData?.shipmentType;
+
+    if (!modeOfTransport || !shipmentType || shipmentType === "Not set") {
+      throw new Error(
+        "modeOfTransport and shipmentType are required to generate quote number"
+      );
+    }
+    const quoteNo = await getNextQuoteNumber({
+     mode: modeOfTransport,
+     trade: shipmentType, // import | export | courier → normalized internally
+    });
+
 
     // Use the quoteData directly from the OTP record
     const quoteDataToSave = {
-      ...otpRecord.quoteData,
-      ...(linkedClientUser ? { clientUser: linkedClientUser } : {}), // ✅ ADD
-      status: "pending",
-      verifiedEmail: true,
-      createdAt: new Date(),
+     ...otpRecord.quoteData,
+      clientUser: linkedClientUser ?? undefined,
+     quoteNo ,
+     status: "pending",
+     verifiedEmail: true,
+     createdAt: new Date(),
     };
 
     console.log(
