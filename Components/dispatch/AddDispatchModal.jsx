@@ -105,102 +105,104 @@ export default function AddDispatchModal({
           {form._id ? "Edit Courier – Dispatch" : "Add Courier – Dispatch"}
         </h2>
 
-        <input
-          style={input}
-          placeholder="Name *"
-          value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
-        />
+        <div style={formContainer}>
+          <input
+            style={input}
+            placeholder="Name *"
+            value={form.name}
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+          />
 
-        <textarea
-          style={input}
-          placeholder="Address *"
-          value={form.address}
-          onChange={(e) =>
-            setForm({ ...form, address: e.target.value })
-          }
-        />
+          <textarea
+            style={input}
+            placeholder="Address *"
+            value={form.address}
+            onChange={(e) =>
+              setForm({ ...form, address: e.target.value })
+            }
+          />
 
-        <input
-          style={input}
-          placeholder="Place *"
-          value={form.place}
-          onChange={(e) =>
-            setForm({ ...form, place: e.target.value })
-          }
-        />
+          <input
+            style={input}
+            placeholder="Place *"
+            value={form.place}
+            onChange={(e) =>
+              setForm({ ...form, place: e.target.value })
+            }
+          />
 
-        <input
-          style={input}
-          placeholder="Subject"
-          value={form.subject}
-          onChange={(e) =>
-            setForm({ ...form, subject: e.target.value })
-          }
-        />
+          <input
+            style={input}
+            placeholder="Subject"
+            value={form.subject}
+            onChange={(e) =>
+              setForm({ ...form, subject: e.target.value })
+            }
+          />
 
-        <input
-          style={input}
-          placeholder="Courier Service *"
-          value={form.courierService}
-          onChange={(e) =>
-            setForm({ ...form, courierService: e.target.value })
-          }
-        />
+          <input
+            style={input}
+            placeholder="Courier Service *"
+            value={form.courierService}
+            onChange={(e) =>
+              setForm({ ...form, courierService: e.target.value })
+            }
+          />
 
-        <input
-          style={input}
-          placeholder="Dock No."
-          value={form.dockNo}
-          onChange={(e) =>
-            setForm({ ...form, dockNo: e.target.value })
-          }
-        />
+          <input
+            style={input}
+            placeholder="Dock No."
+            value={form.dockNo}
+            onChange={(e) =>
+              setForm({ ...form, dockNo: e.target.value })
+            }
+          />
 
-        <textarea
-          style={input}
-          placeholder="Remarks"
-          value={form.remarks}
-          onChange={(e) =>
-            setForm({ ...form, remarks: e.target.value })
-          }
-        />
-        <textarea
-          style={input}
-          placeholder="Handover By"
-          value={form.handoverby}
-          onChange={(e) =>
-            setForm({ ...form, handoverby: e.target.value })
-          }
-        />
-        <textarea
-          style={input}
-          placeholder="Handover To"
-          value={form.handoverto}
-          onChange={(e) =>
-            setForm({ ...form, handoverto: e.target.value })
-          }
-        />
-        <textarea
-          style={input}
-          placeholder="Status"
-          value={form.status}
-          onChange={(e) =>
-            setForm({ ...form, status: e.target.value })
-          }
-        />
-        <textarea
-          style={input}
-          placeholder="Delivered Date"
-          value={form.delivereddate}
-          onChange={(e) =>
-            setForm({ ...form, delivereddate: e.target.value })
-          }
-        />
+          <textarea
+            style={input}
+            placeholder="Remarks"
+            value={form.remarks}
+            onChange={(e) =>
+              setForm({ ...form, remarks: e.target.value })
+            }
+          />
+          <input
+            style={input}
+            placeholder="Handover By"
+            value={form.handoverby}
+            onChange={(e) =>
+              setForm({ ...form, handoverby: e.target.value })
+            }
+          />
+          <input
+            style={input}
+            placeholder="Handover To"
+            value={form.handoverto}
+            onChange={(e) =>
+              setForm({ ...form, handoverto: e.target.value })
+            }
+          />
+          <input
+            style={input}
+            placeholder="Status"
+            value={form.status}
+            onChange={(e) =>
+              setForm({ ...form, status: e.target.value })
+            }
+          />
+          <input
+            style={input}
+            placeholder="Delivered Date"
+            value={form.delivereddate}
+            onChange={(e) =>
+              setForm({ ...form, delivereddate: e.target.value })
+            }
+          />
+        </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px" }}>
           <button style={btnOutline} onClick={onClose} disabled={saving}>
             Cancel
           </button>
@@ -236,19 +238,31 @@ const overlay = {
   alignItems: "center",
   justifyContent: "center",
   zIndex: 50,
+  padding: "16px",
 };
 
 const modal = {
   background: "#fff",
-  padding: "16px",
-  width: "420px",
-  borderRadius: "6px",
+  padding: "20px",
+  width: "100%",
+  maxWidth: "500px",
+  maxHeight: "90vh",
+  borderRadius: "8px",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const formContainer = {
+  overflowY: "auto",
+  maxHeight: "calc(90vh - 120px)",
+  paddingRight: "8px",
 };
 
 const input = {
   width: "100%",
   padding: "8px",
   marginBottom: "8px",
+  boxSizing: "border-box",
 };
 
 const btnPrimary = {
@@ -256,10 +270,14 @@ const btnPrimary = {
   background: "#2563eb",
   color: "#fff",
   border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
 };
 
 const btnOutline = {
   padding: "6px 12px",
   background: "#e5e7eb",
   border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
 };

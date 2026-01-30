@@ -79,7 +79,7 @@ export default function AdminSidebar() {
   }, [canSeeKyc]);
 
   return (
-    <aside className="w-64 bg-white/80 border-r border-gray-200 shadow-md p-6 flex flex-col">
+    <aside className="w-64 bg-white/80 border-r border-gray-200 shadow-md p-6 flex flex-col overflow-x-hidden shrink-0">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
         <div className="text-xl font-semibold text-gray-900">ONS Admin</div>
@@ -101,7 +101,7 @@ export default function AdminSidebar() {
               key={item.href}
               href={item.href}
               prefetch
-              className={`px-4 py-3 rounded-xl font-medium transition flex items-center justify-between active:scale-[0.98] transition ${
+              className={`px-4 py-3 rounded-xl font-medium  flex items-center justify-between active:scale-[0.98] transition ${
                 active
                   ? "bg-blue-600 text-white"
                   : "text-gray-700 hover:bg-blue-50"
