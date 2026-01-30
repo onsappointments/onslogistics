@@ -28,6 +28,9 @@ const QuoteSchema = new mongoose.Schema(
       enum : ["Port" , "Door" , "ICD"],
       required: true,
     },
+      fromICD: String,
+      toICD: String,
+
     fromState: String,
     toState: String,
     fromPostal: String,

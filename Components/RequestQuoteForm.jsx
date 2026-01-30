@@ -12,6 +12,8 @@ const RequestQuoteForm = forwardRef(({ adminMode = false , setParentLoading}, re
     toCity: "",
     fromLocationType: "Port",
     toLocationType: "Port",
+    fromICD: "",
+    toICD: "",
     fromState: "",
     toState: "",
     fromPostal: "",
@@ -63,11 +65,56 @@ const RequestQuoteForm = forwardRef(({ adminMode = false , setParentLoading}, re
   // =============================
   // Country/State/City Fetching
   // =============================
-  const [fromStates, setFromStates] = useState([]);
-  const [toStates, setToStates] = useState([]);
-  const [fromCities, setFromCities] = useState([]);
-  const [toCities, setToCities] = useState([]);
-  const [countries, setCountries] = useState([]);
+    const [fromStates, setFromStates] = useState([]);
+    const [toStates, setToStates] = useState([]);
+    const [fromCities, setFromCities] = useState([]);
+    const [toCities, setToCities] = useState([]);
+    const [countries, setCountries] = useState([]);
+    const [fromIcdSuggestions, setFromIcdSuggestions] = useState([]);
+    const [toIcdSuggestions, setToIcdSuggestions] = useState([]);
+
+
+    const ICD_SUGGESTIONS = [
+  "GRFL Sahnewala ",
+  "HTPL kila Raipur ",
+  "ICD Adani-Kila Raipur",
+  "ICD Ghungrana (Ahmedgarh)",
+  "ICD Chawa Payal",
+  "ICD Concor",
+];
+const handleFromIcdInput = (value) => {
+  setForm(p => ({ ...p, fromICD: value }));
+
+  // If empty → show all
+  if (!value.trim()) {
+    setFromIcdSuggestions(ICD_SUGGESTIONS);
+    return;
+  }
+
+  const filtered = ICD_SUGGESTIONS.filter(icd =>
+    icd.toLowerCase().includes(value.toLowerCase())
+  );
+
+  setFromIcdSuggestions(filtered); // if none → becomes []
+};
+
+const handleToIcdInput = (value) => {
+  setForm(p => ({ ...p, toICD: value }));
+
+  if (!value.trim()) {
+    setToIcdSuggestions(ICD_SUGGESTIONS);
+    return;
+  }
+
+  const filtered = ICD_SUGGESTIONS.filter(icd =>
+    icd.toLowerCase().includes(value.toLowerCase())
+  );
+
+  setToIcdSuggestions(filtered);
+};
+
+
+
 
   const fetchCSC = async (endpoint) => {
     try {
@@ -175,6 +222,7 @@ const RequestQuoteForm = forwardRef(({ adminMode = false , setParentLoading}, re
 
     setLoading(true);
 setParentLoading?.(true);
+    console.log("FORM AT SUBMIT:", form);
 
 
     try {
@@ -185,7 +233,12 @@ setParentLoading?.(true);
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+            ...form,
+            fromICD: form.fromICD,
+            toICD: form.toICD,
+            }),
+
       });
 
       const data = await res.json();
@@ -420,6 +473,44 @@ setParentLoading?.(true);
               <option>Door</option>
               <option>ICD</option>
             </select>
+            {form.fromLocationType === "ICD" && (
+  <div className="relative">
+    <label className="block text-sm font-medium mb-2">
+      Select From ICD
+    </label>
+
+    <input
+  value={form.fromICD}
+  name="fromICD"
+  onChange={(e) => handleFromIcdInput(e.target.value)}
+  onFocus={() => setFromIcdSuggestions(ICD_SUGGESTIONS)}
+  onBlur={() => setTimeout(() => setFromIcdSuggestions([]), 200)}
+  placeholder="Type ICD..."
+  className="input-box"
+/>
+
+
+    {fromIcdSuggestions.length > 0 && (
+      <div className="absolute bg-white border w-full rounded shadow z-10 max-h-48 overflow-y-auto">
+        {fromIcdSuggestions.map((icd, i) => (
+          <div
+            key={i}
+            className="p-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => {
+              setFromIcdSuggestions([]);
+            }}
+            onMouseDown={() => {
+  setForm(p => ({ ...p, fromICD: icd }));
+}}
+          >
+            {icd}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
+
           </div>
 
           {/* To Location Type */}
@@ -437,6 +528,44 @@ setParentLoading?.(true);
               <option>Door</option>
               <option>ICD</option>
             </select>
+            {form.toLocationType === "ICD" && (
+  <div className="relative">
+    <label className="block text-sm font-medium mb-2">
+      Select To ICD
+    </label>
+
+   <input
+  value={form.toICD}
+name="toICD"
+  onChange={(e) => handleToIcdInput(e.target.value)}
+  onFocus={() => setToIcdSuggestions(ICD_SUGGESTIONS)}
+  onBlur={() => setTimeout(() => setToIcdSuggestions([]), 200)}
+  placeholder="Type ICD..."
+  className="input-box"
+/>
+
+
+    {toIcdSuggestions.length > 0 && (
+      <div className="absolute bg-white border w-full rounded shadow z-10 max-h-48 overflow-y-auto">
+        {toIcdSuggestions.map((icd, i) => (
+          <div
+            key={i}
+            className="p-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => {
+              setToIcdSuggestions([]);
+            }}
+            onMouseDown={() => {
+  setForm(p => ({ ...p, toICD: icd }));
+}}
+          >
+            {icd}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
+
           </div>
         </div>
       </section>

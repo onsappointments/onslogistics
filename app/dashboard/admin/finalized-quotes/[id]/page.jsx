@@ -50,6 +50,9 @@ export default async function FinalizedQuoteDetails({ params }) {
     .populate("clientQuoteId")
     .lean();
 
+
+    console.log("🚀 ~ file: page.jsx:47 ~ FinalizedQuoteDetails ~ technicalQuote:", technicalQuote)
+
   if (!technicalQuote) {
     return (
       <div className="max-w-6xl mx-auto p-10">
@@ -193,6 +196,14 @@ export default async function FinalizedQuoteDetails({ params }) {
                 : null
             }
           />
+
+          <Info label="From Location Type" value={clientQuote.fromLocationType} />
+          <Info label="To Location Type" value={clientQuote.toLocationType} />
+
+          {clientQuote.fromLocationType === "ICD" && (
+            <Info label="From ICD" value={clientQuote.fromICD} />
+          )}
+          {clientQuote.toLocationType === "ICD" && <Info label="To ICD" value={clientQuote.toICD} />}
         </div>
       </Card>
 
