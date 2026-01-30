@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 import {
   Download,
   Filter,
@@ -70,6 +72,13 @@ interface DetailedAnalyticsData {
     performedByRole: string;
     createdAt: string;
   }>;
+  pageCounts: {
+    jobs: { total: number; totalPages: number };
+    quotes: { total: number; totalPages: number };
+    clients: { total: number; totalPages: number }; 
+    admins: { total: number; totalPages: number };
+    audit: { total: number; totalPages: number };
+  };
 }
 
 export default function DetailedAnalytics() {
@@ -79,9 +88,13 @@ export default function DetailedAnalytics() {
     "jobs" | "quotes" | "clients" | "admins" | "audit"
   >("jobs");
 
+
+
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [shipmentTypeFilter, setShipmentTypeFilter] = useState("all");
@@ -89,12 +102,13 @@ export default function DetailedAnalytics() {
 
   useEffect(() => {
     fetchDetailedAnalytics();
-  }, []);
+  }, [page, limit]);
+
 
   const fetchDetailedAnalytics = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/analytics/detailed");
+      const response = await fetch(`/api/analytics/detailed?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&status=${statusFilter}&dateFrom=${dateFrom}&dateTo=${dateTo}&shipmentType=${shipmentTypeFilter}`);
       const result = await response.json();
       setData(result);
     } catch (error) {
@@ -102,6 +116,10 @@ export default function DetailedAnalytics() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const HandlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
   };
 
   const exportToCSV = (dataToExport: any[], filename: string) => {
@@ -153,43 +171,48 @@ export default function DetailedAnalytics() {
     });
   };
 
+const totalPages = data?.pageCounts?.[activeTab]?.totalPages || 0;
+
   const tabs = [
     {
       id: "jobs",
       label: "Jobs",
       icon: Package,
-      count: data?.jobsList?.length || 0,
+      count: data?.pageCounts?.jobs.total || 0,
       gradient: "from-blue-500 to-indigo-600",
     },
     {
       id: "quotes",
       label: "Quotes",
       icon: FileText,
-      count: data?.quotesList?.length || 0,
+      count: data?.pageCounts?.quotes.total || 0,
       gradient: "from-green-500 to-emerald-600",
     },
     {
       id: "clients",
       label: "Clients",
       icon: Users,
-      count: data?.clientActivity?.length || 0,
+      count: data?.pageCounts?.clients.total || 0,
       gradient: "from-purple-500 to-pink-600",
     },
     {
       id: "admins",
       label: "Admin Performance",
       icon: TrendingUp,
-      count: data?.adminPerformance?.length || 0,
+      count: data?.pageCounts?.admins.total || 0,
       gradient: "from-orange-500 to-amber-600",
     },
     {
       id: "audit",
       label: "Audit Logs",
       icon: Calendar,
-      count: data?.recentAuditLogs?.length || 0,
+      count: data?.pageCounts?.audit.total || 0,
       gradient: "from-cyan-500 to-blue-600",
     },
   ];
+
+
+
 
   if (loading || !data) {
     return (
@@ -527,6 +550,7 @@ export default function DetailedAnalytics() {
                     ))}
                   </tbody>
                 </table>
+                
               </div>
             )}
 
@@ -647,7 +671,7 @@ export default function DetailedAnalytics() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {filterData(data.clientActivity).map((client, idx) => (
+                    {data.clientActivity.map((client, idx) => (
                       <tr
                         key={idx}
                         className="table-row-hover hover:bg-purple-50 cursor-pointer"
@@ -856,6 +880,19 @@ export default function DetailedAnalytics() {
           scrollbar-width: none;
         }
       `}</style>
+
+      <div className="flex justify-center items-center">
+        <Stack spacing={2}>
+          {totalPages > 0 && (
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={HandlePageChange}
+              color="primary"
+            />
+          )}
+        </Stack>
+              </div>
     </div>
   );
 }

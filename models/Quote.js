@@ -18,8 +18,16 @@ const QuoteSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    fromLocationType: String,
-    toLocationType: String,
+    fromLocationType: {
+      type: String,
+      enum : ["Port" , "Door" , "ICD"],
+      required: true,
+    },
+    toLocationType: {
+      type: String,
+      enum : ["Port" , "Door" , "ICD"],
+      required: true,
+    },
     fromState: String,
     toState: String,
     fromPostal: String,
@@ -36,7 +44,11 @@ const QuoteSchema = new mongoose.Schema(
     },
     estimatedShippingDate: String,
     freightTerms: String,
-    containerType: String,
+    containerType : {
+      type: String,
+      enum : ["20 FT", "40 FT Gen", "40 FT HC", "LCL" , "Not set"],
+      required: true,
+    },
     modeOfShipment: String,
 
     shipmentType: {

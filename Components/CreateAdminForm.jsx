@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 const PERMISSION_OPTIONS = [
   { label: "Search Clients", value: "client:view" },
+  { label: "Request Quotes", value: "quote:request" },
   { label: "View Quotes", value: "quote:view" },
   { label: "View Finalized Quotes", value: "quote:view_finalized" },
   { label: "Create a Job", value: "job:create" },
