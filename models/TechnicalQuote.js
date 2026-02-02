@@ -28,6 +28,7 @@ const LineItemSchema = new mongoose.Schema(
     sgstAmount: { type: Number, default: 0 },
 
     totalAmount: { type: Number, default: 0, min: 0 },
+    remarks: { type: String, default: "" }, 
   },
   { _id: false }
 );

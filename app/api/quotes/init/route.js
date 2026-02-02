@@ -24,12 +24,8 @@ export async function POST(req) {
       "toCity",
       "item",
       "modeOfTransport",
-      "firstName",
       "company",
       "email",
-      "phoneCountryCode",
-      "phone",
-      "containerType",
     ];
 
     const missing = requiredFields.filter(

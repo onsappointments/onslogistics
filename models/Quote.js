@@ -49,8 +49,7 @@ const QuoteSchema = new mongoose.Schema(
     freightTerms: String,
     containerType : {
       type: String,
-      enum : ["20 FT", "40 FT Gen", "40 FT HC", "LCL" , "Not set"],
-      required: true,
+      required: false,
     },
     modeOfShipment: String,
 
@@ -93,7 +92,7 @@ leadVerifiedAt: { type: Date, default: null },
     // Contact information - required to respond to quote
     firstName: {
       type: String,
-      required: true,
+      required: false,
     },
     lastName: {
       type: String,
@@ -114,7 +113,7 @@ leadVerifiedAt: { type: Date, default: null },
     },
     phone: {
       type: String,
-      required: true,
+      required: false,
     },
     whatsappNumber: String,
     yourWebsite: String,
