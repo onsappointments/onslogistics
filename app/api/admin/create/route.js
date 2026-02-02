@@ -11,6 +11,7 @@ export async function POST(req) {
 
     const fullName = body?.fullName?.trim();
     const email = body?.email?.trim()?.toLowerCase();
+    const personalEmail = body?.personalEmail?.trim()?.toLowerCase();
     const password = body?.password;
     const adminType = body?.adminType;
     const permissions = body?.permissions;
@@ -56,6 +57,7 @@ export async function POST(req) {
     const newAdmin = await User.create({
       fullName,
       email,
+      personalEmail,
       password: hashedPassword,
       role: "admin",
       adminType,
@@ -70,6 +72,7 @@ export async function POST(req) {
           id: newAdmin._id,
           fullName: newAdmin.fullName,
           email: newAdmin.email,
+          personalEmail: newAdmin.personalEmail,
           adminType: newAdmin.adminType,
           permissions: newAdmin.permissions,
         },
