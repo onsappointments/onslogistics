@@ -186,7 +186,6 @@ const handleToIcdInput = (value) => {
   // =============================
   const validateForm = (showStatus) => {
     const required = [
-      "firstName",
       "email",
       "item",
       "company",
@@ -196,8 +195,6 @@ const handleToIcdInput = (value) => {
       "toCity",
       "modeOfTransport",
       "modeOfShipment",
-      "phone",
-      "containerType",
     ];
 
     for (const field of required) {
@@ -214,9 +211,6 @@ const handleToIcdInput = (value) => {
     return true;
   };
 
-  // =============================
-  // SUBMIT
-  // =============================
   const handleSubmit = async (showStatus) => {
     if (!validateForm(showStatus)) return null;
 
@@ -673,6 +667,7 @@ name="toICD"
             >
               <option value="">Select Mode of Transport</option>
               <option>Air</option>
+              <option >Air Courier</option>
               <option>Sea</option>
               <option>Road</option>
             </select>
@@ -690,15 +685,15 @@ name="toICD"
               className="input-box"
             >
               <option value="">Select Freight Terms</option>
-              <option>Paid by Shipper</option>
-              <option>Paid by Consignee</option>
+              <option>payable by Shipper</option>
+              <option>payable by Consignee</option>
             </select>
           </div>
 
           {/* Container Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Container Type <span className="text-red-500">*</span>
+              Container Type 
             </label>
             <select
               name="containerType"
@@ -710,7 +705,6 @@ name="toICD"
               <option>20 FT</option>
               <option>40 FT Gen</option>
               <option>40 FT HC</option>
-              <option>LCL</option>
             </select>
           </div>
 
@@ -821,7 +815,7 @@ name="toICD"
           {/* First Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              First Name <span className="text-red-500">*</span>
+              First Name
             </label>
             <input
               name="firstName"
@@ -875,10 +869,28 @@ name="toICD"
             />
           </div>
 
+
+           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Customer Type
+            </label>
+            <select
+              name="customerType"
+              value={form.customerType}
+              onChange={handleChange}
+              className="input-box"
+            >
+              <option value="">Select Customer Type</option>
+              <option>Trader</option>
+              <option>Manufacturer</option>
+              <option>Individual</option>
+            </select>
+          </div>
+
           {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number <span className="text-red-500">*</span>
+              Phone Number 
             </label>
             <div className="flex gap-2">
               <input
@@ -912,7 +924,9 @@ name="toICD"
             />
           </div>
 
-          {/* Website */}
+
+          {!adminMode && (
+          <>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Your Website
@@ -924,28 +938,7 @@ name="toICD"
               placeholder="Enter website URL"
               className="input-box"
             />
-          </div>
-
-          {/* Customer Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Customer Type
-            </label>
-            <select
-              name="customerType"
-              value={form.customerType}
-              onChange={handleChange}
-              className="input-box"
-            >
-              <option value="">Select Customer Type</option>
-              <option>Exporter</option>
-              <option>Importer</option>
-              <option>Manufacturer</option>
-              <option>Individual</option>
-            </select>
-          </div>
-
-          {/* How Did You Know Us */}
+          </div>         
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               How Did You Know Us?
@@ -959,7 +952,6 @@ name="toICD"
             />
           </div>
 
-          {/* Preferred Contact Method */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Preferred Contact Method
@@ -976,7 +968,6 @@ name="toICD"
             </select>
           </div>
 
-          {/* Best Time to Call */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Best Time to Call
@@ -990,7 +981,6 @@ name="toICD"
             />
           </div>
 
-          {/* Best Time to Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Best Time to Email
@@ -1003,6 +993,8 @@ name="toICD"
               className="input-box"
             />
           </div>
+          </>
+)}
 
           {/* Message */}
           <div className="md:col-span-2">

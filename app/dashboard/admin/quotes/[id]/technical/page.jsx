@@ -37,10 +37,16 @@ export default function TechnicalQuotePage() {
 
       setQuote(q);
 
-      if (data.technicalQuote) {
-        setCharges(data.technicalQuote.lineItems || []);
-        setStatus(data.technicalQuote.status);
-      } else {
+     if (data.technicalQuote) {
+  setCharges(
+    (data.technicalQuote.lineItems || []).map((item) => ({
+      remarks: "",   // ✅ default
+      ...item,       // existing DB values override default if present
+    }))
+  );
+  setStatus(data.technicalQuote.status);
+}
+ else {
         // new quote → allow ANY admin to create a technical quote
         const heads =
           q.shipmentType === "import" ? IMPORT_HEADS : EXPORT_HEADS;
@@ -48,6 +54,7 @@ export default function TechnicalQuotePage() {
         setCharges(
           heads.map((h) => ({
             head: h,
+            remarks: "",
             quantity: 0,
             rate: 0,
             currency: "INR",
@@ -209,6 +216,7 @@ export default function TechnicalQuotePage() {
           <thead className="bg-gray-100">
             <tr>
               <th className="p-2 text-left">Service</th>
+              <th className="p-2">Remarks</th>
               <th className="p-2">Qty</th>
               <th className="p-2">Rate</th>
               <th className="p-2">Curr</th>
@@ -224,7 +232,17 @@ export default function TechnicalQuotePage() {
             {charges.map((c, i) => (
               <tr key={i} className="border-t">
                 <td className="p-2">{c.head}</td>
-
+                 <td className="p-2">
+                  <input
+                    type="text"
+                    value={c.remarks}
+                    onChange={(e) =>
+                      updateLine(i, "remarks", e.target.value)
+                    }
+                    className="border w-16 p-1"
+                    disabled={isFinalLocked}
+                  />
+                </td>
                 <td className="p-2">
                   <input
                     min={0}

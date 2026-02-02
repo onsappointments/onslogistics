@@ -1,8 +1,9 @@
 "use client";
+import { redirect } from "next/navigation";
 
 export default function QuoteActions({ id, status }) {
   const createTechQuote = () => {
-    window.location.href = `/dashboard/admin/quotes/${id}/technical`;
+    redirect(`/dashboard/admin/quotes/${id}/technical`);
   };
 
   const sendToClient = async () => {

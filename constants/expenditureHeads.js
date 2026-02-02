@@ -1,5 +1,6 @@
 export const EXPORT_HEADS = [
-  "OCEAN_AIR_FREIGHT",
+  "OCEAN_FREIGHT",
+  "AIR_FREIGHT",
   "ON_CARRIAGE",
   "DDC",
   "THC",
@@ -20,11 +21,13 @@ export const EXPORT_HEADS = [
   "SHUT_OUT",
   "COURIER",
   "FUMIGATION",
+  "DOCUMENTATION",
   "MISC",
 ];
 
 export const IMPORT_HEADS = [
-  "OCEAN_AIR_FREIGHT",
+  "OCEAN_FREIGHT",
+  "AIR_FREIGHT",
   "ON_CARRIAGE",
   "THC",
   "DELIVERY_ORDER",
@@ -46,6 +49,7 @@ export const IMPORT_HEADS = [
   "DECONSOLIDATION",
   "MANIFESTATION",
   "COURIER",
+  "DOCUMENTATION",
   "MISC",
 ];
 
