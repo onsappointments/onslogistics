@@ -32,6 +32,12 @@ const UserSchema = new mongoose.Schema(
     },
 
     permissions: { type: [String], default: [] },
+    personalEmail : {
+      type: String,
+      default: null,
+      trim: true,
+      lowercase: true,
+    }
   },
   { timestamps: true }
 );

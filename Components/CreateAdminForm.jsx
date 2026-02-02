@@ -32,12 +32,14 @@ export default function CreateAdminForm({ adminsData = [] }) {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    personalEmail: "",
     password: "",
     confirmPassword: "",
     phone: "",
     adminType: "operations",
     permissions: [],
   });
+
 
   /* ---------------- LOAD ADMIN FOR EDITING ---------------- */
 
@@ -50,6 +52,7 @@ export default function CreateAdminForm({ adminsData = [] }) {
       setFormData({
         fullName: selectedAdmin.fullName || "",
         email: selectedAdmin.email || "",
+        personalEmail: selectedAdmin.personalEmail || "",
         password: "",
         confirmPassword: "",
         phone: selectedAdmin.phone || "",
@@ -107,6 +110,7 @@ export default function CreateAdminForm({ adminsData = [] }) {
     setFormData({
       fullName: "",
       email: "",
+      personalEmail: "",
       password: "",
       confirmPassword: "",
       phone: "",
@@ -185,6 +189,7 @@ export default function CreateAdminForm({ adminsData = [] }) {
       });
 
       const data = await res.json();
+      console.log("Response data:", data);
 
       if (!res.ok) throw new Error(data.message || `Failed to ${mode} admin`);
 
@@ -289,6 +294,13 @@ export default function CreateAdminForm({ adminsData = [] }) {
                 name="email"
                 placeholder="Email"
                 value={formData.email}
+                onChange={handleChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              /><input
+                type="email"
+                name="personalEmail"
+                placeholder="Personal Email (optional)"
+                value={formData.personalEmail}
                 onChange={handleChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />

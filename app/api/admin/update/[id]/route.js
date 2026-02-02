@@ -8,9 +8,9 @@ export const runtime = "nodejs";
 
 export async function PUT(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
-    const { fullName, email, password, adminType, permissions, phone } = body;
+    const { fullName, email, password, adminType, permissions, personalEmail } = body;
 
     // ❌ Basic validation
     if (!fullName || !email || !adminType) {
@@ -66,6 +66,7 @@ export async function PUT(req, { params }) {
 
     admin.fullName = fullName;
     admin.email = email;
+    admin.personalEmail = personalEmail;
     admin.adminType = adminType;
     admin.permissions = permissions;
 
@@ -83,6 +84,7 @@ export async function PUT(req, { params }) {
           id: admin._id,
           fullName: admin.fullName,
           email: admin.email,
+          personalEmail: admin.personalEmail,
           adminType: admin.adminType,
           permissions: admin.permissions,
           phone: admin.phone,

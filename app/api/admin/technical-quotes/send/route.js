@@ -31,6 +31,7 @@ export async function POST(req) {
     }
 
     const isSuperAdmin = currentUser.adminType === "super_admin";
+    const isSalesAdmin = currentUser.adminType === "sales";
 
     /* ---------------- FETCH CLIENT QUOTE ---------------- */
     const clientQuote = await Quote.findById(quoteId).lean();
@@ -135,6 +136,15 @@ export async function POST(req) {
       </div>
     `;
 
+    console.log("isSalesAdmin:", isSalesAdmin);
+console.log("currentUser.personalEmail:", currentUser?.personalEmail);
+console.log("dynamic cc being sent:", 
+  isSalesAdmin && currentUser?.personalEmail
+    ? [currentUser.personalEmail]
+    : []
+);
+
+
     /* ---------------- SEND EMAIL ---------------- */
     await sendClientEmail({
       to: clientQuote.email,
@@ -146,6 +156,7 @@ export async function POST(req) {
           content: pdfBuffer.toString("base64"),
         },
       ],
+      cc : isSalesAdmin && currentUser.personalEmail ? [currentUser.personalEmail] : [],
     });
 
     /* ---------------- AUDIT LOG ---------------- */

@@ -561,7 +561,7 @@ const totalPages = data?.pageCounts?.[activeTab]?.totalPages || 0;
                   <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                        Reference No
+                        Quote No.
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                         Company
@@ -586,14 +586,14 @@ const totalPages = data?.pageCounts?.[activeTab]?.totalPages || 0;
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {filterData(data.quotesList).map((quote, index) => (
                       <tr
-                        key={quote._id}
-                        className="table-row-hover hover:bg-green-50 cursor-pointer"
-                        style={{
-                          animation: `slideDown ${0.05 * index}s ease-out`,
-                        }}
+                      key={quote._id}
+                      className="table-row-hover hover:bg-green-50 cursor-pointer"
+                      style={{
+                        animation: `slideDown ${0.05 * index}s ease-out`,
+                      }}
                       >
                         <td className="px-6 py-4 text-sm font-bold text-gray-900">
-                          {quote.referenceNo}
+                          {quote.quoteNo || quote.referenceNo}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 font-medium">
                           {quote.company}
@@ -602,15 +602,16 @@ const totalPages = data?.pageCounts?.[activeTab]?.totalPages || 0;
                           <span
                             className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${
                               quote.status === "approved"
-                                ? "bg-gradient-to-r from-green-400 to-emerald-500 text-white"
-                                : quote.status === "rejected"
-                                ? "bg-gradient-to-r from-red-400 to-rose-500 text-white"
-                                : quote.status === "indicative_sent"
-                                ? "bg-gradient-to-r from-blue-400 to-indigo-500 text-white"
-                                : "bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700"
+                              ? "bg-gradient-to-r from-green-400 to-emerald-500 text-white"
+                              : quote.status === "rejected"
+                              ? "bg-gradient-to-r from-red-400 to-rose-500 text-white"
+                              : quote.status === "indicative_sent"
+                              ? "bg-gradient-to-r from-blue-400 to-indigo-500 text-white"
+                              : "bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700"
                             }`}
-                          >
+                            >
                             {quote.status.replace("_", " ")}
+                            {console.log(quote)}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600 font-medium">

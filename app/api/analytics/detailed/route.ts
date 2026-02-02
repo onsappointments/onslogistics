@@ -123,7 +123,7 @@ const totalAuditPage = Math.ceil(totalAuditLogs / limit);
 
     const quotesList = quotes.map((quote: any) => ({
       _id: quote._id.toString(),
-      referenceNo: quote.referenceNo || "N/A",
+      quoteNo: quote.quoteNo || "N/A",
       company: quote.company,
       email: quote.email,
       status: quote.status,
