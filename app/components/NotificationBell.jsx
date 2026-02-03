@@ -35,6 +35,7 @@ const permissions = session?.user?.permissions || [];
       if (!res.ok) return;
 
       const data = await res.json();
+      console.log("Fetched notifications:", data);
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
     } catch (e) {
