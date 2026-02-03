@@ -1,3 +1,4 @@
+import Quote from "@/models/Quote";
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import mongoose from "mongoose";
