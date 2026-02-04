@@ -1,4 +1,3 @@
-import Quote from "@/models/Quote";
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import mongoose from "mongoose";
@@ -12,7 +11,7 @@ import EditQuoteButton from "@/Components/EditQuoteButton";
 import Link from "next/link";
 
 export default async function FinalizedQuoteDetails({ params }) {
-  const id = await params?.id; // ✅ don't await params
+  const id = params?.id; // ✅ don't await params
 
   await connectDB();
 
@@ -111,12 +110,8 @@ export default async function FinalizedQuoteDetails({ params }) {
             >
               ← Back to Finalized Quotes
             </Link>
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mt-2">Finalized Quote</h1>
-              <p className="text-gray-600 mt-2">
-               {clientQuote.quoteNo}
-              </p>
-            </div>
+
+            <h1 className="text-4xl font-bold text-gray-900 mt-2">Finalized Quote</h1>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusPill status={technicalQuote.status} />

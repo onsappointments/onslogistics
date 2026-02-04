@@ -9,7 +9,7 @@ import { authOptions } from "@/lib/authOptions";
 import mongoose from "mongoose";
 
 export default async function JobDetails({ params }) {
-  const id = params?.id;
+  const {id} = await params;
 
   if (!id || id === "undefined" || !mongoose.Types.ObjectId.isValid(id)) {
     return (
@@ -170,6 +170,11 @@ export default async function JobDetails({ params }) {
             <Field label="MBL Date" value={formatDate(plainJob.mblDate)} />
             <Field label="HBL Number" value={plainJob.hblNumber} />
             <Field label="HBL Date" value={formatDate(plainJob.hblDate)} />
+          </Group>
+
+          <Group title="AWB Numbers">
+            <Field label="AWB Number" value={plainJob.awbNumber} />
+            <Field label="AWB Date" value={formatDate(plainJob.awbDate)} />
           </Group>
 
           {/* Group 3 */}
