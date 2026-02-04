@@ -15,7 +15,6 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ remarks from body
     const body = await request.json().catch(() => ({}));
     const remarks = (body?.remarks || "").trim();
 
@@ -28,11 +27,9 @@ export async function POST(request, { params }) {
 
     await connectDB();
 
-    const clientQuoteId = params.id;
+    const clientQuoteId = new mongoose.Types.ObjectId(params.id);
 
-    const quote = await TechnicalQuote.findOne({
-      clientQuoteId: new mongoose.Types.ObjectId(clientQuoteId),
-    });
+    const quote = await TechnicalQuote.findOne({ clientQuoteId });
 
     if (!quote) {
       return NextResponse.json(
@@ -41,7 +38,6 @@ export async function POST(request, { params }) {
       );
     }
 
-    // Current user
     const currentUser = await User.findOne({ email: session.user.email });
 
     if (!currentUser || currentUser.role !== "admin") {
@@ -58,34 +54,53 @@ export async function POST(request, { params }) {
       );
     }
 
-    // VALIDATIONS
-    if (quote.editRequestedBy && !quote.editApprovedBy) {
+    /* --------------------------------------------------
+       🔒 VALIDATION ORDER (VERY IMPORTANT)
+    --------------------------------------------------- */
+
+    // 1️⃣ Quote locked → no requests
+    if (quote.isLocked === true) {
       return NextResponse.json(
-        { error: "Edit request already pending approval" },
-        { status: 400 }
+        { error: "This quote is locked and cannot be edited." },
+        { status: 423 }
       );
     }
 
+    // 2️⃣ Already approved for someone (active)
     if (quote.editApprovedBy && quote.editUsed === false) {
       return NextResponse.json(
-        { error: "Another user already has edit access (not used yet)" },
+        {
+          error:
+            "This quote has already been approved for another user.",
+        },
+        { status: 409 }
+      );
+    }
+
+    // 3️⃣ Request already pending
+    if (quote.editRequestedBy && !quote.editApprovedBy) {
+      return NextResponse.json(
+        { error: "Edit request already pending approval." },
         { status: 400 }
       );
     }
 
-    // CREATE NEW REQUEST
+    /* --------------------------------------------------
+       ✅ CREATE NEW REQUEST
+    --------------------------------------------------- */
+
     quote.editRequestedBy = currentUser._id;
     quote.editRequestedAt = new Date();
     quote.editApprovedBy = null;
     quote.editApprovedAt = null;
     quote.editUsed = false;
 
-    // ✅ OPTIONAL: if you add this field in TechnicalQuote schema
-    // quote.editRequestRemarks = remarks;
-
     await quote.save();
 
-    // FIND SUPER ADMINS
+    /* --------------------------------------------------
+       🔔 NOTIFY SUPER ADMINS
+    --------------------------------------------------- */
+
     const superAdmins = await User.find({
       role: "admin",
       adminType: "super_admin",
@@ -104,14 +119,13 @@ export async function POST(request, { params }) {
       currentUser.name ||
       currentUser.email;
 
-    // ✅ CREATE NOTIFICATION (store remarks in message)
     const notification = await Notification.create({
       type: "EDIT_REQUEST",
       quoteId: quote._id,
       requestedBy: currentUser._id,
       requestedByEmail: currentUser.email,
       requestedByName,
-      message: remarks, // ✅ THIS IS THE REMARKS YOU FILLED
+      message: remarks,
       recipients: superAdmins.map((admin) => admin._id),
       status: "pending",
     });

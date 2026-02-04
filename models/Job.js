@@ -60,6 +60,8 @@ const JobSchema = new mongoose.Schema(
     hblNumber: { type: String, default: null },
     hblDate: { type: Date, default: null },
 
+    awbNumber: { type: String, default: null },
+    awbDate: { type: Date, default: null },
     // Ports
     portOfLoading: { type: String, default: null },
     portOfDischarge: { type: String, default: null },

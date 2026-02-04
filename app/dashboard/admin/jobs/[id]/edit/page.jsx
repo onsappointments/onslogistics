@@ -83,6 +83,8 @@ export default async function EditJobPage({ params }) {
             <FieldInput label="MBL Date" name="mblDate" type="date" defaultValue={fmtDate(job.mblDate)} />
             <FieldInput label="HBL Number" name="hblNumber" defaultValue={job.hblNumber || ""} />
             <FieldInput label="HBL Date" name="hblDate" type="date" defaultValue={fmtDate(job.hblDate)} />
+            <FieldInput label="AWB Number" name="awbNumber" defaultValue={job.awbNumber || ""} />
+            <FieldInput label="AWB Date" name="awbDate" type="date" defaultValue={fmtDate(job.awbDate)} />
           </div>
         </section>
 

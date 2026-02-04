@@ -58,6 +58,8 @@ export async function updateJob(formData) {
     mblDate: formData.get("mblDate") || null,
     hblNumber: formData.get("hblNumber") || null,
     hblDate: formData.get("hblDate") || null,
+    awbNumber: formData.get("awbNumber") || null,
+    awbDate: formData.get("awbDate") || null,
 
     portOfLoading: formData.get("portOfLoading") || null,
     portOfDischarge: formData.get("portOfDischarge") || null,

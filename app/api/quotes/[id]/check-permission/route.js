@@ -16,16 +16,18 @@ export async function GET(request, { params }) {
 
     await connectDB();
 
-    const { id } = params;
-    const clientQuoteId = new mongoose.Types.ObjectId(id); // ✅ FIX
+    const clientQuoteId = new mongoose.Types.ObjectId(params.id);
 
     const currentUser = await User.findOne({ email: session.user.email });
 
     if (!currentUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
     }
 
-    // Super admin can always edit
+    // 👑 Super admin → always allowed
     if (currentUser.adminType === "super_admin") {
       return NextResponse.json({
         canEdit: true,
@@ -33,7 +35,6 @@ export async function GET(request, { params }) {
       });
     }
 
-    // Find technical quote
     const quote = await TechnicalQuote.findOne({ clientQuoteId });
 
     if (!quote) {
@@ -43,21 +44,39 @@ export async function GET(request, { params }) {
       );
     }
 
-    // If approved and unused → user can edit once
-    const hasApprovedAccess =
-      quote.editApprovedBy &&
-      quote.editApprovedBy.toString() === currentUser._id.toString() &&
-      quote.editUsed === false;
-
-    if (hasApprovedAccess) {
+    // 🔒 Locked → nobody edits
+    if (quote.isLocked === true) {
       return NextResponse.json({
-        canEdit: true,
-        reason: "approved_access",
-        message: "You have one-time edit access",
+        canEdit: false,
+        reason: "locked",
+        message: "This quote is locked.",
       });
     }
 
-    // Request already submitted
+    // ✅ Approved user (one-time)
+    if (
+      quote.editApprovedBy &&
+      quote.editApprovedBy.toString() === currentUser._id.toString() &&
+      quote.editUsed === false
+    ) {
+      return NextResponse.json({
+        canEdit: true,
+        reason: "approved_access",
+        message: "You have approved edit access.",
+      });
+    }
+
+    // 🚫 Approved for someone else
+    if (quote.editApprovedBy && quote.editUsed === false) {
+      return NextResponse.json({
+        canEdit: false,
+        reason: "approved_for_other",
+        message:
+          "This quote has already been approved for another user.",
+      });
+    }
+
+    // ⏳ Request pending by this user
     if (
       quote.editRequestedBy &&
       quote.editRequestedBy.toString() === currentUser._id.toString()
@@ -65,14 +84,15 @@ export async function GET(request, { params }) {
       return NextResponse.json({
         canEdit: false,
         reason: "pending_approval",
-        message: "Your edit request is pending approval",
+        message: "Your edit request is pending approval.",
       });
     }
 
+    // ❌ Default → can request
     return NextResponse.json({
       canEdit: false,
       reason: "no_permission",
-      message: "You need to request edit access",
+      message: "You need to request edit access.",
     });
   } catch (error) {
     console.error("❌ Error checking permission:", error);
