@@ -1,4 +1,5 @@
 import connectDB from "@/lib/mongodb";
+import Quote from "@/models/Quote"; 
 import TechnicalQuote from "@/models/TechnicalQuote";
 import mongoose from "mongoose";
 import ConvertToJobPanel from "./ConvertToJobPanel";
@@ -51,7 +52,6 @@ export default async function FinalizedQuoteDetails({ params }) {
     .lean();
 
 
-    console.log("🚀 ~ file: page.jsx:47 ~ FinalizedQuoteDetails ~ technicalQuote:", technicalQuote)
 
   if (!technicalQuote) {
     return (
