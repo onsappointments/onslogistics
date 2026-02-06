@@ -6,6 +6,7 @@ import Link from "next/link";
 import TechnicalQuoteView from "./TechnicalQuoteView";
 import mongoose from "mongoose";
 import ShipmentTypeSelector from "./ShipmentTypeSelector";
+import {getCountryName , getStateName} from "@/lib/locationHelper";
 
 export default async function QuoteDetails({ params }) {
   const { id } = await params;
@@ -128,10 +129,10 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
 
       {/* LOCATION */}
       <Section title="Location Details">
-        <Field label="From Country" value={quote.fromCountry} />
-        <Field label="To Country" value={quote.toCountry} />
-        <Field label="From State" value={quote.fromState} />
-        <Field label="To State" value={quote.toState} />
+        <Field label="From Country" value={`${getCountryName(quote.fromCountry)}`} />
+        <Field label="To Country" value={`${getCountryName(quote.toCountry)}`} />
+        <Field label="From State" value={getStateName(quote.fromCountry, quote.fromState)} />
+        <Field label="To State" value={getStateName(quote.toCountry, quote.toState)} />
         <Field label="From City" value={quote.fromCity} />
         <Field label="To City" value={quote.toCity} />
         <Field label="From Postal" value={quote.fromPostal} />

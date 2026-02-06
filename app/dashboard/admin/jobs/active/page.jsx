@@ -7,13 +7,15 @@ export default function ActiveJobsPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [shipmentType, setShipmentType] = useState("import"); // Default filter
   const router = useRouter();
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (type = shipmentType) => {
     setLoading(true);
     setErr("");
     try {
-      const res = await fetch("/api/admin/jobs?status=active", { cache: "no-store" });
+      const url = `/api/admin/jobs?status=active${type ? `&shipmentType=${type}` : ""}`;
+      const res = await fetch(url, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
@@ -21,6 +23,8 @@ export default function ActiveJobsPage() {
         setJobs([]);
         return;
       }
+
+      console.log("jobs :" , data);
 
       setJobs(Array.isArray(data.jobs) ? data.jobs : []);
     } catch (e) {
@@ -35,7 +39,11 @@ export default function ActiveJobsPage() {
   useEffect(() => {
     fetchJobs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [shipmentType]);
+
+  const handleShipmentTypeChange = (type) => {
+    setShipmentType(type);
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-10 space-y-8">
@@ -59,7 +67,7 @@ export default function ActiveJobsPage() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={fetchJobs}
+              onClick={() => fetchJobs()}
               className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition font-semibold"
               disabled={loading}
             >
@@ -91,6 +99,38 @@ export default function ActiveJobsPage() {
         )}
       </section>
 
+      {/* Filter Section */}
+      <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <label className="text-sm font-semibold text-gray-700">
+            Filter by Shipment Type:
+          </label>
+          
+          <div className="flex flex-wrap gap-2">
+            <FilterButton
+              label="All"
+              active={shipmentType === ""}
+              onClick={() => handleShipmentTypeChange("")}
+            />
+            <FilterButton
+              label="Import"
+              active={shipmentType === "import"}
+              onClick={() => handleShipmentTypeChange("import")}
+            />
+            <FilterButton
+              label="Export"
+              active={shipmentType === "export"}
+              onClick={() => handleShipmentTypeChange("export")}
+            /> 
+            <FilterButton
+              label="Courier"
+              active={shipmentType === "courier"}
+              onClick={() => handleShipmentTypeChange("courier")}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Table Card */}
       <section className="bg-white/70 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.06)] border border-white/40 overflow-hidden">
         <div className="px-8 py-6 border-b border-white/40 flex items-center justify-between">
@@ -105,7 +145,7 @@ export default function ActiveJobsPage() {
             <div className="flex items-center gap-2 text-blue-600">
               <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4z" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
               <span className="text-sm font-semibold">Loading…</span>
             </div>
@@ -121,7 +161,11 @@ export default function ActiveJobsPage() {
               </svg>
             </div>
             <p className="text-lg font-semibold text-gray-900">No active jobs found</p>
-            <p className="text-sm text-gray-600 mt-1">Looks like everything is completed or not started yet.</p>
+            <p className="text-sm text-gray-600 mt-1">
+              {shipmentType 
+                ? `No ${shipmentType} jobs available.` 
+                : "Looks like everything is completed or not started yet."}
+            </p>
           </div>
         )}
 
@@ -133,6 +177,7 @@ export default function ActiveJobsPage() {
                 <tr className="text-left text-gray-700">
                   <th className="px-8 py-4 font-semibold">Company</th>
                   <th className="px-8 py-4 font-semibold">Route</th>
+                  <th className="px-8 py-4 font-semibold">Shipment Type</th>
                   <th className="px-8 py-4 font-semibold">Job ID</th>
                   <th className="px-8 py-4 font-semibold">Status</th>
                   <th className="px-8 py-4 font-semibold text-right">Action</th>
@@ -141,8 +186,9 @@ export default function ActiveJobsPage() {
 
               <tbody className="divide-y divide-gray-100">
                 {jobs.map((job) => {
-                  const from = job?.clientQuoteId?.fromCity;
-                  const to = job?.clientQuoteId?.toCity;
+                  const from = job?.quoteId?.fromCity;
+                  const to = job?.quoteId?.toCity;
+                  const type = job?.quoteId?.shipmentType;
 
                   return (
                     <tr
@@ -166,6 +212,10 @@ export default function ActiveJobsPage() {
                         ) : (
                           "—"
                         )}
+                      </td>
+
+                      <td className="px-8 py-5">
+                        <ShipmentTypeBadge type={type} />
                       </td>
 
                       <td className="px-8 py-5 font-bold text-gray-900">
@@ -204,6 +254,43 @@ export default function ActiveJobsPage() {
         )}
       </section>
     </div>
+  );
+}
+
+/* ---------- FILTER BUTTON ---------- */
+
+function FilterButton({ label, active, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+        active
+          ? "bg-blue-600 text-white shadow-md"
+          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+/* ---------- SHIPMENT TYPE BADGE ---------- */
+
+function ShipmentTypeBadge({ type }) {
+  const t = String(type || "").toLowerCase();
+  const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
+
+  const map = {
+    import: `${base} bg-indigo-100 text-indigo-700 border-indigo-200`,
+    export: `${base} bg-emerald-100 text-emerald-700 border-emerald-200`,
+    courier: `${base} bg-yellow-100 text-yellow-700 border-yellow-200`,
+  };
+
+  return (
+    <span className={map[t] || `${base} bg-gray-100 text-gray-700 border-gray-200`}>
+      {t || "—"}
+    </span>
   );
 }
 

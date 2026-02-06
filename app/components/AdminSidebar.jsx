@@ -92,7 +92,7 @@ export default function AdminSidebar() {
       </div>
 
       {/* MENU */}
-      <nav className="flex flex-col gap-1 flex-1">
+      <nav className="flex flex-col gap-1">
         {visibleMenu.map((item) => {
           const active = isActive(item.href);
           const isKycItem = item.permission === "kyc:view";
@@ -131,15 +131,15 @@ export default function AdminSidebar() {
         {!isSuperAdmin && permissions.length === 0 && (
           <p className="text-sm text-gray-500 mt-4">No menu access assigned</p>
         )}
-      </nav>
 
-      {/* LOGOUT */}
-      <button
+        <button
         onClick={() => signOut({ callbackUrl: "/login" })}
-        className="bg-blue-600 text-white py-2 px-6 rounded-xl hover:bg-blue-700 transition font-medium shadow-md"
+        className="bg-blue-600 text-white mt-4 py-2 px-6 rounded-xl hover:bg-blue-700 transition font-medium shadow-md"
       >
         Logout
       </button>
+      </nav>
+
     </aside>
   );
 }
