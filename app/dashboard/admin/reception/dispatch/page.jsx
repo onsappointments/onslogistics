@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import AddReceivalModal from "@/Components/dispatch/AddReceivalModal";
 import AddDispatchModal from "@/Components/dispatch/AddDispatchModal";
-import { Search, Filter, Plus, Edit2, Trash2, Calendar, ArrowUpDown, X, Package, Mail, User, MapPin, FileText, Truck, MessageSquare, Hash } from "lucide-react";
+import { Search, Filter, Plus, Edit2, Trash2, Calendar, ArrowUpDown, X, Package, Mail, User, MapPin, FileText, Truck, MessageSquare, Hash, Eye, Clock } from "lucide-react";
 
 // Detail View Modal Component
 function DetailViewModal({ isOpen, onClose, data, type }) {
@@ -13,252 +13,253 @@ function DetailViewModal({ isOpen, onClose, data, type }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-br from-blue-500 to-indigo-600">
           <div>
-            <h3 className="text-2xl font-bold text-gray-900">
+            <h3 className="text-2xl font-bold text-white">
               {isReceival ? "Receival Details" : "Dispatch Details"}
             </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Serial No: <span className="font-semibold text-blue-600">#{data.serialNo}</span>
+            <p className="text-sm text-blue-100 mt-1">
+              Serial No: <span className="font-semibold">#{data.serialNo}</span>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white rounded-lg transition-colors"
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-white" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(85vh-180px)]">
-          <div className="space-y-6">
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Date */}
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0">
+                  <Calendar className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-xs font-bold text-blue-700 uppercase tracking-wider">
                   Date
                 </p>
-                <p className="text-gray-900 font-medium">
-                  {new Date(data.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
               </div>
+              <p className="text-gray-900 font-semibold text-sm ml-13">
+                {new Date(data.date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </p>
             </div>
 
             {isReceival ? (
               <>
                 {/* Letter No */}
                 {data.letterNo && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                      <Hash className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-purple-500 flex items-center justify-center flex-shrink-0">
+                        <Hash className="w-5 h-5 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-purple-700 uppercase tracking-wider">
                         Letter Number
                       </p>
-                      <p className="text-gray-900 font-medium">{data.letterNo}</p>
                     </div>
+                    <p className="text-gray-900 font-semibold text-sm ml-13">{data.letterNo}</p>
                   </div>
                 )}
 
                 {/* From Who */}
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="text-xs font-bold text-green-700 uppercase tracking-wider">
                       From
                     </p>
-                    <p className="text-gray-900 font-medium">{data.fromWho}</p>
                   </div>
+                  <p className="text-gray-900 font-semibold text-sm ml-13">{data.fromWho}</p>
                 </div>
 
                 {/* Receiver */}
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center flex-shrink-0">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="text-xs font-bold text-orange-700 uppercase tracking-wider">
                       Received By
                     </p>
-                    <p className="text-gray-900 font-medium">{data.receiver}</p>
                   </div>
+                  <p className="text-gray-900 font-semibold text-sm ml-13">{data.receiver}</p>
                 </div>
               </>
             ) : (
               <>
                 {/* Name */}
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                      Recipient Name
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center flex-shrink-0">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="text-xs font-bold text-green-700 uppercase tracking-wider">
+                      Recipient
                     </p>
-                    <p className="text-gray-900 font-medium">{data.name}</p>
                   </div>
-                </div>
-
-                {/* Address */}
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-red-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                      Address
-                    </p>
-                    <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{data.address}</p>
-                  </div>
+                  <p className="text-gray-900 font-semibold text-sm ml-13">{data.name}</p>
                 </div>
 
                 {/* Place */}
                 {data.place && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-teal-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-xl border border-teal-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-teal-500 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-5 h-5 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-teal-700 uppercase tracking-wider">
                         Place
                       </p>
-                      <p className="text-gray-900 font-medium">{data.place}</p>
                     </div>
+                    <p className="text-gray-900 font-semibold text-sm ml-13">{data.place}</p>
                   </div>
                 )}
 
                 {/* Handover By */}
                 {data.handoverby && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-cyan-100 flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-cyan-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 p-4 rounded-xl border border-cyan-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-cyan-500 flex items-center justify-center flex-shrink-0">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-cyan-700 uppercase tracking-wider">
                         Handover By
                       </p>
-                      <p className="text-gray-900 font-medium">{data.handoverby}</p>
                     </div>
+                    <p className="text-gray-900 font-semibold text-sm ml-13">{data.handoverby}</p>
                   </div>
                 )}
 
                 {/* Handover To */}
                 {data.handoverto && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-lime-100 flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-lime-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-gradient-to-br from-lime-50 to-lime-100 p-4 rounded-xl border border-lime-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-lime-500 flex items-center justify-center flex-shrink-0">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-lime-700 uppercase tracking-wider">
                         Handover To
                       </p>
-                      <p className="text-gray-900 font-medium">{data.handoverto}</p>
                     </div>
+                    <p className="text-gray-900 font-semibold text-sm ml-13">{data.handoverto}</p>
                   </div>
                 )}
 
                 {/* Status */}
                 {data.status && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <Package className="w-5 h-5 text-emerald-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-xl border border-emerald-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                        <Package className="w-5 h-5 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
                         Status
                       </p>
-                      <p className="text-gray-900 font-medium">{data.status}</p>
                     </div>
+                    <p className="text-gray-900 font-semibold text-sm ml-13">{data.status}</p>
                   </div>
                 )}
 
                 {/* Delivered Date */}
                 {data.delivereddate && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-5 h-5 text-violet-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                        Delivered Date
+                  <div className="bg-gradient-to-br from-violet-50 to-violet-100 p-4 rounded-xl border border-violet-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-violet-500 flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-5 h-5 text-white" />
+                      </div>
+                      <p className="text-xs font-bold text-violet-700 uppercase tracking-wider">
+                        Delivered
                       </p>
-                      <p className="text-gray-900 font-medium">{data.delivereddate}</p>
                     </div>
+                    <p className="text-gray-900 font-semibold text-sm ml-13">{data.delivereddate}</p>
                   </div>
                 )}
               </>
             )}
 
-            {/* Courier Service */}
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                <Truck className="w-5 h-5 text-indigo-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+            {/* Courier Service - Full Width */}
+            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl border border-indigo-200 md:col-span-2">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-indigo-500 flex items-center justify-center flex-shrink-0">
+                  <Truck className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
                   Courier Service
                 </p>
-                <span className="inline-block px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold">
-                  {data.courierService}
-                </span>
               </div>
+              <span className="inline-block px-4 py-2 bg-white text-indigo-700 rounded-lg text-sm font-bold ml-13 shadow-sm">
+                {data.courierService}
+              </span>
             </div>
-
-            {/* Subject */}
-            {data.subject && (
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-5 h-5 text-yellow-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Subject
-                  </p>
-                  <p className="text-gray-900 whitespace-pre-wrap leading-relaxed bg-gray-50 p-4 rounded-lg">
-                    {data.subject}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Remarks */}
-            {data.remarks && (
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0">
-                  <MessageSquare className="w-5 h-5 text-pink-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Remarks
-                  </p>
-                  <p className="text-gray-900 whitespace-pre-wrap leading-relaxed bg-gray-50 p-4 rounded-lg">
-                    {data.remarks}
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
+
+          {/* Address - Full Width */}
+          {!isReceival && data.address && (
+            <div className="mt-4 bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-xl border border-red-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-xs font-bold text-red-700 uppercase tracking-wider">
+                  Address
+                </p>
+              </div>
+              <p className="text-gray-900 leading-relaxed bg-white p-3 rounded-lg ml-13 text-sm">{data.address}</p>
+            </div>
+          )}
+
+          {/* Subject - Full Width */}
+          {data.subject && (
+            <div className="mt-4 bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border border-yellow-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-xs font-bold text-yellow-700 uppercase tracking-wider">
+                  Subject
+                </p>
+              </div>
+              <p className="text-gray-900 whitespace-pre-wrap leading-relaxed bg-white p-3 rounded-lg ml-13 text-sm">
+                {data.subject}
+              </p>
+            </div>
+          )}
+
+          {/* Remarks - Full Width */}
+          {data.remarks && (
+            <div className="mt-4 bg-gradient-to-br from-pink-50 to-pink-100 p-4 rounded-xl border border-pink-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-pink-500 flex items-center justify-center flex-shrink-0">
+                  <MessageSquare className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-xs font-bold text-pink-700 uppercase tracking-wider">
+                  Remarks
+                </p>
+              </div>
+              <p className="text-gray-900 whitespace-pre-wrap leading-relaxed bg-white p-3 rounded-lg ml-13 text-sm">
+                {data.remarks}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            className="px-6 py-2.5 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-medium shadow-sm"
           >
             Close
           </button>
@@ -400,19 +401,21 @@ export default function DispatchPage() {
   const sortedData = sortBySerial(filteredData);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 overflow-x-hidden">
-      <div className="w-full max-w-[1600px] mx-auto overflow-visible">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+      <div className="w-full max-w-[1400px] mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Courier Register</h1>
-            <p className="text-gray-500 mt-1">Manage receival and dispatch records</p>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+              Courier Register
+            </h1>
+            <p className="text-gray-600 text-base">Track and manage all courier activities</p>
           </div>
 
           {activeView === "receival" ? (
             <button
               onClick={() => setOpenReceival(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
               Add Receival
@@ -420,7 +423,7 @@ export default function DispatchPage() {
           ) : (
             <button
               onClick={() => setOpenDispatch(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
               Add Dispatch
@@ -429,21 +432,21 @@ export default function DispatchPage() {
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 w-full overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
           {/* Toggle Tabs */}
-          <div className="border-b border-gray-200 bg-gray-50 px-6">
-            <div className="flex gap-1">
+          <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 px-6">
+            <div className="flex gap-2">
               <button
                 onClick={() => setActiveView("receival")}
-                className={`px-6 py-3 font-semibold text-sm transition-all relative ${
+                className={`px-6 py-4 font-bold text-sm transition-all relative ${
                   activeView === "receival"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "text-blue-600 bg-white rounded-t-xl shadow-sm"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-t-xl"
                 }`}
               >
                 Receival
                 <span
-                  className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  className={`ml-2 px-2.5 py-1 rounded-full text-xs font-bold ${
                     activeView === "receival"
                       ? "bg-blue-100 text-blue-600"
                       : "bg-gray-200 text-gray-600"
@@ -454,15 +457,15 @@ export default function DispatchPage() {
               </button>
               <button
                 onClick={() => setActiveView("dispatch")}
-                className={`px-6 py-3 font-semibold text-sm transition-all relative ${
+                className={`px-6 py-4 font-bold text-sm transition-all relative ${
                   activeView === "dispatch"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "text-blue-600 bg-white rounded-t-xl shadow-sm"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-t-xl"
                 }`}
               >
                 Dispatch
                 <span
-                  className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  className={`ml-2 px-2.5 py-1 rounded-full text-xs font-bold ${
                     activeView === "dispatch"
                       ? "bg-blue-100 text-blue-600"
                       : "bg-gray-200 text-gray-600"
@@ -475,8 +478,8 @@ export default function DispatchPage() {
           </div>
 
           {/* Filters Section */}
-          <div className="bg-gray-50 border-b border-gray-200 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -485,7 +488,7 @@ export default function DispatchPage() {
                   placeholder="Search all fields..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
 
@@ -496,7 +499,7 @@ export default function DispatchPage() {
                   type="date"
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
 
@@ -507,7 +510,7 @@ export default function DispatchPage() {
                   type="date"
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
 
@@ -517,7 +520,7 @@ export default function DispatchPage() {
                 <select
                   value={courierServiceFilter}
                   onChange={(e) => setCourierServiceFilter(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer shadow-sm"
                 >
                   <option value="all">All Courier Services</option>
                   {getUniqueCourierServices().map((service) => (
@@ -527,17 +530,29 @@ export default function DispatchPage() {
                   ))}
                 </select>
               </div>
+
+              {/* Sort Order Toggle */}
+              <button
+                onClick={() => setSerialSort(serialSort === "asc" ? "desc" : "asc")}
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-blue-400 transition-all shadow-sm font-medium text-gray-700"
+                title={`Sort: ${serialSort === "asc" ? "Ascending" : "Descending"}`}
+              >
+                <ArrowUpDown className="w-5 h-5 text-gray-600" />
+                <span className="text-sm">
+                  {serialSort === "asc" ? "Newest First" : "Oldest First"}
+                </span>
+              </button>
             </div>
 
             {/* Filter Actions */}
             {(searchTerm || dateFrom || dateTo || courierServiceFilter !== "all") && (
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-sm text-gray-600">
-                  Showing {sortedData.length} of {currentData.length} entries
+              <div className="mt-4 flex items-center justify-between bg-white p-4 rounded-xl shadow-sm">
+                <p className="text-sm text-gray-600 font-medium">
+                  Showing <span className="text-blue-600 font-bold">{sortedData.length}</span> of <span className="font-bold">{currentData.length}</span> entries
                 </p>
                 <button
                   onClick={clearFilters}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold hover:underline"
                 >
                   Clear all filters
                 </button>
@@ -545,257 +560,285 @@ export default function DispatchPage() {
             )}
           </div>
 
-          {/* Table Container - Horizontal Scroll Area */}
-          <div className="relative w-full">
-            <div className="overflow-x-auto overflow-y-hidden" style={{ maxWidth: '100%' }}>
-              <div className="inline-block min-w-full align-middle">
-                <div className="overflow-hidden">
-                {activeView === "receival" ? (
-                  sortedData.length === 0 ? (
-                    <div className="text-center py-16">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Search className="w-8 h-8 text-gray-400" />
-                      </div>
-                      <p className="text-gray-500 font-medium">No receival entries found</p>
-                      <p className="text-gray-400 text-sm mt-1">
-                        {searchTerm || dateFrom || dateTo || courierServiceFilter !== "all"
-                          ? "Try adjusting your filters"
-                          : "Click 'Add Receival' to create your first entry"}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="max-h-[600px] overflow-y-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50 sticky top-0 z-10">
-                          <tr>
-                            <th
-                              onClick={() => setSerialSort(serialSort === "asc" ? "desc" : "asc")}
-                              className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap"
-                            >
-                              <div className="flex items-center gap-2">
-                                No.
-                                <ArrowUpDown className="w-4 h-4" />
-                              </div>
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                              Date
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                              Letter No.
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                              From
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                              Subject
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                              Courier Service
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                              Receiver
-                            </th>
-                            <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {sortedData.map((r, index) => (
-                            <tr
-                              key={r._id}
-                              onClick={() => openDetailView(r, "receival")}
-                              className={`${
-                                index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                              } hover:bg-blue-50 transition-colors cursor-pointer`}
-                            >
-                              <td className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">
-                                {r.serialNo}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                                {new Date(r.date).toLocaleDateString()}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                                {r.letterNo || "-"}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">
-                                {r.fromWho}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
-                                <div className="line-clamp-2">
-                                  {r.subject || "-"}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 text-sm whitespace-nowrap">
-                                <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                                  {r.courierService}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{r.receiver}</td>
-                              <td className="px-6 py-4 text-sm text-center whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                                <div className="flex items-center justify-center gap-2">
-                                  <button
-                                    onClick={(e) => openEditReceival(r, e)}
-                                    className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                                    title="Edit"
-                                  >
-                                    <Edit2 className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    onClick={(e) => deleteReceival(r._id, e)}
-                                    className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                                    title="Delete"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )
-                ) : sortedData.length === 0 ? (
-                  <div className="text-center py-16">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Search className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <p className="text-gray-500 font-medium">No dispatch entries found</p>
-                    <p className="text-gray-400 text-sm mt-1">
-                      {searchTerm || dateFrom || dateTo || courierServiceFilter !== "all"
-                        ? "Try adjusting your filters"
-                        : "Click 'Add Dispatch' to create your first entry"}
-                    </p>
+          {/* Content */}
+          <div className="p-6">
+            {activeView === "receival" ? (
+              sortedData.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-10 h-10 text-blue-500" />
                   </div>
-                ) : (
-                  <div className="max-h-[600px] overflow-y-auto">
-                    <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '1400px' }}>
-                      <thead className="bg-gray-50 sticky top-0 z-10">
-                        <tr>
-                          <th
-                            onClick={() => setSerialSort(serialSort === "asc" ? "desc" : "asc")}
-                            className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap"
-                          >
+                  <p className="text-gray-700 font-semibold text-lg">No receival entries found</p>
+                  <p className="text-gray-500 text-sm mt-2">
+                    {searchTerm || dateFrom || dateTo || courierServiceFilter !== "all"
+                      ? "Try adjusting your filters"
+                      : "Click 'Add Receival' to create your first entry"}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {sortedData.map((r, index) => (
+                    <div
+                      key={r._id}
+                      onClick={() => openDetailView(r, "receival")}
+                      className="bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-blue-400 hover:shadow-xl transition-all cursor-pointer group"
+                    >
+                      {/* Header Section */}
+                      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform">
+                            #{r.serialNo}
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Receival Date</p>
                             <div className="flex items-center gap-2">
-                              No.
-                              <ArrowUpDown className="w-4 h-4" />
+                              <Calendar className="w-4 h-4 text-blue-600" />
+                              <p className="text-base font-bold text-gray-900">
+                                {new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </p>
                             </div>
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Date
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Name
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Address
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Place
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Subject
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Courier Service
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Handover By
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Handover To
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Status
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Delivered Date
-                          </th>
-                          <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {sortedData.map((d, index) => (
-                          <tr
-                            key={d._id}
-                            onClick={() => openDetailView(d, "dispatch")}
-                            className={`${
-                              index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                            } hover:bg-blue-50 transition-colors cursor-pointer`}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={(e) => openEditReceival(r, e)}
+                            className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-blue-200"
+                            title="Edit"
                           >
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">
-                              {d.serialNo}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                              {new Date(d.date).toLocaleDateString()}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">
-                              {d.name}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
-                              <div className="line-clamp-2">
-                                {d.address}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{d.place}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
-                              <div className="line-clamp-2">
-                                {d.subject || "-"}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-sm whitespace-nowrap">
-                              <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                                {d.courierService}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm whitespace-nowrap">
-                              <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">
-                                {d.handoverby}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm whitespace-nowrap">
-                              <span className="px-2.5 py-1 bg-purple-100 text-purple-700 rounded-md text-xs font-medium">
-                                {d.handoverto}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm whitespace-nowrap">
-                              <span className="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-md text-xs font-medium">
-                                {d.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                              {d.delivereddate || "-"}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-center whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                              <div className="flex items-center justify-center gap-2">
-                                <button
-                                  onClick={(e) => openEditDispatch(d, e)}
-                                  className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                                  title="Edit"
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={(e) => deleteDispatch(d._id, e)}
-                                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                                  title="Delete"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => deleteReceival(r._id, e)}
+                            className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-red-200"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Main Info Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Mail className="w-4 h-4 text-green-600" />
+                            <p className="text-xs text-green-700 font-bold uppercase tracking-wider">From</p>
+                          </div>
+                          <p className="text-sm font-bold text-gray-900">{r.fromWho}</p>
+                        </div>
+
+                        {r.letterNo && (
+                          <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Hash className="w-4 h-4 text-purple-600" />
+                              <p className="text-xs text-purple-700 font-bold uppercase tracking-wider">Letter No.</p>
+                            </div>
+                            <p className="text-sm font-bold text-gray-900">{r.letterNo}</p>
+                          </div>
+                        )}
+
+                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="w-4 h-4 text-orange-600" />
+                            <p className="text-xs text-orange-700 font-bold uppercase tracking-wider">Receiver</p>
+                          </div>
+                          <p className="text-sm font-bold text-gray-900">{r.receiver}</p>
+                        </div>
+                      </div>
+
+                      {/* Secondary Info */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Truck className="w-4 h-4 text-blue-600" />
+                            <p className="text-xs text-blue-700 font-bold uppercase tracking-wider">Courier Service</p>
+                          </div>
+                          <p className="text-sm font-bold text-blue-900">{r.courierService}</p>
+                        </div>
+
+                        {r.subject && (
+                          <div className="bg-gradient-to-br from-yellow-50 to-amber-50 p-4 rounded-xl border border-yellow-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <FileText className="w-4 h-4 text-yellow-600" />
+                              <p className="text-xs text-yellow-700 font-bold uppercase tracking-wider">Subject</p>
+                            </div>
+                            <p className="text-sm text-gray-700 line-clamp-2">{r.subject}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Remarks if present */}
+                      {r.remarks && (
+                        <div className="mt-4 bg-gradient-to-br from-pink-50 to-rose-50 p-4 rounded-xl border border-pink-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <MessageSquare className="w-4 h-4 text-pink-600" />
+                            <p className="text-xs text-pink-700 font-bold uppercase tracking-wider">Remarks</p>
+                          </div>
+                          <p className="text-sm text-gray-700 line-clamp-2">{r.remarks}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : sortedData.length === 0 ? (
+              <div className="text-center py-20">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-10 h-10 text-blue-500" />
+                </div>
+                <p className="text-gray-700 font-semibold text-lg">No dispatch entries found</p>
+                <p className="text-gray-500 text-sm mt-2">
+                  {searchTerm || dateFrom || dateTo || courierServiceFilter !== "all"
+                    ? "Try adjusting your filters"
+                    : "Click 'Add Dispatch' to create your first entry"}
+                </p>
               </div>
-            </div>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                {sortedData.map((d, index) => (
+                  <div
+                    key={d._id}
+                    onClick={() => openDetailView(d, "dispatch")}
+                    className="bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-blue-400 hover:shadow-xl transition-all cursor-pointer group"
+                  >
+                    {/* Header Section */}
+                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform">
+                          #{d.serialNo}
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Dispatch Date</p>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-blue-600" />
+                            <p className="text-base font-bold text-gray-900">
+                              {new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={(e) => openEditDispatch(d, e)}
+                          className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-blue-200"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => deleteDispatch(d._id, e)}
+                          className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-red-200"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Main Info Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <User className="w-4 h-4 text-green-600" />
+                          <p className="text-xs text-green-700 font-bold uppercase tracking-wider">Recipient</p>
+                        </div>
+                        <p className="text-sm font-bold text-gray-900">{d.name}</p>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-teal-50 to-cyan-50 p-4 rounded-xl border border-teal-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <MapPin className="w-4 h-4 text-teal-600" />
+                          <p className="text-xs text-teal-700 font-bold uppercase tracking-wider">Place</p>
+                        </div>
+                        <p className="text-sm font-bold text-gray-900">{d.place}</p>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Package className="w-4 h-4 text-amber-600" />
+                          <p className="text-xs text-amber-700 font-bold uppercase tracking-wider">Status</p>
+                        </div>
+                        <p className="text-sm font-bold text-amber-900">{d.status}</p>
+                      </div>
+                    </div>
+
+                    {/* Address */}
+                    <div className="mb-4 bg-gradient-to-br from-red-50 to-pink-50 p-4 rounded-xl border border-red-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="w-4 h-4 text-red-600" />
+                        <p className="text-xs text-red-700 font-bold uppercase tracking-wider">Address</p>
+                      </div>
+                      <p className="text-sm text-gray-700 line-clamp-2">{d.address}</p>
+                    </div>
+
+                    {/* Secondary Info Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Truck className="w-4 h-4 text-blue-600" />
+                          <p className="text-xs text-blue-700 font-bold uppercase tracking-wider">Courier Service</p>
+                        </div>
+                        <p className="text-sm font-bold text-blue-900">{d.courierService}</p>
+                      </div>
+
+                      {d.subject && (
+                        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 p-4 rounded-xl border border-yellow-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <FileText className="w-4 h-4 text-yellow-600" />
+                            <p className="text-xs text-yellow-700 font-bold uppercase tracking-wider">Subject</p>
+                          </div>
+                          <p className="text-sm text-gray-700 line-clamp-2">{d.subject}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Handover Info */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {d.handoverby && (
+                        <div className="bg-gradient-to-br from-lime-50 to-green-50 p-4 rounded-xl border border-lime-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="w-4 h-4 text-lime-600" />
+                            <p className="text-xs text-lime-700 font-bold uppercase tracking-wider">Handover By</p>
+                          </div>
+                          <p className="text-sm font-bold text-gray-900">{d.handoverby}</p>
+                        </div>
+                      )}
+
+                      {d.handoverto && (
+                        <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="w-4 h-4 text-purple-600" />
+                            <p className="text-xs text-purple-700 font-bold uppercase tracking-wider">Handover To</p>
+                          </div>
+                          <p className="text-sm font-bold text-gray-900">{d.handoverto}</p>
+                        </div>
+                      )}
+
+                      {d.delivereddate && (
+                        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-4 rounded-xl border border-indigo-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Clock className="w-4 h-4 text-indigo-600" />
+                            <p className="text-xs text-indigo-700 font-bold uppercase tracking-wider">Delivered</p>
+                          </div>
+                          <p className="text-sm font-bold text-gray-900">{d.delivereddate}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Remarks if present */}
+                    {d.remarks && (
+                      <div className="mt-4 bg-gradient-to-br from-pink-50 to-rose-50 p-4 rounded-xl border border-pink-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <MessageSquare className="w-4 h-4 text-pink-600" />
+                          <p className="text-xs text-pink-700 font-bold uppercase tracking-wider">Remarks</p>
+                        </div>
+                        <p className="text-sm text-gray-700 line-clamp-2">{d.remarks}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -837,31 +880,6 @@ export default function DispatchPage() {
           -webkit-box-orient: vertical;
           overflow: hidden;
           word-break: break-word;
-        }
-        
-        /* Make horizontal scrollbar visible and styled */
-        .overflow-x-auto {
-          scrollbar-width: thin;
-          scrollbar-color: #9ca3af #f3f4f6;
-        }
-        
-        .overflow-x-auto::-webkit-scrollbar {
-          height: 12px;
-        }
-        
-        .overflow-x-auto::-webkit-scrollbar-track {
-          background: #f3f4f6;
-          border-radius: 0;
-        }
-        
-        .overflow-x-auto::-webkit-scrollbar-thumb {
-          background-color: #9ca3af;
-          border-radius: 6px;
-          border: 2px solid #f3f4f6;
-        }
-        
-        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-          background-color: #6b7280;
         }
       `}</style>
     </div>
