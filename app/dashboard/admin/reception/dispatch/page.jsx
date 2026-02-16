@@ -406,7 +406,7 @@ export default function DispatchPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-4xl font-bold text-blue-600 mb-2">
               Courier Register
             </h1>
             <p className="text-gray-600 text-base">Track and manage all courier activities</p>
