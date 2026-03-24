@@ -1,9 +1,10 @@
 import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import Link from "next/link";
-import { initiateJob, deleteJob } from "../actions";
+import { initiateJob, deleteJob, completeJob } from "../actions";
 import JobDocumentsPanel from "../JobDocumentsPanel";
 import EditJobButton from "@/Components/EditJobButton";
+import CompleteJobButton from "@/Components/CompleteJobButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import mongoose from "mongoose";
@@ -41,7 +42,7 @@ export default async function JobDetails({ params }) {
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
           <h1 className="text-2xl font-bold text-gray-900">Job not found</h1>
           <p className="text-gray-600 mt-2">
-            This job may have been deleted or you don’t have access.
+            This job may have been deleted or you don't have access.
           </p>
           <div className="mt-6">
             <Link
@@ -61,6 +62,8 @@ export default async function JobDetails({ params }) {
   const session = await getServerSession(authOptions);
   const isSuperAdmin = session?.user?.adminType === "super_admin";
 
+  const isCompleted = plainJob.status === "completed";
+
   const statusPill = (s) => {
     const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
     if (s === "active") return `${base} bg-yellow-100 text-yellow-700 border-yellow-200`;
@@ -71,8 +74,23 @@ export default async function JobDetails({ params }) {
 
   return (
     <div className="max-w-5xl mx-auto p-10 space-y-8">
+      {/* Completed Banner */}
+      {isCompleted && (
+        <div className="flex items-center gap-4 bg-green-50 border border-green-200 rounded-2xl px-6 py-4 shadow-sm">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+            <IconCheckCircle className="w-6 h-6 text-green-600" />
+          </div>
+          <div>
+            <p className="text-green-800 font-semibold text-sm">Job Completed</p>
+            <p className="text-green-700 text-xs mt-0.5">
+              This job has been marked as completed. No further edits or status changes are allowed.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <section className="bg-white rounded-2xl shadow-sm border border-blue-100 p-8">
+      <section className={`bg-white rounded-2xl shadow-sm border p-8 ${isCompleted ? "border-green-100" : "border-blue-100"}`}>
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
           <div>
             <Link
@@ -100,63 +118,86 @@ export default async function JobDetails({ params }) {
                   Stage: {plainJob.stage}
                 </span>
               )}
+
+              {isCompleted && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border bg-green-50 text-green-700 border-green-200">
+                  <IconCheckCircle className="w-3 h-3" />
+                  Read-only
+                </span>
+              )}
             </div>
 
             <p className="text-gray-600 mt-3">
-              Review job data, update tracking, and manage required documents.
+              {isCompleted
+                ? "This job is completed. All data is read-only."
+                : "Review job data, update tracking, and manage required documents."}
             </p>
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-wrap gap-3 justify-start lg:justify-end">
-            {job.status === "new" ? (
-              <EditJobButton id={plainJob._id} isNew={true} />
-            ) : (
-              <EditJobButton id={plainJob._id} isSuperAdmin={isSuperAdmin} />
-            )}
+          {/* Actions — hidden entirely when completed */}
+          {!isCompleted && (
+            <div className="flex flex-wrap gap-3 justify-start lg:justify-end">
+              {job.status === "new" ? (
+                <EditJobButton id={plainJob._id} isNew={true} />
+              ) : (
+                <EditJobButton id={plainJob._id} isSuperAdmin={isSuperAdmin} />
+              )}
 
-            {plainJob.status === "new" && (
-              <form action={initiateJob}>
-                <input type="hidden" name="id" value={plainJob._id} />
-                <button className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition shadow-sm">
-                  <IconPlay />
-                  Initiate Job
-                </button>
-              </form>
-            )}
+              {plainJob.status === "new" && (
+                <form action={initiateJob}>
+                  <input type="hidden" name="id" value={plainJob._id} />
+                  <button className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition shadow-sm">
+                    <IconPlay />
+                    Initiate Job
+                  </button>
+                </form>
+              )}
 
-            {plainJob.status === "active" && (
-              <Link
-                href={`/dashboard/admin/jobs/${plainJob._id}/tracking`}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm"
-              >
-                <IconTruck />
-                Update Container Status
-              </Link>
-            )}
+              {plainJob.status === "active" && (
+                <>
+                  <Link
+                    href={`/dashboard/admin/jobs/${plainJob._id}/tracking`}
+                    className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-sm"
+                  >
+                    <IconTruck />
+                    Update Container Status
+                  </Link>
 
-            {isSuperAdmin && (
-              <form action={deleteJob}>
-                <input type="hidden" name="id" value={plainJob._id} />
-                <button className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
-                  <IconTrash />
-                  Delete Job
-                </button>
-              </form>
-            )}
-          </div>
+                  {/* Complete Job — client component with confirmation dialog */}
+                  <CompleteJobButton jobId={plainJob._id} jobIdLabel={plainJob.jobId} />
+                </>
+              )}
+
+              {isSuperAdmin && plainJob.status !== "completed" && (
+                <form action={deleteJob}>
+                  <input type="hidden" name="id" value={plainJob._id} />
+                  <button className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
+                    <IconTrash />
+                    Delete Job
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Details */}
-      <section className="bg-white/70 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.06)] border border-white/40 overflow-hidden">
-        <div className="px-8 py-6 border-b border-white/40">
-          <h2 className="text-2xl font-semibold text-gray-900">Job Information</h2>
+      <section className={`backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.06)] border overflow-hidden ${isCompleted ? "bg-green-50/30 border-green-100/60" : "bg-white/70 border-white/40"}`}>
+        <div className={`px-8 py-6 border-b ${isCompleted ? "border-green-100/60" : "border-white/40"}`}>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-semibold text-gray-900">Job Information</h2>
+            {isCompleted && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-100 text-green-700">
+                <IconLock className="w-3 h-3" />
+                Locked
+              </span>
+            )}
+          </div>
           <p className="text-sm text-gray-600 mt-1">Key shipment and customs fields for this job.</p>
         </div>
 
         <div className="p-8 space-y-8">
-          {/* Group 1 */}
           <Group title="Basic">
             <Field label="Job ID" value={plainJob.jobId} />
             <Field label="Stage" value={plainJob.stage} />
@@ -164,7 +205,6 @@ export default async function JobDetails({ params }) {
             <Field label="Container No." value={plainJob.containerNumber} />
           </Group>
 
-          {/* Group 2 */}
           <Group title="BL Numbers">
             <Field label="MBL Number" value={plainJob.mblNumber} />
             <Field label="MBL Date" value={formatDate(plainJob.mblDate)} />
@@ -177,7 +217,6 @@ export default async function JobDetails({ params }) {
             <Field label="AWB Date" value={formatDate(plainJob.awbDate)} />
           </Group>
 
-          {/* Group 3 */}
           <Group title="Route & Parties">
             <Field label="Port of Loading" value={plainJob.portOfLoading} />
             <Field label="Port of Discharge" value={plainJob.portOfDischarge} />
@@ -185,14 +224,12 @@ export default async function JobDetails({ params }) {
             <Field label="Shipper" value={plainJob.shipper} />
           </Group>
 
-          {/* Group 4 */}
           <Group title="Cargo">
             <Field label="Packages" value={plainJob.pkgs} />
             <Field label="Gross Weight" value={plainJob.grossWeight} />
             <Field label="CBM" value={plainJob.cbm} />
           </Group>
 
-          {/* Group 5 */}
           <Group title="Customs & References">
             <Field label="BE Number" value={plainJob.beNumber} />
             <Field label="BE Date" value={formatDate(plainJob.beDate)} />
@@ -202,7 +239,7 @@ export default async function JobDetails({ params }) {
         </div>
       </section>
 
-      {/* Documents */}
+      {/* Documents — only shown for active jobs */}
       {plainJob.status === "active" && (
         <section className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
           <div className="px-8 py-6 border-b border-gray-100">
@@ -214,6 +251,52 @@ export default async function JobDetails({ params }) {
 
           <div className="p-8">
             <JobDocumentsPanel job={plainJob} />
+          </div>
+        </section>
+      )}
+
+      {/* Completed Documents — read-only view */}
+      {isCompleted && plainJob.documents?.length > 0 && (
+        <section className="bg-white rounded-2xl shadow-sm border border-green-100 overflow-hidden">
+          <div className="px-8 py-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-semibold text-gray-900">Documents</h2>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-100 text-green-700">
+                <IconLock className="w-3 h-3" />
+                Read-only
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mt-1">
+              Documents submitted for this completed job.
+            </p>
+          </div>
+
+          <div className="p-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {plainJob.documents.map((doc, i) => (
+                <div key={i} className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                  <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <IconDocument className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-800 truncate">{doc.name || "Untitled"}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {doc.confirmed ? "Confirmed" : doc.fileUrl ? "Uploaded" : "Not uploaded"}
+                    </p>
+                  </div>
+                  {doc.fileUrl && (
+                    <a
+                      href={doc.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-auto flex-shrink-0 text-xs font-semibold text-blue-600 hover:text-blue-700 underline"
+                    >
+                      View
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
@@ -251,7 +334,7 @@ function formatDate(d) {
   return dt.toLocaleDateString();
 }
 
-/* ---------- Icons (no deps) ---------- */
+/* ---------- Icons ---------- */
 
 function IconPlay() {
   return (
@@ -276,4 +359,39 @@ function IconTrash() {
     </svg>
   );
 }
-  
+
+function IconCheckCircle({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function IconLock({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+    </svg>
+  );
+}
+
+function IconDocument({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
+
+/* 
+* Note: The above icons are very much important
+! disclaimer
+? what should be this
+
+
+
+
+
+*/

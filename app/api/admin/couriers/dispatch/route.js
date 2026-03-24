@@ -43,7 +43,7 @@ export async function POST(req) {
       status: body.status,
       delivereddate: body.delivereddate,
       createdBy: session.user.id,
-    });
+    })
 
     await logAudit({
       entityType: "Courier",
