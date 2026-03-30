@@ -22,7 +22,9 @@ export default function AdminQuotesPage() {
     setLoading(true);
     setErr("");
     try {
-      const res = await fetch(`/api/admin/quotes?filter=${filter}`, { cache: "no-store" });
+      const res = await fetch(`/api/admin/quotes?filter=${filter}`, {
+        cache: "no-store",
+      });
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
@@ -31,7 +33,7 @@ export default function AdminQuotesPage() {
         return;
       }
 
-      setQuotes(Array.isArray(data) ? data : (data?.quotes || []));
+      setQuotes(Array.isArray(data) ? data : data?.quotes || []);
     } catch (e) {
       console.error(e);
       setErr("Failed to fetch quotes");
@@ -102,9 +104,24 @@ export default function AdminQuotesPage() {
               </>
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 8a8 8 0 00-14.828-2M4 16a8 8 0 0014.828 2" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v6h6M20 20v-6h-6"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 8a8 8 0 00-14.828-2M4 16a8 8 0 0014.828 2"
+                  />
                 </svg>
                 Refresh
               </>
@@ -121,7 +138,9 @@ export default function AdminQuotesPage() {
                 type="button"
                 onClick={() => setFilter(f.key)}
                 className={`px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap ${
-                  filter === f.key ? "bg-blue-600 text-white shadow-sm" : "text-gray-700 hover:bg-gray-50"
+                  filter === f.key
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 {f.label}
@@ -142,7 +161,9 @@ export default function AdminQuotesPage() {
         <div className="px-8 py-6 border-b border-white/40 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900">Quotes</h2>
-            <p className="text-sm text-gray-600 mt-1">Click a row to open quote details.</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Click a row to open quote details.
+            </p>
           </div>
           {loading && (
             <div className="flex items-center gap-2 text-blue-600">
@@ -155,55 +176,86 @@ export default function AdminQuotesPage() {
         {!loading && quotes.length === 0 ? (
           <div className="p-14 text-center">
             <div className="mx-auto w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              <svg
+                className="w-7 h-7 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                />
               </svg>
             </div>
-            <p className="text-lg font-semibold text-gray-900">No quotes found</p>
-            <p className="text-sm text-gray-600 mt-1">Try a different time filter.</p>
+            <p className="text-lg font-semibold text-gray-900">
+              No quotes found
+            </p>
+            <p className="text-sm text-gray-600 mt-1">
+              Try a different time filter.
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-          {quotes.map((q) => {
-  const fullName =
-    [q.firstName, q.lastName].filter(Boolean).join(" ") ||
-    q.fullName ||
-    q.name ||
-    "Unknown Client";
+            {quotes.map((q) => {
+              const fullName =
+                [q.firstName, q.lastName].filter(Boolean).join(" ") ||
+                q.company ||
+                q.fullName ||
+                q.name ||
+                "—";
 
-  return (
-    <div
-      key={q._id}
-      onClick={() => router.push(`/dashboard/admin/quotes/${q._id}`)}
-      className="px-8 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 cursor-pointer hover:bg-blue-50/30 transition"
-    >
-      {/* Left */}
-      <div className="min-w-0">
-        <p className="font-bold text-gray-900 truncate">{fullName}</p>
+              return (
+                <div
+                  key={q._id}
+                  onClick={() =>
+                    router.push(`/dashboard/admin/quotes/${q._id}`)
+                  }
+                  className="px-8 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 cursor-pointer hover:bg-blue-50/30 transition"
+                >
+                  {/* Left */}
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 truncate">
+                      {fullName}
+                    </p>
 
-        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
-          <span className="inline-flex items-center gap-2">
-            <IconMail />
-            <span className="truncate">{q.email || "—"}</span>
-          </span>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
+                      <span className="inline-flex items-center gap-2">
+                        <IconMail />
+                        <span className="truncate">{q.email || "—"}</span>
+                      </span>
 
-          <span className="inline-flex items-center gap-2">
-            <IconClock />
-            {q.createdAt ? new Date(q.createdAt).toLocaleString() : "—"}
-          </span>
-        </div>
-      </div>
+                      <span className="inline-flex items-center gap-2">
+                        <IconClock />
+                        {q.createdAt
+                          ? new Date(q.createdAt).toLocaleString()
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
 
-      {/* Right */}
-      <div className="flex items-center gap-3 justify-end">
-        <StatusBadge status={q.status} />
-        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
-    </div>
-  );
-})}
+                  {/* Right */}
+                  <div className="flex items-center gap-3 justify-end">
+                    <StatusBadge status={q.status} />
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </section>
@@ -215,40 +267,105 @@ export default function AdminQuotesPage() {
 
 function StatusBadge({ status }) {
   const s = String(status || "").toLowerCase();
-  const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
-  if (s === "approved") return <span className={`${base} bg-green-100 text-green-700 border-green-200`}>approved</span>;
-  if (s === "pending") return <span className={`${base} bg-yellow-100 text-yellow-700 border-yellow-200`}>pending</span>;
-  return <span className={`${base} bg-gray-100 text-gray-700 border-gray-200`}>{s}</span>;
+  const base =
+    "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
+  if (s === "approved")
+    return (
+      <span className={`${base} bg-green-100 text-green-700 border-green-200`}>
+        approved
+      </span>
+    );
+  if (s === "pending")
+    return (
+      <span
+        className={`${base} bg-yellow-100 text-yellow-700 border-yellow-200`}
+      >
+        pending
+      </span>
+    );
+  return (
+    <span className={`${base} bg-gray-100 text-gray-700 border-gray-200`}>
+      {s}
+    </span>
+  );
 }
 
 function Pill({ label, tone = "neutral" }) {
-  const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border";
-  if (tone === "ok") return <span className={`${base} bg-green-50 text-green-700 border-green-200`}>{label}</span>;
-  if (tone === "warn") return <span className={`${base} bg-yellow-50 text-yellow-700 border-yellow-200`}>{label}</span>;
-  return <span className={`${base} bg-gray-50 text-gray-700 border-gray-200`}>{label}</span>;
+  const base =
+    "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border";
+  if (tone === "ok")
+    return (
+      <span className={`${base} bg-green-50 text-green-700 border-green-200`}>
+        {label}
+      </span>
+    );
+  if (tone === "warn")
+    return (
+      <span
+        className={`${base} bg-yellow-50 text-yellow-700 border-yellow-200`}
+      >
+        {label}
+      </span>
+    );
+  return (
+    <span className={`${base} bg-gray-50 text-gray-700 border-gray-200`}>
+      {label}
+    </span>
+  );
 }
 
 function Spinner() {
   return (
     <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
     </svg>
   );
 }
 
 function IconMail() {
   return (
-    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    <svg
+      className="w-4 h-4 text-gray-400"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+      />
     </svg>
   );
 }
 
 function IconClock() {
   return (
-    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <svg
+      className="w-4 h-4 text-gray-400"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
     </svg>
   );
 }
