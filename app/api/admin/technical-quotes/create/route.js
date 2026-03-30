@@ -54,8 +54,8 @@ export async function POST(req) {
     });
 
     /* ---------------- CASE 1: NO TECH QUOTE EXISTS → ALLOW ANY ADMIN ---------------- */
-    if (!existingTechQuote || existingTechQuote.status === "draft") {
-      console.log("🆕 No technical quote exists → ANY admin can create.");
+    if (!existingTechQuote || existingTechQuote.status === "draft" || existingTechQuote.status === "client_rejected") {
+      console.log("🆕 No technical quote exists or saved as a draft or client rejected → ANY admin can create.");
     }
 
     /* ---------------- CASE 2: TECH QUOTE EXISTS → APPLY PERMISSION RULES ---------------- */
