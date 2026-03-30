@@ -13,6 +13,24 @@ const UserSchema = new mongoose.Schema(
 
     // ✅ optional at schema level; enforced in pre-validate
     company: { type: String, default: undefined, trim: true },
+gstin: {
+  type: String,
+  uppercase: true,
+  trim: true,
+  sparse: true,
+  unique: true,
+  validate: {
+    validator: (v) => !v || /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(v),
+    message: "Invalid GSTIN format",
+  },
+},
+pan: {
+  type: String,
+  uppercase: true,
+  trim: true,
+  sparse: true,
+  unique: true,
+},
 
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
 

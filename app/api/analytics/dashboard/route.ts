@@ -1,10 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
-import  connectDB  from "@/lib/mongodb"; // adjust path as needed
+import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import Quote from "@/models/Quote";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import User from "@/models/User";
 import AuditLog from "@/models/AuditLog";
+
+// ── FUZZY HELPERS ─────────────────────────────────────────────
+function normalize(s: string): string {
+  return (s || "")
+    .toLowerCase()
+    .replace(/\b(pvt|ltd|private|limited|llp|inc|corp|co)\b/g, "")
+    .replace(/[^a-z0-9]/g, "")
+    .trim();
+}
+
+function similarity(a: string, b: string): number {
+  const na = normalize(a);
+  const nb = normalize(b);
+  if (!na || !nb) return 0;
+
+  const dp = Array.from({ length: na.length + 1 }, (_, i) =>
+    Array.from({ length: nb.length + 1 }, (_, j) =>
+      i === 0 ? j : j === 0 ? i : 0
+    )
+  );
+
+  for (let i = 1; i <= na.length; i++)
+    for (let j = 1; j <= nb.length; j++)
+      dp[i][j] =
+        na[i - 1] === nb[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+
+  return 1 - dp[na.length][nb.length] / Math.max(na.length, nb.length);
+}
+
+/**
+ * Resolves the canonical company key for a job.
+ * Priority: gstin (most reliable) → fuzzy name match → raw name
+ */
+function resolveCompanyKey(
+  job: any,
+  gstinToCanonical: Map<string, string>,
+  nameToCanonical: Map<string, string>
+): string {
+  // 1. GSTIN match — strongest identifier
+  if (job.gstin && gstinToCanonical.has(job.gstin)) {
+    return gstinToCanonical.get(job.gstin)!;
+  }
+
+  // 2. Fuzzy name match against already-seen canonical names
+  for (const [canonical] of nameToCanonical) {
+    if (similarity(job.company, canonical) >= 0.82) {
+      return canonical;
+    }
+  }
+
+  // 3. New company — use its name as canonical
+  return job.company || job.customerName || "Unknown";
+}
+// ── END FUZZY HELPERS ─────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +69,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const days = searchParams.get("days") || "30";
 
-    // Calculate date range
     let startDate: Date | null = null;
     if (days !== "all") {
       startDate = new Date();
@@ -45,46 +100,41 @@ export async function GET(request: NextRequest) {
     // QUOTE METRICS
     // ====================
     const allQuotes = await Quote.find(dateFilter);
-    
-    // Get the IDs of quotes in our date range
-    const quoteIds = allQuotes.map(q => q._id);
-    
-    // Find ALL technical quotes (regardless of date) that are linked to these quotes
-    // This is important because a quote from last month might have a tech quote from this month
+    const quoteIds = allQuotes.map((q) => q._id);
+
     const linkedTechQuotes = await TechnicalQuote.find({
-      clientQuoteId: { $in: quoteIds }
+      clientQuoteId: { $in: quoteIds },
     });
-    
-    // Calculate how many of these quotes have approved technical quotes
+
     const approvedTechQuoteIds = linkedTechQuotes
-      .filter(tq => tq.status === "client_approved")
-      .map(tq => tq.clientQuoteId.toString());
-    
+      .filter((tq) => tq.status === "client_approved")
+      .map((tq) => tq.clientQuoteId.toString());
+
     const quotesWithApprovedTechQuotes = new Set(approvedTechQuoteIds).size;
-    
-    // Calculate ACTUAL conversion to Jobs (quotes that became real sales)
-    // Find all jobs that have technical quotes linked to our quotes
+
     const jobsFromQuotes = await Job.find({
-      technicalQuoteId: { $in: linkedTechQuotes.map(tq => tq._id) }
+      technicalQuoteId: { $in: linkedTechQuotes.map((tq) => tq._id) },
     });
-    
-    // Count unique quotes that resulted in jobs
+
     const techQuoteIdsWithJobs = new Set(
-      jobsFromQuotes.map(job => job.technicalQuoteId?.toString()).filter(Boolean)
+      jobsFromQuotes
+        .map((job) => job.technicalQuoteId?.toString())
+        .filter(Boolean)
     );
-    
-    const linkedTechQuotesWithJobs = linkedTechQuotes.filter(tq => 
+
+    const linkedTechQuotesWithJobs = linkedTechQuotes.filter((tq) =>
       techQuoteIdsWithJobs.has(tq._id.toString())
     );
-    
+
     const quoteIdsWithJobs = new Set(
-      linkedTechQuotesWithJobs.map(tq => tq.clientQuoteId.toString())
+      linkedTechQuotesWithJobs.map((tq) => tq.clientQuoteId.toString())
     );
-    
-    const quotesToJobConversionRate = allQuotes.length > 0
-      ? Math.round((quoteIdsWithJobs.size / allQuotes.length) * 100)
-      : 0;
-    
+
+    const quotesToJobConversionRate =
+      allQuotes.length > 0
+        ? Math.round((quoteIdsWithJobs.size / allQuotes.length) * 100)
+        : 0;
+
     const quoteMetrics = {
       total: allQuotes.length,
       pending: allQuotes.filter((q) => q.status === "pending").length,
@@ -93,13 +143,12 @@ export async function GET(request: NextRequest) {
         .length,
       approved: allQuotes.filter((q) => q.status === "approved").length,
       rejected: allQuotes.filter((q) => q.status === "rejected").length,
-      // Conversion rate: Quotes where client approved the Technical Quote
-      // Note: This means client accepted, but admin still needs to manually create Job
       conversionRate:
         allQuotes.length > 0
-          ? Math.round((quotesWithApprovedTechQuotes / allQuotes.length) * 100)
+          ? Math.round(
+              (quotesWithApprovedTechQuotes / allQuotes.length) * 100
+            )
           : 0,
-      // Actual sales conversion: Quotes that became Jobs
       quotesToJobConversionRate,
       quotesConvertedToJobs: quoteIdsWithJobs.size,
     };
@@ -114,8 +163,9 @@ export async function GET(request: NextRequest) {
       internalReview: allTechQuotes.filter(
         (tq) => tq.status === "internal_review"
       ).length,
-      sentToClient: allTechQuotes.filter((tq) => tq.status === "sent_to_client")
-        .length,
+      sentToClient: allTechQuotes.filter(
+        (tq) => tq.status === "sent_to_client"
+      ).length,
       clientApproved: allTechQuotes.filter(
         (tq) => tq.status === "client_approved"
       ).length,
@@ -152,11 +202,9 @@ export async function GET(request: NextRequest) {
     const revenueByCurrency = { INR: 0, USD: 0, EUR: 0 };
 
     approvedTechQuotes.forEach((tq) => {
-      // Total revenue uses grandTotalINR (already converted to base currency)
       const grandTotal = tq.grandTotalINR || 0;
       totalRevenue += grandTotal;
 
-      // Revenue by shipment type (also uses grandTotalINR - no double counting)
       if (tq.shipmentType === "import") {
         revenueByShipmentType.import += grandTotal;
       } else if (tq.shipmentType === "export") {
@@ -165,18 +213,11 @@ export async function GET(request: NextRequest) {
         revenueByShipmentType.courier += grandTotal;
       }
 
-      // Revenue by currency breakdown (from line items in original currencies)
-      // This shows the currency mix BEFORE conversion to INR
-      // Useful for understanding which currencies clients are paying in
       tq.lineItems?.forEach((item: any) => {
         const itemTotal = item.totalAmount || 0;
-        if (item.currency === "INR") {
-          revenueByCurrency.INR += itemTotal;
-        } else if (item.currency === "USD") {
-          revenueByCurrency.USD += itemTotal;
-        } else if (item.currency === "EUR") {
-          revenueByCurrency.EUR += itemTotal;
-        }
+        if (item.currency === "INR") revenueByCurrency.INR += itemTotal;
+        else if (item.currency === "USD") revenueByCurrency.USD += itemTotal;
+        else if (item.currency === "EUR") revenueByCurrency.EUR += itemTotal;
       });
     });
 
@@ -198,14 +239,12 @@ export async function GET(request: NextRequest) {
     // CLIENT METRICS
     // ====================
     const allClients = await User.find({ role: "client", ...dateFilter });
-    
-    // FIXED: Active clients are those who are verified (email verified)
-    // The kycVerified field doesn't exist in your schema
+
     const clientMetrics = {
       total: allClients.length,
-      verified: allClients.filter((c) => c.verified).length, // Email verified
-      leads: allClients.filter((c) => !c.verified).length, // Not yet verified
-      converted: allClients.filter((c) => c.verified).length, // Active clients = verified
+      verified: allClients.filter((c) => c.verified).length,
+      leads: allClients.filter((c) => !c.verified).length,
+      converted: allClients.filter((c) => c.verified).length,
       topClients: [] as Array<{
         name: string;
         revenue: number;
@@ -213,33 +252,43 @@ export async function GET(request: NextRequest) {
       }>,
     };
 
-    // Calculate top clients by revenue
-    // Using company name as the grouping key since jobs store company as string
-    const clientRevenueMap = new Map<
-      string,
-      { name: string; revenue: number; jobCount: number }
-    >();
-
-    // Fetch all jobs with populated technicalQuoteId to get revenue
+    // ── TOP CLIENTS — grouped by GSTIN first, fuzzy name fallback ──
     const jobsWithTechQuotes = await Job.find(dateFilter)
       .populate("technicalQuoteId")
       .lean();
 
+    // Maps for resolution
+    const gstinToCanonical = new Map<string, string>(); // gstin → canonical name
+    const nameToCanonical = new Map<string, string>();   // canonical → canonical (for lookup)
+
+    const clientRevenueMap = new Map<string, { name: string; revenue: number; jobCount: number }>();
+
     for (const job of jobsWithTechQuotes) {
-      const clientName = job.company || job.customerName || "Unknown";
-      
-      if (!clientRevenueMap.has(clientName)) {
-        clientRevenueMap.set(clientName, {
-          name: clientName,
+      // Resolve canonical company key
+      let canonical = resolveCompanyKey(job, gstinToCanonical, nameToCanonical);
+
+      // Register GSTIN → canonical mapping if new
+      if (job.gstin && !gstinToCanonical.has(job.gstin)) {
+        gstinToCanonical.set(job.gstin, canonical);
+      }
+
+      // Register canonical name if new
+      if (!nameToCanonical.has(canonical)) {
+        nameToCanonical.set(canonical, canonical);
+      }
+
+      // Accumulate revenue and job count under canonical name
+      if (!clientRevenueMap.has(canonical)) {
+        clientRevenueMap.set(canonical, {
+          name: canonical,
           revenue: 0,
           jobCount: 0,
         });
       }
 
-      const clientData = clientRevenueMap.get(clientName)!;
+      const clientData = clientRevenueMap.get(canonical)!;
       clientData.jobCount += 1;
 
-      // Get revenue from populated technical quote
       const techQuote = job.technicalQuoteId as any;
       if (techQuote && techQuote.status === "client_approved") {
         clientData.revenue += techQuote.grandTotalINR || 0;
@@ -253,6 +302,7 @@ export async function GET(request: NextRequest) {
         ...c,
         revenue: Math.round(c.revenue),
       }));
+    // ── END TOP CLIENTS ────────────────────────────────────────
 
     // ====================
     // ADMIN ACTIVITY METRICS
@@ -262,18 +312,16 @@ export async function GET(request: NextRequest) {
       "fullName adminType"
     );
 
-    const adminActivityMap = new Map<
-      string,
-      { name: string; actions: number; role: string }
-    >();
+   const adminActivityMap = new Map<
+     string,
+     { name: string; actions: number; role: string }
+   >();
     const actionTypeMap = new Map<string, number>();
 
     allAuditLogs.forEach((log) => {
-      // By admin
       if (log.performedBy) {
         const adminId = log.performedBy._id.toString();
-        const adminName =
-          (log.performedBy as any).fullName || "Unknown Admin";
+        const adminName = (log.performedBy as any).fullName || "Unknown Admin";
         const adminRole = (log.performedBy as any).adminType || "admin";
 
         if (!adminActivityMap.has(adminId)) {
@@ -286,7 +334,6 @@ export async function GET(request: NextRequest) {
         adminActivityMap.get(adminId)!.actions += 1;
       }
 
-      // By action type
       const actionKey = log.action;
       actionTypeMap.set(actionKey, (actionTypeMap.get(actionKey) || 0) + 1);
     });
@@ -306,35 +353,21 @@ export async function GET(request: NextRequest) {
     // TRENDS OVER TIME
     // ====================
     const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
 
-    // Helper to group by month
     const groupByMonth = (items: any[], dateField: string = "createdAt") => {
       const grouped = new Map<string, any[]>();
       items.forEach((item) => {
         const date = new Date(item[dateField]);
         const key = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-        if (!grouped.has(key)) {
-          grouped.set(key, []);
-        }
+        if (!grouped.has(key)) grouped.set(key, []);
         grouped.get(key)!.push(item);
       });
       return grouped;
     };
 
-    // Jobs by month
     const jobsByMonth = groupByMonth(allJobs);
     const jobsTrend = Array.from(jobsByMonth.entries())
       .map(([month, jobs]) => ({
@@ -342,9 +375,8 @@ export async function GET(request: NextRequest) {
         created: jobs.length,
         completed: jobs.filter((j) => j.status === "completed").length,
       }))
-      .slice(-12); // Last 12 months
+      .slice(-12);
 
-    // Quotes by month
     const quotesByMonth = groupByMonth(allQuotes);
     const quotesTrend = Array.from(quotesByMonth.entries())
       .map(([month, quotes]) => ({
@@ -354,7 +386,6 @@ export async function GET(request: NextRequest) {
       }))
       .slice(-12);
 
-    // Revenue by month
     const techQuotesByMonth = groupByMonth(approvedTechQuotes);
     const revenueTrend = Array.from(techQuotesByMonth.entries())
       .map(([month, tqs]) => ({
@@ -364,13 +395,6 @@ export async function GET(request: NextRequest) {
         ),
       }))
       .slice(-12);
-
-    console.log("Sample jobs:", jobsWithTechQuotes.slice(0, 3).map(j => ({
-      company: j.company,
-      hasTechQuote: !!j.technicalQuoteId,
-      status: (j.technicalQuoteId as any)?.status,
-      revenue: (j.technicalQuoteId as any)?.grandTotalINR
-    })));
 
     // ====================
     // FINAL RESPONSE

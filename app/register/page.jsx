@@ -14,6 +14,7 @@ export default function RegisterPage() {
 
   // lead flow inputs
   const [companySearch, setCompanySearch] = useState("");
+  const [searchingCompany, setSearchingCompany] = useState(false);
   const [companyOptions, setCompanyOptions] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
@@ -60,29 +61,40 @@ export default function RegisterPage() {
     setRegistering(false);
   };
 
-  // Company search (debounced)
-  useEffect(() => {
-    if (!isLeadFlow) return;
 
-    const q = companySearch.trim();
-    if (q.length < 2) {
+
+useEffect(() => {
+  if (!isLeadFlow) return;
+
+  const q = companySearch.trim();
+  if (q.length < 2) {
+    setCompanyOptions([]);
+    setSearchingCompany(false);
+    return;
+  }
+
+  setSearchingCompany(true);
+
+  const t = setTimeout(async () => {
+    try {
+      const res = await fetch(
+        `/api/leads/companies?q=${encodeURIComponent(q)}`,
+      );
+      const data = await res.json();
+      setCompanyOptions(Array.isArray(data.companies) ? data.companies : []);
+    } catch (e) {
+      console.error(e);
       setCompanyOptions([]);
-      return;
+    } finally {
+      setSearchingCompany(false); // hide loader when done
     }
+  }, 250);
 
-    const t = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/leads/companies?q=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        setCompanyOptions(Array.isArray(data.companies) ? data.companies : []);
-      } catch (e) {
-        console.error(e);
-        setCompanyOptions([]);
-      }
-    }, 250);
-
-    return () => clearTimeout(t);
-  }, [companySearch, isLeadFlow]);
+  return () => {
+    clearTimeout(t);
+    setSearchingCompany(false); // hide if input changes before debounce fires
+  };
+}, [companySearch, isLeadFlow]);
 
   const startOtp = async () => {
     if (sendingOtp || verifyingOtp || registering) return;
@@ -263,19 +275,45 @@ export default function RegisterPage() {
                 Search and select your company (from your quote)
               </label>
 
-              <input
-                value={companySearch}
-                onChange={(e) => {
-                  setCompanySearch(e.target.value);
-                  setSelectedCompany("");
-                  // if user changes company again, invalidate tokens
-                  setChallengeToken("");
-                  setVerifiedToken("");
-                  setPrefill(null);
-                }}
-                placeholder="Type company name..."
-                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
-              />
+              <div className="relative">
+                <input
+                  value={companySearch}
+                  onChange={(e) => {
+                    setCompanySearch(e.target.value);
+                    setSelectedCompany("");
+                    setChallengeToken("");
+                    setVerifiedToken("");
+                    setPrefill(null);
+                  }}
+                  placeholder="Type company name..."
+                  className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 pr-12"
+                />
+
+                {searchingCompany && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <svg
+                      className="animate-spin h-5 w-5 text-blue-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>  
 
               {companyOptions.length > 0 && !selectedCompany && (
                 <div className="border border-gray-200 rounded-xl bg-white max-h-52 overflow-auto">
@@ -301,7 +339,8 @@ export default function RegisterPage() {
 
               {selectedCompany && (
                 <p className="text-sm text-green-700">
-                  Selected: <span className="font-semibold">{selectedCompany}</span>
+                  Selected:{" "}
+                  <span className="font-semibold">{selectedCompany}</span>
                 </p>
               )}
             </div>
@@ -338,7 +377,9 @@ export default function RegisterPage() {
 
               <button
                 type="button"
-                disabled={!challengeToken || verifyingOtp || sendingOtp || registering}
+                disabled={
+                  !challengeToken || verifyingOtp || sendingOtp || registering
+                }
                 onClick={verifyOtp}
                 className="p-4 rounded-xl bg-gray-900 text-white hover:bg-black transition disabled:opacity-60"
               >

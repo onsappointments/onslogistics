@@ -74,6 +74,28 @@ export async function POST(req) {
         console.log("VERIFY: client linking skipped due to error:", e?.message);
       }
     }
+
+
+    if (linkedClientUser && otpRecord.quoteData?.gstin) {
+      try {
+        await User.updateOne(
+          {
+            _id: linkedClientUser,
+            gstin: { $exists: false } // only update if not already set
+          },
+          {
+            $set: {
+              gstin: otpRecord.quoteData.gstin,
+              company: otpRecord.quoteData.company // also sync the resolved name
+            }
+          }
+        );
+        console.log("VERIFY: GSTIN saved to user:", otpRecord.quoteData.gstin);
+      } catch (e) {
+        console.log("VERIFY: GSTIN save skipped:", e?.message);
+      }
+    }
+
     const modeOfTransport = otpRecord.quoteData?.modeOfTransport;
     const shipmentType = otpRecord.quoteData?.shipmentType;
 
