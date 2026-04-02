@@ -598,10 +598,10 @@ function SpecTable({ specs }) {
                   <td className="px-5 py-2.5 text-gray-800 font-medium">
                     {row.label}
                   </td>
-                  <td className="px-5 py-2.5 text-gray-600 font-mono text-xs">
+                  <td className="px-5 py-2.5 text-gray-800 font-mono text-xs">
                     {row.metric}
                   </td>
-                  <td className="px-5 py-2.5 text-gray-500 font-mono text-xs">
+                  <td className="px-5 py-2.5 text-gray-800 font-mono text-xs">
                     {row.us || "—"}
                   </td>
                 </tr>
@@ -761,7 +761,7 @@ export default function StandardContainersPage() {
             <div className="text-amber-500 text-2xl mt-0.5 flex-shrink-0">
               ℹ️
             </div>
-            <div className="text-sm text-gray-600 leading-relaxed space-y-2">
+            <div className="text-sm text-gray-800 leading-relaxed space-y-2">
               <p>
                 <span className="font-semibold text-gray-800">
                   General purpose containers
@@ -771,7 +771,7 @@ export default function StandardContainersPage() {
                 <span className="font-medium">−40°C to 70°C</span> without
                 compromising structural integrity or water-tightness.
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-700">
                 ⚠ In exceptional cases, specifications may differ. Cargo must
                 conform to dimensional regulations of the host country. Contact
                 your local ONS representative for exact payload limits.
@@ -788,7 +788,7 @@ export default function StandardContainersPage() {
                 className={`tab-pill flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold ${
                   activeTab === c.id
                     ? "active border-transparent"
-                    : "border-gray-200 text-gray-600 hover:border-amber-300 hover:text-amber-600"
+                    : "border-gray-200 text-gray-800 hover:border-amber-300 hover:text-amber-600"
                 }`}
               >
                 {c.label}
@@ -863,7 +863,7 @@ export default function StandardContainersPage() {
                   <h3 className="text-xl font-bold text-[#0A1628] mb-3">
                     {active.fullLabel}
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <p className="text-sm text-gray-800 leading-relaxed">
                     {active.description}
                   </p>
                 </div>
@@ -875,7 +875,7 @@ export default function StandardContainersPage() {
                       className="highlight-card bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-start gap-3"
                     >
                       <span className="text-2xl leading-none">{h.icon}</span>
-                      <p className="text-xs text-gray-600 font-medium leading-snug">
+                      <p className="text-xs text-gray-800 font-medium leading-snug">
                         {h.label}
                       </p>
                     </div>
@@ -891,7 +891,7 @@ export default function StandardContainersPage() {
             </h3>
             <SpecTable specs={active.specs} />
 
-            <p className="text-xs text-gray-400 italic mt-4">
+            <p className="text-xs text-gray-700 italic mt-4">
               * Garment hanger bars, forklift pockets, and gooseneck tunnels are
               optional. Contact your local ONS representative for availability.
             </p>
@@ -899,7 +899,7 @@ export default function StandardContainersPage() {
 
           {/* ── Other Container Types ── */}
           <div className="mt-14 pt-8 border-t border-gray-100">
-            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-700 mb-4">
               Other Container Types
             </p>
             <div className="flex flex-wrap gap-3">
@@ -912,10 +912,10 @@ export default function StandardContainersPage() {
                       setActiveTab(c.id);
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className="group px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:border-amber-400 hover:text-amber-600 transition-all"
+                    className="group px-5 py-2.5 rounded-xl border border-gray-200 text-gray-800 text-sm font-semibold hover:border-amber-400 hover:text-amber-600 transition-all"
                   >
                     {c.fullLabel}
-                    <span className="ml-2 text-gray-300 group-hover:text-amber-400">
+                    <span className="ml-2 text-gray-700 group-hover:text-amber-400">
                       →
                     </span>
                   </button>
