@@ -93,21 +93,7 @@ export default function TechnicalQuotePage() {
         const purchaseData = await purchaseRes.json();
 
         if (purchaseData?.lineItems?.length > 0) {
-          // Merge saved data with defaults so new fields are never undefined
-          setPurchaseItems(
-            purchaseData.lineItems.map((item) => ({
-              currency: "INR",
-              exchangeRate: 1,
-              igstPercent: 0,
-              igstAmount: 0,
-              cgstPercent: 0,
-              cgstAmount: 0,
-              sgstPercent: 0,
-              sgstAmount: 0,
-              baseAmount: 0,
-              ...item,
-            })),
-          );
+          setPurchaseItems(purchaseData.lineItems);
         } else {
           setPurchaseItems(emptyPurchaseHeads);
         }
@@ -545,7 +531,7 @@ export default function TechnicalQuotePage() {
                         <input
                           min={0}
                           type="number"
-                          value={p.quantity || 0}
+                          value={p.quantity}
                           onChange={(e) =>
                             updatePurchaseLine(i, "quantity", e.target.value)
                           }
@@ -557,7 +543,7 @@ export default function TechnicalQuotePage() {
                         <input
                           min={0}
                           type="number"
-                          value={p.rate || 0}
+                          value={p.rate}
                           onChange={(e) =>
                             updatePurchaseLine(i, "rate", e.target.value)
                           }
@@ -583,7 +569,7 @@ export default function TechnicalQuotePage() {
                         <input
                           min={0}
                           type="number"
-                          value={p.exchangeRate || 1}
+                          value={p.exchangeRate}
                           onChange={(e) =>
                             updatePurchaseLine(
                               i,
@@ -599,7 +585,7 @@ export default function TechnicalQuotePage() {
                         <input
                           min={0}
                           type="number"
-                          value={p.igstPercent || 0}
+                          value={p.igstPercent}
                           onChange={(e) =>
                             updatePurchaseLine(i, "igstPercent", e.target.value)
                           }
@@ -611,7 +597,7 @@ export default function TechnicalQuotePage() {
                         <input
                           min={0}
                           type="number"
-                          value={p.cgstPercent || 0}
+                          value={p.cgstPercent}
                           onChange={(e) =>
                             updatePurchaseLine(i, "cgstPercent", e.target.value)
                           }
@@ -623,7 +609,7 @@ export default function TechnicalQuotePage() {
                         <input
                           min={0}
                           type="number"
-                          value={p.sgstPercent || 0}
+                          value={p.sgstPercent}
                           onChange={(e) =>
                             updatePurchaseLine(i, "sgstPercent", e.target.value)
                           }
@@ -632,7 +618,7 @@ export default function TechnicalQuotePage() {
                       </td>
 
                       <td className="p-2 font-semibold text-orange-700">
-                        ₹{(p.totalAmount || 0).toFixed(2)}
+                        ₹{(p.totalAmount).toFixed(2)}
                       </td>
                     </tr>
                   );

@@ -665,10 +665,10 @@ function SpecTable({ specs, title }) {
                     <td className="px-4 py-2 text-gray-800 font-medium text-xs">
                       {row.label}
                     </td>
-                    <td className="px-4 py-2 text-gray-600 font-mono text-xs">
+                    <td className="px-4 py-2 text-gray-800 font-mono text-xs">
                       {row.metric}
                     </td>
-                    <td className="px-4 py-2 text-gray-500 font-mono text-xs">
+                    <td className="px-4 py-2 text-gray-800 font-mono text-xs">
                       {row.us || "—"}
                     </td>
                   </tr>
@@ -824,7 +824,7 @@ function GroupSection({ group }) {
                 className="bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-start gap-3"
               >
                 <span className="text-xl leading-none">{h.icon}</span>
-                <p className="text-xs text-gray-600 font-medium leading-snug">
+                <p className="text-xs text-gray-900 font-medium leading-snug">
                   {h.label}
                 </p>
               </div>
@@ -934,7 +934,7 @@ export default function SpecialContainersPage() {
             <div className="text-amber-500 text-2xl mt-0.5 flex-shrink-0">
               ⚠️
             </div>
-            <div className="text-sm text-gray-600 leading-relaxed space-y-1.5">
+            <div className="text-sm text-gray-700 leading-relaxed space-y-1.5">
               <p>
                 <span className="font-semibold text-gray-800">
                   Special containers
@@ -943,7 +943,7 @@ export default function SpecialContainersPage() {
                 closed containers — including over-height, over-width, or
                 heavyweight shipments requiring top or side loading.
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-700">
                 All special container usage is subject to applicable regulations
                 in the port/country of operation. Contact your local ONS
                 representative before booking.
