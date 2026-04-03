@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 export default function ActiveJobsPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
-  const [shipmentType, setShipmentType] = useState("import"); // Default filter
+  const [shipmentType, setShipmentType] = useState("import");
+  const [search, setSearch] = useState("");
   const router = useRouter();
 
   const fetchJobs = async (type = shipmentType) => {
@@ -24,8 +29,6 @@ export default function ActiveJobsPage() {
         return;
       }
 
-      console.log("jobs :" , data);
-
       setJobs(Array.isArray(data.jobs) ? data.jobs : []);
     } catch (e) {
       console.error(e);
@@ -41,9 +44,21 @@ export default function ActiveJobsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shipmentType]);
 
-  const handleShipmentTypeChange = (type) => {
-    setShipmentType(type);
-  };
+  // Client-side filtering — no extra API calls needed
+  const filteredJobs = useMemo(() => {
+    const q = search.trim();
+    if (!q) return jobs;
+    const re = new RegExp(escapeRegex(q), "i");
+    return jobs.filter(
+      (job) =>
+        re.test(job.beNumber || "") ||
+        re.test(job.mblNumber || "") ||
+        re.test(job.hblNumber || "") ||
+        re.test(job.awbNumber || "") ||
+        re.test(job.jobId || "") ||
+        re.test(job.company || ""),
+    );
+  }, [jobs, search]);
 
   return (
     <div className="max-w-7xl mx-auto p-10 space-y-8">
@@ -53,18 +68,82 @@ export default function ActiveJobsPage() {
           <div>
             <h1 className="text-4xl font-bold text-gray-900">Active Jobs</h1>
             <p className="text-gray-600 mt-2">
-              All jobs currently in progress. Click any row to view full details.
+              All jobs currently in progress. Click any row to view full
+              details.
             </p>
 
-            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-sm font-semibold">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
-              </svg>
-              Total Active: {jobs.length}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-sm font-semibold">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 7h18M3 12h18M3 17h18"
+                  />
+                </svg>
+                Showing: {filteredJobs.length}
+                {search && jobs.length !== filteredJobs.length && (
+                  <span className="text-blue-500 font-normal">
+                    of {jobs.length}
+                  </span>
+                )}
+              </span>
+
+              {search && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-sm font-semibold">
+                  🔍 &quot;{search}&quot;
+                  <button
+                    onClick={() => setSearch("")}
+                    className="ml-1 hover:text-amber-900 transition"
+                    aria-label="Clear search"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Search Bar */}
+            <div className="relative">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                />
+              </svg>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search BE / MBL / HBL / AWB…"
+                className="pl-9 pr-4 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition w-64"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition text-lg leading-none"
+                  aria-label="Clear"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+
             <button
               type="button"
               onClick={() => fetchJobs()}
@@ -73,17 +152,47 @@ export default function ActiveJobsPage() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  <svg
+                    className="animate-spin w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
                   </svg>
                   Refreshing…
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 8a8 8 0 00-14.828-2M4 16a8 8 0 0014.828 2" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v6h6M20 20v-6h-6"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 8a8 8 0 00-14.828-2M4 16a8 8 0 0014.828 2"
+                    />
                   </svg>
                   Refresh
                 </>
@@ -105,27 +214,26 @@ export default function ActiveJobsPage() {
           <label className="text-sm font-semibold text-gray-700">
             Filter by Shipment Type:
           </label>
-          
           <div className="flex flex-wrap gap-2">
             <FilterButton
               label="All"
               active={shipmentType === ""}
-              onClick={() => handleShipmentTypeChange("")}
+              onClick={() => setShipmentType("")}
             />
             <FilterButton
               label="Import"
               active={shipmentType === "import"}
-              onClick={() => handleShipmentTypeChange("import")}
+              onClick={() => setShipmentType("import")}
             />
             <FilterButton
               label="Export"
               active={shipmentType === "export"}
-              onClick={() => handleShipmentTypeChange("export")}
-            /> 
+              onClick={() => setShipmentType("export")}
+            />
             <FilterButton
               label="Courier"
               active={shipmentType === "courier"}
-              onClick={() => handleShipmentTypeChange("courier")}
+              onClick={() => setShipmentType("courier")}
             />
           </div>
         </div>
@@ -143,9 +251,24 @@ export default function ActiveJobsPage() {
 
           {loading && (
             <div className="flex items-center gap-2 text-blue-600">
-              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              <svg
+                className="animate-spin w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
               </svg>
               <span className="text-sm font-semibold">Loading…</span>
             </div>
@@ -153,24 +276,46 @@ export default function ActiveJobsPage() {
         </div>
 
         {/* Empty */}
-        {!loading && jobs.length === 0 && !err && (
+        {!loading && filteredJobs.length === 0 && !err && (
           <div className="p-14 text-center">
             <div className="mx-auto w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              <svg
+                className="w-7 h-7 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                />
               </svg>
             </div>
-            <p className="text-lg font-semibold text-gray-900">No active jobs found</p>
-            <p className="text-sm text-gray-600 mt-1">
-              {shipmentType 
-                ? `No ${shipmentType} jobs available.` 
-                : "Looks like everything is completed or not started yet."}
+            <p className="text-lg font-semibold text-gray-900">
+              {search ? `No results for "${search}"` : "No active jobs found"}
             </p>
+            <p className="text-sm text-gray-600 mt-1">
+              {search
+                ? "Try searching with a different BE / MBL / HBL / AWB number."
+                : shipmentType
+                  ? `No ${shipmentType} jobs available.`
+                  : "Looks like everything is completed or not started yet."}
+            </p>
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="mt-4 px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
+              >
+                Clear Search
+              </button>
+            )}
           </div>
         )}
 
         {/* Table */}
-        {jobs.length > 0 && (
+        {filteredJobs.length > 0 && (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
@@ -185,16 +330,26 @@ export default function ActiveJobsPage() {
               </thead>
 
               <tbody className="divide-y divide-gray-100">
-                {jobs.map((job) => {
+                {filteredJobs.map((job) => {
                   const from = job?.quoteId?.fromCity;
                   const to = job?.quoteId?.toCity;
                   const type = job?.quoteId?.shipmentType;
+
+                  // Build reference numbers line
+                  const refs = [
+                    job.beNumber && `BE: ${job.beNumber}`,
+                    job.mblNumber && `MBL: ${job.mblNumber}`,
+                    job.hblNumber && `HBL: ${job.hblNumber}`,
+                    job.awbNumber && `AWB: ${job.awbNumber}`,
+                  ].filter(Boolean);
 
                   return (
                     <tr
                       key={job._id}
                       className="hover:bg-blue-50/30 transition cursor-pointer"
-                      onClick={() => router.push(`/dashboard/admin/jobs/${job._id}`)}
+                      onClick={() =>
+                        router.push(`/dashboard/admin/jobs/${job._id}`)
+                      }
                     >
                       <td className="px-8 py-5 font-semibold text-gray-900">
                         {job.company || "—"}
@@ -204,8 +359,18 @@ export default function ActiveJobsPage() {
                         {from && to ? (
                           <span className="inline-flex items-center gap-2">
                             <span className="font-medium">{from}</span>
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            <svg
+                              className="w-4 h-4 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
                             </svg>
                             <span className="font-medium">{to}</span>
                           </span>
@@ -236,8 +401,18 @@ export default function ActiveJobsPage() {
                           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
                         >
                           View Details
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14 5l7 7m0 0l-7 7m7-7H3"
+                            />
                           </svg>
                         </button>
                       </td>
@@ -279,16 +454,17 @@ function FilterButton({ label, active, onClick }) {
 
 function ShipmentTypeBadge({ type }) {
   const t = String(type || "").toLowerCase();
-  const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
-
+  const base =
+    "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
   const map = {
     import: `${base} bg-indigo-100 text-indigo-700 border-indigo-200`,
     export: `${base} bg-emerald-100 text-emerald-700 border-emerald-200`,
     courier: `${base} bg-yellow-100 text-yellow-700 border-yellow-200`,
   };
-
   return (
-    <span className={map[t] || `${base} bg-gray-100 text-gray-700 border-gray-200`}>
+    <span
+      className={map[t] || `${base} bg-gray-100 text-gray-700 border-gray-200`}
+    >
       {t || "—"}
     </span>
   );
@@ -298,8 +474,8 @@ function ShipmentTypeBadge({ type }) {
 
 function StatusBadge({ status }) {
   const s = String(status || "").toLowerCase();
-  const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
-
+  const base =
+    "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
   const map = {
     active: `${base} bg-yellow-100 text-yellow-700 border-yellow-200`,
     new: `${base} bg-yellow-100 text-yellow-700 border-yellow-200`,
@@ -307,9 +483,10 @@ function StatusBadge({ status }) {
     in_progress: `${base} bg-purple-100 text-purple-700 border-purple-200`,
     completed: `${base} bg-green-100 text-green-700 border-green-200`,
   };
-
   return (
-    <span className={map[s] || `${base} bg-gray-100 text-gray-700 border-gray-200`}>
+    <span
+      className={map[s] || `${base} bg-gray-100 text-gray-700 border-gray-200`}
+    >
       {s.replaceAll("_", " ")}
     </span>
   );
