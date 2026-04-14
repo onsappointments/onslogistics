@@ -81,6 +81,8 @@ const JobSchema = new mongoose.Schema(
     // Customs
     beNumber: { type: String, default: null },
     beDate: { type: Date, default: null },
+    sbNumber : { type: String, default: null },
+    sbDate: { type: Date, default: null },
     assessableValue: { type: String, default: null },
     referenceNumber: { type: String, default: null },
 

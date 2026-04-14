@@ -233,6 +233,8 @@ export default async function JobDetails({ params }) {
           <Group title="Customs & References">
             <Field label="BE Number" value={plainJob.beNumber} />
             <Field label="BE Date" value={formatDate(plainJob.beDate)} />
+            <Field label="SB Number" value={plainJob.sbNumber} />
+            <Field label="SB Date" value={formatDate(plainJob.sbDate)} />
             <Field label="Assessable Value" value={plainJob.assessableValue} />
             <Field label="Reference Number" value={plainJob.referenceNumber} />
           </Group>
@@ -385,13 +387,3 @@ function IconDocument({ className = "w-4 h-4" }) {
 }
 
 
-/* 
-* Note: The above icons are very much important
-! disclaimer
-? what should be this
-
-
-
-
-
-*/

@@ -12,6 +12,7 @@ const PurchaseSheetSchema = new mongoose.Schema({
             head: String,
             remarks: String,
             vendor: String,
+            "HSN/SAC": { type: String, default: "" },
 
             quantity: { type: Number, default: 0 },
             rate: { type: Number, default: 0 },

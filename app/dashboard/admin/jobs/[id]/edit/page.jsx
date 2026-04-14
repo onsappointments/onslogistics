@@ -123,6 +123,8 @@ export default async function EditJobPage({ params }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FieldInput label="BE Number" name="beNumber" defaultValue={job.beNumber || ""} />
             <FieldInput label="BE Date" name="beDate" type="date" defaultValue={fmtDate(job.beDate)} />
+            <FieldInput label="SB Number" name="sbNumber" defaultValue={job.sbNumber || ""} />
+            <FieldInput label="SB Date" name="sbDate" type="date" defaultValue={fmtDate(job.sbDate)} />
             <FieldInput label="Assessable Value" name="assessableValue" defaultValue={job.assessableValue || ""} />
             <FieldInput label="Reference Number" name="referenceNumber" defaultValue={job.referenceNumber || ""} />
             <FieldInput label="GIGAM Number" name="gigamNumber" defaultValue={job.gigamNumber || ""} />

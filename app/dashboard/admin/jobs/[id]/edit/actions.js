@@ -74,6 +74,8 @@ export async function updateJob(formData) {
 
     beNumber: formData.get("beNumber") || null,
     beDate: formData.get("beDate") || null,
+    sbNumber : formData.get("sbNumber") || null,
+     sbDate: formData.get("sbDate") || null,
     assessableValue: formData.get("assessableValue") || null,
     referenceNumber: formData.get("referenceNumber") || null,
     gigamNumber: formData.get("gigamNumber") || null,

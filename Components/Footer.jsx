@@ -21,6 +21,12 @@ export default function Footer() {
     { name: "Custom Clearance", href: "/services#custom" },
   ];
 
+    const containerDimension = [
+      { name: "Standard Containers", href: "/container-dimensions/standard" },
+      { name: "Special Containers", href: "/container-dimensions/special" },
+    ];
+    
+
   return (
     <footer className="bg-white text-gray-900">
       <style>{`
@@ -85,12 +91,11 @@ export default function Footer() {
       {/* Main Footer */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-
           {/* Company Info */}
           <div className="flex flex-col space-y-4 sm:space-y-6 sm:col-span-2 lg:col-span-1 fade-in">
             <div className="flex items-center gap-3 group">
               <div className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                  <Image src={"/logo.png"} alt="logo" width={70} height={70} />
+                <Image src={"/logo.png"} alt="logo" width={70} height={70} />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-blue-600">
                 ONS
@@ -142,36 +147,87 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3 sm:space-y-4 text-sm">
               <li className="transform transition-all duration-300 hover:translate-x-2">
-                <a href="/" className="hover:text-blue-600 transition-all duration-300 inline-block">
+                <a
+                  href="/"
+                  className="hover:text-blue-600 transition-all duration-300 inline-block"
+                >
                   → Home
                 </a>
               </li>
               <li className="transform transition-all duration-300 hover:translate-x-2">
-                <a href="/#about" className="hover:text-blue-600 transition-all duration-300 inline-block">
+                <a
+                  href="/#about"
+                  className="hover:text-blue-600 transition-all duration-300 inline-block"
+                >
                   → About Us
                 </a>
               </li>
               <li className="transform transition-all duration-300 hover:translate-x-2">
-                <a href="/contact" className="hover:text-blue-600 transition-all duration-300 inline-block">
+                <a
+                  href="/faq"
+                  className="hover:text-blue-600 transition-all duration-300 inline-block"
+                >
+                  → FAQ
+                </a>
+              </li>
+              <li className="transform transition-all duration-300 hover:translate-x-2">
+                <a
+                  href="/contact"
+                  className="hover:text-blue-600 transition-all duration-300 inline-block"
+                >
                   → Contact Us
                 </a>
               </li>
               <li className="transform transition-all duration-300 hover:translate-x-2">
-                <a href="/tracking" className="hover:text-blue-600 transition-all duration-300 inline-block">
-                  → Track Your Shipment 
+                <a
+                  href="/tracking"
+                  className="hover:text-blue-600 transition-all duration-300 inline-block"
+                >
+                  → Track Your Shipment
                 </a>
               </li>
             </ul>
           </div>
 
+          {/* Containers Column */}
+          <div className="flex flex-col fade-in-delay-2">
+            <a
+              href="/container-dimensions"
+              className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider transition-colors duration-300 hover:text-blue-600"
+            >
+              Container Dimensions
+            </a>
+            <ul className="space-y-3 sm:space-y-4 text-sm">
+              {containerDimension.map((dimension, idx) => (
+                <li
+                  key={idx}
+                  className="transform transition-all duration-300 hover:translate-x-2"
+                >
+                  <a
+                    href={dimension.href}
+                    className="hover:text-blue-600 transition-all duration-300 inline-block"
+                  >
+                    → {dimension.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Services Column */}
           <div className="flex flex-col fade-in-delay-2">
-            <a href="/services" className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider transition-colors duration-300 hover:text-blue-600">
+            <a
+              href="/services"
+              className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider transition-colors duration-300 hover:text-blue-600"
+            >
               Services
             </a>
             <ul className="space-y-3 sm:space-y-4 text-sm">
               {services.map((service, idx) => (
-                <li key={idx} className="transform transition-all duration-300 hover:translate-x-2">
+                <li
+                  key={idx}
+                  className="transform transition-all duration-300 hover:translate-x-2"
+                >
                   <a
                     href={service.href}
                     className="hover:text-blue-600 transition-all duration-300 inline-block"
@@ -191,17 +247,25 @@ export default function Footer() {
             <ul className="space-y-3 sm:space-y-4 text-sm">
               <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
                 <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
-                <a href="tel:18008907365" className="break-words hover:text-blue-600 transition-colors duration-300">1800-890-7365</a>
+                <a
+                  href="tel:18008907365"
+                  className="break-words hover:text-blue-600 transition-colors duration-300"
+                >
+                  1800-890-7365
+                </a>
               </li>
               <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
                 <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110" />
-                <a href="mailto:info@onslogistics.com" className="break-words hover:text-blue-600 transition-colors duration-300">
+                <a
+                  href="mailto:info@onslogistics.com"
+                  className="break-words hover:text-blue-600 transition-colors duration-300"
+                >
                   info@onslogistics.com
                 </a>
               </li>
               <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
                 <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1" />
-                <a 
+                <a
                   href="https://maps.google.com"
                   target="_blank"
                   className="break-words hover:text-blue-600 transition-colors duration-300"
@@ -211,11 +275,12 @@ export default function Footer() {
               </li>
               <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
                 <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:rotate-180" />
-                <span className="break-words hover:text-blue-600 transition-colors duration-300">Mon - Sat: 9:00 AM - 6:00 PM</span>
+                <span className="break-words hover:text-blue-600 transition-colors duration-300">
+                  Mon - Sat: 9:00 AM - 6:00 PM
+                </span>
               </li>
             </ul>
           </div>
-
         </div>
       </div>
 
@@ -232,13 +297,13 @@ export default function Footer() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full md:w-auto slide-in-right">
-              <a 
+              <a
                 href="/request-quote"
                 className="px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base transform hover:-translate-y-1 hover:scale-105"
               >
                 Request Quote
               </a>
-              <a 
+              <a
                 href="/book-appointment"
                 className="px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base transform hover:-translate-y-1 hover:scale-105"
               >
@@ -252,7 +317,8 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t bg-gray-400 py-4 sm:py-6 transition-all duration-300">
         <p className="text-center text-xs sm:text-sm text-slate-900 px-4 transition-all duration-300 hover:text-blue-600">
-          © {new Date().getFullYear()} ONS Logistics India Pvt. Ltd. All Rights Reserved.
+          © {new Date().getFullYear()} ONS Logistics India Pvt. Ltd. All Rights
+          Reserved.
         </p>
       </div>
     </footer>
