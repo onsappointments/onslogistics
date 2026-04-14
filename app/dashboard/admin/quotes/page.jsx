@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const FILTERS = [
+  { key: "all", label: "ALL" },
   { key: "24h", label: "Last 24 Hours" },
   { key: "48h", label: "Last 48 Hours" },
   { key: "7d", label: "Last 7 Days" },

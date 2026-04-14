@@ -6,6 +6,7 @@ const LineItemSchema = new mongoose.Schema(
   {
     head: { type: String, required: true },
     quantity: { type: Number, default: 0, min: 0 },
+    "HSN/SAC": { type: String, default: "" },
     rate: { type: Number, default: 0, min: 0 },
 
     currency: {

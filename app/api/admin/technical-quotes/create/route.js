@@ -106,6 +106,7 @@ export async function POST(req) {
 
     const normalizedLineItems = lineItems.map((item) => {
       const remarks = item.remarks || "";
+      const hsnsac = item["HSN/SAC"] || "";
       const quantity = Number(item.quantity || 0);
       const rate = Number(item.rate || 0);
       const exchangeRate = Number(item.exchangeRate || 1);
@@ -126,6 +127,7 @@ export async function POST(req) {
       return {
         head: item.head,
         remarks: item.remarks || "",
+        "HSN/SAC": hsnsac,
         quantity,
         rate,
         currency,

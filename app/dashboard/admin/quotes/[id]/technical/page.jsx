@@ -50,6 +50,7 @@ export default function TechnicalQuotePage() {
           heads.map((h) => ({
             head: h,
             remarks: "",
+            "HSN/SAC": "",
             quantity: 0,
             rate: 0,
             currency: "INR",
@@ -71,6 +72,7 @@ export default function TechnicalQuotePage() {
       const emptyPurchaseHeads = heads.map((h) => ({
         head: h,
         remarks: "",
+        "HSN/SAC": "",
         vendor: "",
         quantity: 0,
         rate: 0,
@@ -323,6 +325,7 @@ export default function TechnicalQuotePage() {
                 <tr>
                   <th className="p-2 text-left">Service</th>
                   <th className="p-2">Remarks</th>
+                  <th className="p-2">HSN/SAC</th>
                   <th className="p-2">Qty</th>
                   <th className="p-2">Rate</th>
                   <th className="p-2">Curr</th>
@@ -343,6 +346,17 @@ export default function TechnicalQuotePage() {
                         value={c.remarks}
                         onChange={(e) =>
                           updateSaleLine(i, "remarks", e.target.value)
+                        }
+                        className="border w-24 p-1 rounded"
+                        disabled={isFinalLocked}
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        type="text"
+                        value={c["HSN/SAC"]}
+                        onChange={(e) =>
+                          updateSaleLine(i, "HSN/SAC", e.target.value)
                         }
                         className="border w-24 p-1 rounded"
                         disabled={isFinalLocked}
@@ -483,6 +497,7 @@ export default function TechnicalQuotePage() {
                   <th className="p-2 text-left">Service</th>
                   <th className="p-2">Vendor</th>
                   <th className="p-2">Remarks</th>
+                  <th className="p-2">HSN/SAC</th>
                   <th className="p-2">Qty</th>
                   <th className="p-2">Rate</th>
                   <th className="p-2">Curr</th>
@@ -524,6 +539,17 @@ export default function TechnicalQuotePage() {
                           }
                           className="border w-24 p-1 rounded"
                           placeholder="Notes"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <input
+                          type="text"
+                          value={p["HSN/SAC"] || ""}
+                          onChange={(e) =>
+                            updatePurchaseLine(i, "HSN/SAC", e.target.value)
+                          }
+                          className="border w-24 p-1 rounded"
+                          placeholder="HSN/SAC"
                         />
                       </td>
 
@@ -618,7 +644,7 @@ export default function TechnicalQuotePage() {
                       </td>
 
                       <td className="p-2 font-semibold text-orange-700">
-                        ₹{(p.totalAmount).toFixed(2)}
+                        ₹{p.totalAmount.toFixed(2)}
                       </td>
                     </tr>
                   );

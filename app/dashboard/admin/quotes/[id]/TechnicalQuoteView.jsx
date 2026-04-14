@@ -41,6 +41,8 @@ export default function TechnicalQuoteView({ technicalQuote }) {
           <thead className="bg-gray-100">
             <tr>
               <th className="p-2 text-left">Service</th>
+              <th className="p-2 text-left">Remarks</th>
+              <th className="p-2 text-left">HSN/SAC</th>
               <th className="p-2 text-right">Qty</th>
               <th className="p-2 text-right">Rate</th>
               <th className="p-2 text-center">Curr</th>
@@ -57,7 +59,8 @@ export default function TechnicalQuoteView({ technicalQuote }) {
             {technicalQuote.lineItems.map((item, i) => (
               <tr key={i} className="border-t">
                 <td className="p-2 font-medium">{item.head}</td>
-
+                <td className="p-2">{item.remarks}</td>
+                <td className="p-2">{item["HSN/SAC"]}</td>
                 <td className="p-2 text-right">{item.quantity}</td>
 
                 <td className="p-2 text-right">

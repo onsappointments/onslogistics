@@ -11,6 +11,10 @@ export async function GET(req) {
   let timeFilter = {};
   const now = Date.now();
 
+  if (filter === "all") {
+    timeFilter = {};
+  }
+
   if (filter === "24h") {
     timeFilter.createdAt = { $gte: new Date(now - 24 * 60 * 60 * 1000) };
   }
