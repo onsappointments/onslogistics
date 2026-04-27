@@ -30,6 +30,13 @@ const LineItemSchema = new mongoose.Schema(
 
     totalAmount: { type: Number, default: 0, min: 0 },
     remarks: { type: String, default: "" }, 
+
+    type: {
+      type: String,
+      enum: ["PREDEFINED", "CUSTOM"],
+      default: "PREDEFINED"
+      } ,
+
   },
   { _id: false }
 );
@@ -46,12 +53,7 @@ const TechnicalQuoteSchema = new mongoose.Schema(
       index: true,
     },
 
-     type: {
-      type: String,
-      enum: ["PREDEFINED", "CUSTOM"],
-      default: "PREDEFINED"
-      } ,
-
+     
     shipmentType: {
       type: String,
       enum: ["import", "export" , "courier"],
