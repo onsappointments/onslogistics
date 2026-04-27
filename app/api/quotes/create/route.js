@@ -134,10 +134,14 @@ export async function POST(req) {
       quoteNo,
       ...data,
       ...(clientUser ? { clientUser } : {}),
+      source: "INTERNAL",
+      createdBy: session.user.id,
+      assignedTo: session.user.id,
+      assignedToName: session.user.name,
+      
       status: "pending",
       verifiedEmail: true,
       createdByAdmin: true,
-      createdAt: new Date(),
     });
 
     console.log("ADMIN CREATE: Quote created:", quote._id);

@@ -142,11 +142,39 @@ leadVerifiedAt: { type: Date, default: null },
       required: false ,
     },
     
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
+    // 🔐 WHO created the quote
+createdBy: { 
+  type: mongoose.Schema.Types.ObjectId, 
+  ref: "User", 
+  default: null 
+},
 
+// 🎯 WHO is currently handling the quote
+assignedTo: { 
+  type: mongoose.Schema.Types.ObjectId, 
+  ref: "User", 
+  default: null 
+},
+
+assignedToName: {
+  type: String,
+  default: null
+},
+
+// 📌 SOURCE of quote
+source: {
+  type: String,
+  enum: ["CLIENT", "INTERNAL"],
+  required: true,
+  default: "CLIENT",
+},
+
+// 🔒 LOCK TIMESTAMP
+lockedAt: {
+  type: Date,
+  default: null,
+},
+    
 
   },
   { timestamps: true }
