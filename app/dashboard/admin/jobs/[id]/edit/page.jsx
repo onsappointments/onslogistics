@@ -28,26 +28,26 @@ export default async function EditJobPage({ params }) {
   const isSuperAdmin = currentUser.adminType === "super_admin";
   const isNewJob = job.status === "new";
 
-  // requester can edit ONCE after super admin approval
-  const isApprovedRequester =
-    job.editRequestedBy &&
-    String(job.editRequestedBy) === String(currentUser._id) &&
-    job.editApprovedAt &&
-    job.editUsed === false;
+  // // requester can edit ONCE after super admin approval
+  // const isApprovedRequester =
+  //   job.editRequestedBy &&
+  //   String(job.editRequestedBy) === String(currentUser._id) &&
+  //   job.editApprovedAt &&
+  //   job.editUsed === false;
 
-  const canEdit = isSuperAdmin || isNewJob || isApprovedRequester;
+  // const canEdit = isSuperAdmin || isNewJob || isApprovedRequester;
 
-  if (!canEdit) {
-    return (
-      <div className="p-10 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-semibold mb-2">Editing Locked</h1>
-        <p className="text-gray-600">
-          You don’t have permission to edit this job. Please request edit access
-          from the Job Details page and wait for Super Admin approval.
-        </p>
-      </div>
-    );
-  }
+  // if (!canEdit) {
+  //   return (
+  //     <div className="p-10 max-w-3xl mx-auto">
+  //       <h1 className="text-2xl font-semibold mb-2">Editing Locked</h1>
+  //       <p className="text-gray-600">
+  //         You don’t have permission to edit this job. Please request edit access
+  //         from the Job Details page and wait for Super Admin approval.
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   const fmtDate = (d) => (d ? new Date(d).toISOString().substring(0, 10) : "");
 

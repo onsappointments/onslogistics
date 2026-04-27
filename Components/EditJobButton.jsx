@@ -49,58 +49,58 @@ export default function EditJobButton({ id, isSuperAdmin, isNew }) {
     );
   }
 
-  useEffect(() => {
-    if (!jobId || jobId === "undefined") return;
+  // useEffect(() => {
+  //   if (!jobId || jobId === "undefined") return;
 
-    async function checkPermission() {
-      try {
-        const res = await fetch(`/api/admin/jobs/${jobId}/check-permission`, {
-          cache: "no-store",
-        });
+  //   async function checkPermission() {
+  //     try {
+  //       const res = await fetch(`/api/admin/jobs/${jobId}/check-permission`, {
+  //         cache: "no-store",
+  //       });
 
-        const data = await res.json();
-        setCanEdit(Boolean(data.canEdit));
-        setPermissionReason(data.reason || "");
-      } catch (err) {
-        console.error("Job permission check failed:", err);
-      }
-    }
+  //       const data = await res.json();
+  //       setCanEdit(Boolean(data.canEdit));
+  //       setPermissionReason(data.reason || "");
+  //     } catch (err) {
+  //       console.error("Job permission check failed:", err);
+  //     }
+  //   }
 
-    checkPermission();
-  }, [jobId]);
+  //   checkPermission();
+  // }, [jobId]);
 
-  const handleRequestEdit = async () => {
-    if (!jobId || jobId === "undefined") return;
+  // const handleRequestEdit = async () => {
+  //   if (!jobId || jobId === "undefined") return;
 
-    if (!remarks.trim()) {
-      alert("Please add remarks (why you want to edit).");
-      return;
-    }
+  //   if (!remarks.trim()) {
+  //     alert("Please add remarks (why you want to edit).");
+  //     return;
+  //   }
 
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/admin/jobs/${jobId}/request-edit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ remarks: remarks.trim() }),
-      });
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await fetch(`/api/admin/jobs/${jobId}/request-edit`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ remarks: remarks.trim() }),
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (response.ok) {
-        alert("Edit request sent to Super Admin successfully!");
-        setShowModal(false);
-        setRemarks("");
-      } else {
-        alert(data.error || "Failed to send edit request");
-      }
-    } catch (error) {
-      console.error("Error requesting job edit:", error);
-      alert("Request failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     if (response.ok) {
+  //       alert("Edit request sent to Super Admin successfully!");
+  //       setShowModal(false);
+  //       setRemarks("");
+  //     } else {
+  //       alert(data.error || "Failed to send edit request");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error requesting job edit:", error);
+  //     alert("Request failed");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const closeModal = () => {
     setShowModal(false);
@@ -111,18 +111,15 @@ export default function EditJobButton({ id, isSuperAdmin, isNew }) {
     <>
       <button
         onClick={() => {
-          if (!jobId || jobId === "undefined") return;
-          if (canEdit) return goToEdit();
-          setShowModal(true);
+          goToEdit();
         }}
         disabled={!jobId || jobId === "undefined"}
         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {canEdit ? "Edit Job" : "Request Edit"}
+        Edit Job
       </button>
 
-      {/* Modal for regular admins */}
-      {!canEdit && showModal && (
+      {/* {!canEdit && showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-semibold mb-2">Request Edit Access</h3>
@@ -133,7 +130,6 @@ export default function EditJobButton({ id, isSuperAdmin, isNew }) {
                 : "You need Super Admin approval to edit this job."}
             </p>
 
-            {/* remarks input (only when not pending) */}
             {permissionReason !== "pending_approval" && (
               <div className="mb-5">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -175,7 +171,7 @@ export default function EditJobButton({ id, isSuperAdmin, isNew }) {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 }
