@@ -117,7 +117,9 @@ export async function POST(req) {
      quoteNo ,
      status: "pending",
      verifiedEmail: true,
-     createdAt: new Date(),
+     source: "CLIENT",
+     assignedTo: null,
+     createdBy:  null,
     };
 
     console.log(

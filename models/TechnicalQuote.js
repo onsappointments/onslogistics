@@ -46,6 +46,12 @@ const TechnicalQuoteSchema = new mongoose.Schema(
       index: true,
     },
 
+     type: {
+      type: String,
+      enum: ["PREDEFINED", "CUSTOM"],
+      default: "PREDEFINED"
+      } ,
+
     shipmentType: {
       type: String,
       enum: ["import", "export" , "courier"],
@@ -126,6 +132,7 @@ const TechnicalQuoteSchema = new mongoose.Schema(
   type: Date,
   default: null,
 },
+  
 
     // Step 3: After the admin edits once, lock again
     editUsed: {
