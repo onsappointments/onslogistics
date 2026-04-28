@@ -54,6 +54,14 @@ const JobSchema = new mongoose.Schema(
 
     // Job info
     jobNumber: { type: String, default: null },
+
+    bookingNumber: { type: String, default: null },
+    bookingDate: { type: Date, default: null },
+
+    invoiceNumber: { type: String, default: null },
+    invoiceDate: { type: Date, default: null },
+
+  
     mblNumber: { type: String, default: null },
     mblDate: { type: Date, default: null },
 
