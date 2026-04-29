@@ -11,6 +11,7 @@ const PERMISSION_OPTIONS = [
   { label: "View Quotes", value: "quote:view" },
   { label: "View Finalized Quotes", value: "quote:view_finalized" },
   { label: "Create a Job", value: "job:create" },
+  { label: "Assign a Job", value: "job:assign" },
   { label: "New Jobs", value: "job:view_new" },
   { label: "Active Jobs", value: "job:view_active" },
   { label: "Audit Logs", value: "audit_logs:view" },

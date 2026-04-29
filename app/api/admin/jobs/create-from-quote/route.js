@@ -100,8 +100,14 @@ export async function POST(req) {
     jobId,
     quoteId: quote._id,
     technicalQuoteId: technicalQuote._id, // ✅ FIXED: Link to technical quote for revenue tracking
-
+    
+    assignedTo: null,
+    assignedToName: null,
+    assignedAt: null,
+    createdBy: session.user.id,
+    
     clientUser, // ✅ LINKED TO CLIENT
+
 
     company: quote.company || "",
     customerName: `${quote.firstName} ${quote.lastName}`.trim(),
