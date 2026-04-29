@@ -51,6 +51,23 @@ const JobSchema = new mongoose.Schema(
   {
     jobId: { type: String, required: true },
     quoteId: { type: mongoose.Schema.Types.ObjectId, ref: "Quote" },
+    
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    assignedToName: {
+      type: String,
+      default: null,
+    },
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
 
     // Job info
     jobNumber: { type: String, default: null },
