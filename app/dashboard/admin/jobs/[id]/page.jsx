@@ -194,8 +194,6 @@ export default async function JobDetails({ params }) {
             <Field label="Company" value={plainJob.company} />
             <Field label="Container No." value={plainJob.containerNumber} />
           </Group>
-<<<<<<< HEAD
-=======
            
            <Group title="Booking and Invoice Numbers ">
             <Field label="Booking Number" value={plainJob.bookingNumber} />
@@ -204,7 +202,6 @@ export default async function JobDetails({ params }) {
             <Field label="Invoice Date" value={formatDate(plainJob.invoiceDate)} />
           </Group>
 
->>>>>>> 9cc4415f728b4871660182713d8b40cb8bbee3a7
           <Group title="BL Numbers">
             <Field label="MBL Number" value={plainJob.mblNumber} />
             <Field label="MBL Date" value={formatDate(plainJob.mblDate)} />
