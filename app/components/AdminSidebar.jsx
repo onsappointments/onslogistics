@@ -18,6 +18,7 @@ const ADMIN_MENU = [
     permission: "quote:view_finalized",
   },
   { name: "Create a Job", href: "/dashboard/admin/jobs/create", permission: "job:create" },
+  { name: "Assign Jobs", href: "/dashboard/admin/job-assignment", permission: "job:assign" },
   { name: "New Jobs", href: "/dashboard/admin/jobs/new", permission: "job:view_new" },
   { name: "Active Jobs", href: "/dashboard/admin/jobs/active", permission: "job:view_active" },
   { name: "Couriers", href: "/dashboard/admin/reception/dispatch", permission: "couriers:view" },

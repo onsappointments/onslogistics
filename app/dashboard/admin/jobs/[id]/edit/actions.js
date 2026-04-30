@@ -54,6 +54,11 @@ export async function updateJob(formData) {
   const update = {
     jobNumber: formData.get("jobNumber") || null,
 
+    bookingNumber: formData.get("bookingNumber") || null,
+    bookingDate: formData.get("bookingDate") || null,
+    invoiceNumber: formData.get("invoiceNumber") || null,
+    invoiceDate: formData.get("invoiceDate") || null,
+
     mblNumber: formData.get("mblNumber") || null,
     mblDate: formData.get("mblDate") || null,
     hblNumber: formData.get("hblNumber") || null,

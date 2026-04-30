@@ -88,7 +88,8 @@ export async function POST(req) {
       shipmentType === "import" ? IMPORT_HEADS : EXPORT_HEADS;
 
     const invalidHead = lineItems.find(
-      (item) => !ALLOWED_HEADS.includes(item.head)
+      (item) => 
+         item.type === "PREDEFINED" && !ALLOWED_HEADS.includes(item.head)
     );
 
     if (invalidHead) {
@@ -127,6 +128,7 @@ export async function POST(req) {
       return {
         head: item.head,
         remarks: item.remarks || "",
+         type: item.type || "PREDEFINED",
         "HSN/SAC": hsnsac,
         quantity,
         rate,

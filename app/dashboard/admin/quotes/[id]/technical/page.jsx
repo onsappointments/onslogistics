@@ -40,6 +40,7 @@ export default function TechnicalQuotePage() {
       if (data.technicalQuote) {
         setCharges(
           (data.technicalQuote.lineItems || []).map((item) => ({
+            type: item.type || "PREDEFINED",
             remarks: "",
             ...item,
           })),
@@ -49,6 +50,7 @@ export default function TechnicalQuotePage() {
         setCharges(
           heads.map((h) => ({
             head: h,
+             type: "PREDEFINED",
             remarks: "",
             "HSN/SAC": "",
             quantity: 0,
@@ -190,6 +192,15 @@ export default function TechnicalQuotePage() {
       alert("You don't have permission to edit.");
       return;
     }
+      // ✅  VALIDATION
+      const invalid = charges.some(
+        (c) => c.type === "CUSTOM" && !c.head?.trim()
+      );
+
+      if (invalid) {
+        alert("Custom head cannot be empty");
+        return;
+      }
 
     await fetch("/api/admin/technical-quotes/create", {
       method: "POST",
@@ -315,8 +326,34 @@ export default function TechnicalQuotePage() {
           </span>
         </button>
       </div>
-
+    
       {/* ── SALE TAB ── */}
+        <button
+        onClick={() => {
+          setCharges([
+            ...charges,
+            {
+              head: "",
+              type: "CUSTOM",
+              remarks: "",
+              "HSN/SAC": "",
+              quantity: 0,
+              rate: 0,
+              currency: "INR",
+              exchangeRate: 1,
+              igstPercent: 0,
+              cgstPercent: 0,
+              sgstPercent: 0,
+              baseAmount: 0,
+              totalAmount: 0,
+            },
+          ]);
+        }}
+        className="mt-4 px-4 py-2 bg-gray-200 rounded"
+      >
+        ➕ Add New Head
+      </button>
+
       {activeTab === "sale" && (
         <>
           <div className="overflow-x-auto bg-white border rounded-xl">
@@ -334,12 +371,26 @@ export default function TechnicalQuotePage() {
                   <th className="p-2">CGST %</th>
                   <th className="p-2">SGST %</th>
                   <th className="p-2">Total (INR)</th>
+                  <th className="p-2">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {charges.map((c, i) => (
                   <tr key={i} className="border-t">
-                    <td className="p-2 font-medium">{c.head}</td>
+                    <td className="p-2 font-medium">
+                      {c.type === "CUSTOM" ? (
+                        <input
+                          type="text"
+                          value={c.head}
+                          onChange={(e) => updateSaleLine(i, "head", e.target.value)}
+                          className="border p-1 rounded w-32"
+                          placeholder="Enter head"
+                          disabled={isFinalLocked}
+                        />
+                      ) : (
+                        c.head
+                      )}
+                    </td>
                     <td className="p-2">
                       <input
                         type="text"
@@ -451,6 +502,19 @@ export default function TechnicalQuotePage() {
                     <td className="p-2 font-semibold text-right">
                       ₹{(c.totalAmount || 0).toFixed(2)}
                     </td>
+                    <td className="p-2 text-center">
+                      {c.type === "CUSTOM" && !isFinalLocked && (
+                        <button
+                          onClick={() => {
+                            const updated = charges.filter((_, idx) => idx !== i);
+                            setCharges(updated);
+                          }}
+                          className="text-red-500 text-xs"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td> 
                   </tr>
                 ))}
               </tbody>

@@ -79,6 +79,10 @@ export default async function EditJobPage({ params }) {
         <section className="bg-white p-6 rounded-xl shadow space-y-4">
           <h2 className="text-xl font-semibold mb-2">MBL / HBL</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FieldInput label="Booking Number" name="bookingNumber" defaultValue={job.bookingNumber || ""} />
+            <FieldInput label="Booking Date" name="bookingDate" type="date" defaultValue={fmtDate(job.bookingDate)} />
+            <FieldInput label="Invoice Number" name="invoiceNumber" defaultValue={job.invoiceNumber || ""} />
+            <FieldInput label="Invoice Date" name="invoiceDate" type="date" defaultValue={fmtDate(job.invoiceDate)} />
             <FieldInput label="MBL Number" name="mblNumber" defaultValue={job.mblNumber || ""} />
             <FieldInput label="MBL Date" name="mblDate" type="date" defaultValue={fmtDate(job.mblDate)} />
             <FieldInput label="HBL Number" name="hblNumber" defaultValue={job.hblNumber || ""} />

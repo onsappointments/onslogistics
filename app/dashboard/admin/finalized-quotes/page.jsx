@@ -3,6 +3,9 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 import FilterTabs from "@/Components/FilterTabs.jsx";
 import SearchBar from "@/Components/SearchBar.jsx";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import User from "@/models/User";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -31,6 +34,15 @@ function formatINR(n) {
 
 export default async function FinalizedQuotesPage({ searchParams }) {
   await connectDB();
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  const currentUser = await User.findOne({ email: session.user.email }).lean();
+  const isSuperAdmin = currentUser?.adminType === "super_admin";
+
   const params = await searchParams;
 
   const status = params?.status || null;
@@ -62,6 +74,16 @@ const pipeline = [
     },
   },
   { $unwind: { path: "$clientQuote", preserveNullAndEmptyArrays: true } },
+  
+  ...(!isSuperAdmin
+  ? [
+      {
+        $match: {
+          "clientQuote.assignedTo": currentUser._id,
+        },
+      },
+    ]
+  : []),
 
   {
     $lookup: {
