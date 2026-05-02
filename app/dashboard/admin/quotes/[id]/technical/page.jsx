@@ -16,6 +16,11 @@ export default function TechnicalQuotePage() {
   const [permission, setPermission] = useState(null);
   const [activeTab, setActiveTab] = useState("sale");
 
+  // ── Preview modal state ──
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
   /* -------------------------------------------
       LOAD QUOTE + TECHNICAL QUOTE + PURCHASE SHEET
   --------------------------------------------- */
@@ -36,21 +41,20 @@ export default function TechnicalQuotePage() {
 
       const heads = q.shipmentType === "import" ? IMPORT_HEADS : EXPORT_HEADS;
 
-      // ── SALE (technical quote) ──
       if (data.technicalQuote) {
         setCharges(
           (data.technicalQuote.lineItems || []).map((item) => ({
             type: item.type || "PREDEFINED",
             remarks: "",
             ...item,
-          })),
+          }))
         );
         setStatus(data.technicalQuote.status);
       } else {
         setCharges(
           heads.map((h) => ({
             head: h,
-             type: "PREDEFINED",
+            type: "PREDEFINED",
             remarks: "",
             "HSN/SAC": "",
             quantity: 0,
@@ -65,12 +69,11 @@ export default function TechnicalQuotePage() {
             sgstAmount: 0,
             baseAmount: 0,
             totalAmount: 0,
-          })),
+          }))
         );
         setStatus("draft");
       }
 
-      // ── PURCHASE SHEET ──
       const emptyPurchaseHeads = heads.map((h) => ({
         head: h,
         remarks: "",
@@ -92,10 +95,9 @@ export default function TechnicalQuotePage() {
 
       try {
         const purchaseRes = await fetch(
-          `/api/admin/purchase/purchase-sheet?quoteId=${id}`,
+          `/api/admin/purchase/purchase-sheet?quoteId=${id}`
         );
         const purchaseData = await purchaseRes.json();
-
         if (purchaseData?.lineItems?.length > 0) {
           setPurchaseItems(purchaseData.lineItems);
         } else {
@@ -192,15 +194,12 @@ export default function TechnicalQuotePage() {
       alert("You don't have permission to edit.");
       return;
     }
-      // ✅  VALIDATION
-      const invalid = charges.some(
-        (c) => c.type === "CUSTOM" && !c.head?.trim()
-      );
 
-      if (invalid) {
-        alert("Custom head cannot be empty");
-        return;
-      }
+    const invalid = charges.some((c) => c.type === "CUSTOM" && !c.head?.trim());
+    if (invalid) {
+      alert("Custom head cannot be empty");
+      return;
+    }
 
     await fetch("/api/admin/technical-quotes/create", {
       method: "POST",
@@ -232,15 +231,59 @@ export default function TechnicalQuotePage() {
   };
 
   /* -------------------------------------------
-      FINALIZE & SEND
+      PREVIEW PDF
+      Calls the preview endpoint, creates a blob URL,
+      and opens the modal.
   --------------------------------------------- */
-  const finalizeQuote = async () => {
+  const openPreview = async () => {
     if (isFinalLocked) {
-      alert("You don't have permission to finalize this quote");
+      alert("You don't have permission to finalize this quote.");
       return;
     }
 
-    if (!confirm("After sending, quote will lock. Continue?")) return;
+    const invalid = charges.some((c) => c.type === "CUSTOM" && !c.head?.trim());
+    if (invalid) {
+      alert("Custom head cannot be empty");
+      return;
+    }
+
+    setPreviewLoading(true);
+    setShowPreview(true);
+
+    try {
+      const res = await fetch("/api/admin/technical-quotes/preview-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quoteId: id }),
+      });
+
+      if (!res.ok) throw new Error("Failed to generate preview");
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      // Revoke any old object URL to free memory
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(url);
+    } catch (err) {
+      console.error(err);
+      alert("Could not load PDF preview. Please try again.");
+      setShowPreview(false);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const closePreview = () => {
+    setShowPreview(false);
+    // Don't revoke yet — user may reopen; revoke on next open or unmount
+  };
+
+  /* -------------------------------------------
+      FINALIZE & SEND  (called from inside modal)
+  --------------------------------------------- */
+  const confirmAndSend = async () => {
+    setShowPreview(false);
 
     await fetch("/api/admin/technical-quotes/send", {
       method: "POST",
@@ -248,7 +291,7 @@ export default function TechnicalQuotePage() {
       body: JSON.stringify({ quoteId: id }),
     });
 
-    alert("Sent to client");
+    alert("Quote sent to client successfully!");
     router.push(`/dashboard/admin/quotes/${id}`);
   };
 
@@ -266,23 +309,23 @@ export default function TechnicalQuotePage() {
   --------------------------------------------- */
   const purchaseSubtotal = purchaseItems.reduce(
     (s, i) => s + (i.baseAmount || 0),
-    0,
+    0
   );
   const purchaseIgstTotal = purchaseItems.reduce(
     (s, i) => s + (i.igstAmount || 0),
-    0,
+    0
   );
   const purchaseCgstTotal = purchaseItems.reduce(
     (s, i) => s + (i.cgstAmount || 0),
-    0,
+    0
   );
   const purchaseSgstTotal = purchaseItems.reduce(
     (s, i) => s + (i.sgstAmount || 0),
-    0,
+    0
   );
   const totalPurchaseCost = purchaseItems.reduce(
     (s, i) => s + (i.totalAmount || 0),
-    0,
+    0
   );
   const totalProfit = grandTotal - totalPurchaseCost;
   const profitMargin =
@@ -296,6 +339,97 @@ export default function TechnicalQuotePage() {
   return (
     <div className="p-10 max-w-7xl mx-auto">
       <h1 className="text-3xl font-semibold mb-4">Technical Quote</h1>
+
+      {/* ── PDF PREVIEW MODAL ── */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-white rounded-2xl shadow-2xl flex flex-col w-[90vw] max-w-5xl h-[90vh]">
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  PDF Preview
+                </h2>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  Review the quotation before sending it to the client.
+                </p>
+              </div>
+              <button
+                onClick={closePreview}
+                className="text-gray-400 hover:text-gray-700 text-2xl leading-none"
+                title="Close"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* PDF iframe */}
+            <div className="flex-1 overflow-hidden bg-gray-100 rounded-b-none">
+              {previewLoading ? (
+                <div className="h-full flex flex-col items-center justify-center text-gray-500 gap-3">
+                  <svg
+                    className="animate-spin h-8 w-8 text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                  <span className="text-sm">Generating PDF preview…</span>
+                </div>
+              ) : previewUrl ? (
+                <iframe
+                  src={previewUrl}
+                  className="w-full h-full border-0"
+                  title="Quote PDF Preview"
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center text-red-500 text-sm">
+                  Failed to load preview.
+                </div>
+              )}
+            </div>
+
+            {/* Modal footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-gray-50 rounded-b-2xl">
+              <button
+                onClick={closePreview}
+                className="px-5 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+              {previewUrl && !previewLoading && (
+                <a
+                  href={previewUrl}
+                  download={`quote-${id}.pdf`}
+                  className="px-5 py-2 text-sm rounded-lg border border-blue-300 text-blue-700 hover:bg-blue-50 transition"
+                >
+                  Download PDF
+                </a>
+              )}
+              <button
+                onClick={confirmAndSend}
+                disabled={previewLoading || !previewUrl}
+                className="px-5 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+              >
+                Confirm & Send to Client
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex border-b mb-6">
@@ -326,9 +460,9 @@ export default function TechnicalQuotePage() {
           </span>
         </button>
       </div>
-    
+
       {/* ── SALE TAB ── */}
-        <button
+      <button
         onClick={() => {
           setCharges([
             ...charges,
@@ -356,7 +490,7 @@ export default function TechnicalQuotePage() {
 
       {activeTab === "sale" && (
         <>
-          <div className="overflow-x-auto bg-white border rounded-xl">
+          <div className="overflow-x-auto bg-white border rounded-xl mt-4">
             <table className="w-full text-sm">
               <thead className="bg-gray-100">
                 <tr>
@@ -382,7 +516,9 @@ export default function TechnicalQuotePage() {
                         <input
                           type="text"
                           value={c.head}
-                          onChange={(e) => updateSaleLine(i, "head", e.target.value)}
+                          onChange={(e) =>
+                            updateSaleLine(i, "head", e.target.value)
+                          }
                           className="border p-1 rounded w-32"
                           placeholder="Enter head"
                           disabled={isFinalLocked}
@@ -506,7 +642,9 @@ export default function TechnicalQuotePage() {
                       {c.type === "CUSTOM" && !isFinalLocked && (
                         <button
                           onClick={() => {
-                            const updated = charges.filter((_, idx) => idx !== i);
+                            const updated = charges.filter(
+                              (_, idx) => idx !== i
+                            );
                             setCharges(updated);
                           }}
                           className="text-red-500 text-xs"
@@ -514,7 +652,7 @@ export default function TechnicalQuotePage() {
                           Delete
                         </button>
                       )}
-                    </td> 
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -538,8 +676,9 @@ export default function TechnicalQuotePage() {
               <button onClick={saveDraft} className="btn-primary">
                 Save Draft
               </button>
-              <button onClick={finalizeQuote} className="btn-success">
-                Finalize & Send
+              {/* Opens preview modal instead of sending directly */}
+              <button onClick={openPreview} className="btn-success">
+                Preview & Send
               </button>
             </div>
           )}
@@ -573,146 +712,125 @@ export default function TechnicalQuotePage() {
                 </tr>
               </thead>
               <tbody>
-                {purchaseItems.map((p, i) => {
-                  const saleRow = charges[i];
-                  const saleTotal = saleRow?.totalAmount || 0;
-                  const rowProfit = saleTotal - (p.totalAmount || 0);
-
-                  return (
-                    <tr key={i} className="border-t">
-                      <td className="p-2 font-medium">{p.head}</td>
-
-                      <td className="p-2">
-                        <input
-                          type="text"
-                          value={p.vendor || ""}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "vendor", e.target.value)
-                          }
-                          className="border w-28 p-1 rounded"
-                          placeholder="Vendor"
-                        />
-                      </td>
-
-                      <td className="p-2">
-                        <input
-                          type="text"
-                          value={p.remarks || ""}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "remarks", e.target.value)
-                          }
-                          className="border w-24 p-1 rounded"
-                          placeholder="Notes"
-                        />
-                      </td>
-                      <td className="p-2">
-                        <input
-                          type="text"
-                          value={p["HSN/SAC"] || ""}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "HSN/SAC", e.target.value)
-                          }
-                          className="border w-24 p-1 rounded"
-                          placeholder="HSN/SAC"
-                        />
-                      </td>
-
-                      <td className="p-2">
-                        <input
-                          min={0}
-                          type="number"
-                          value={p.quantity}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "quantity", e.target.value)
-                          }
-                          className="border w-16 p-1 rounded"
-                        />
-                      </td>
-
-                      <td className="p-2">
-                        <input
-                          min={0}
-                          type="number"
-                          value={p.rate}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "rate", e.target.value)
-                          }
-                          className="border w-24 p-1 rounded"
-                        />
-                      </td>
-
-                      <td className="p-2">
-                        <select
-                          value={p.currency || "INR"}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "currency", e.target.value)
-                          }
-                          className="border p-1 rounded"
-                        >
-                          <option>INR</option>
-                          <option>USD</option>
-                          <option>EUR</option>
-                        </select>
-                      </td>
-
-                      <td className="p-2">
-                        <input
-                          min={0}
-                          type="number"
-                          value={p.exchangeRate}
-                          onChange={(e) =>
-                            updatePurchaseLine(
-                              i,
-                              "exchangeRate",
-                              e.target.value,
-                            )
-                          }
-                          className="border w-20 p-1 rounded"
-                        />
-                      </td>
-
-                      <td className="p-2">
-                        <input
-                          min={0}
-                          type="number"
-                          value={p.igstPercent}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "igstPercent", e.target.value)
-                          }
-                          className="border w-16 p-1 rounded"
-                        />
-                      </td>
-
-                      <td className="p-2">
-                        <input
-                          min={0}
-                          type="number"
-                          value={p.cgstPercent}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "cgstPercent", e.target.value)
-                          }
-                          className="border w-16 p-1 rounded"
-                        />
-                      </td>
-
-                      <td className="p-2">
-                        <input
-                          min={0}
-                          type="number"
-                          value={p.sgstPercent}
-                          onChange={(e) =>
-                            updatePurchaseLine(i, "sgstPercent", e.target.value)
-                          }
-                          className="border w-16 p-1 rounded"
-                        />
-                      </td>
-
-                      <td className="p-2 font-semibold text-orange-700">
-                        ₹{p.totalAmount.toFixed(2)}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {purchaseItems.map((p, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="p-2 font-medium">{p.head}</td>
+                    <td className="p-2">
+                      <input
+                        type="text"
+                        value={p.vendor || ""}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "vendor", e.target.value)
+                        }
+                        className="border w-28 p-1 rounded"
+                        placeholder="Vendor"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        type="text"
+                        value={p.remarks || ""}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "remarks", e.target.value)
+                        }
+                        className="border w-24 p-1 rounded"
+                        placeholder="Notes"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        type="text"
+                        value={p["HSN/SAC"] || ""}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "HSN/SAC", e.target.value)
+                        }
+                        className="border w-24 p-1 rounded"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        min={0}
+                        type="number"
+                        value={p.quantity}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "quantity", e.target.value)
+                        }
+                        className="border w-16 p-1 rounded"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        min={0}
+                        type="number"
+                        value={p.rate}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "rate", e.target.value)
+                        }
+                        className="border w-24 p-1 rounded"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <select
+                        value={p.currency || "INR"}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "currency", e.target.value)
+                        }
+                        className="border p-1 rounded"
+                      >
+                        <option>INR</option>
+                        <option>USD</option>
+                        <option>EUR</option>
+                      </select>
+                    </td>
+                    <td className="p-2">
+                      <input
+                        min={0}
+                        type="number"
+                        value={p.exchangeRate}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "exchangeRate", e.target.value)
+                        }
+                        className="border w-20 p-1 rounded"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        min={0}
+                        type="number"
+                        value={p.igstPercent}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "igstPercent", e.target.value)
+                        }
+                        className="border w-16 p-1 rounded"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        min={0}
+                        type="number"
+                        value={p.cgstPercent}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "cgstPercent", e.target.value)
+                        }
+                        className="border w-16 p-1 rounded"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        min={0}
+                        type="number"
+                        value={p.sgstPercent}
+                        onChange={(e) =>
+                          updatePurchaseLine(i, "sgstPercent", e.target.value)
+                        }
+                        className="border w-16 p-1 rounded"
+                      />
+                    </td>
+                    <td className="p-2 font-semibold text-orange-700">
+                      ₹{p.totalAmount.toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -741,7 +859,6 @@ export default function TechnicalQuotePage() {
             </div>
           </div>
 
-          {/* Purchase Save Button */}
           <div className="mt-8">
             <button onClick={savePurchaseSheet} className="btn-primary">
               Save Purchase Sheet
