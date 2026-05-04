@@ -227,6 +227,19 @@ export default function Navbar() {
                 Home
               </Link>
             </li>
+            {/* Resources / Blog */}
+            <li>
+             <Link
+                href="/resources"
+                className={`nav-link px-3 py-1.5 rounded-lg text-sm font-semibold ${
+                  pathname.startsWith("/resources")
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                }`}
+               >
+                Resources
+              </Link>
+            </li>
 
             {/* Services */}
             <li
@@ -417,6 +430,18 @@ export default function Navbar() {
                 className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${pathname === "/" ? "bg-blue-50 text-blue-600" : "text-gray-800 hover:bg-gray-50"}`}
               >
                 Home
+              </Link>
+
+              {/* Resources */}
+              <Link
+                href="/resources"
+                className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
+                 pathname.startsWith("/resources")
+                   ? "bg-blue-50 text-blue-600"
+                    : "text-gray-800 hover:bg-gray-50"
+                }`}
+              >
+                Resources
               </Link>
 
               {/* Services accordion */}
