@@ -8,10 +8,10 @@ import {
   getLatestArticles,
 } from "@/lib/utils";
 
-import SearchBar from "@/components/resources/SearchBar";
-import CategoryTabs from "@/components/resources/CategoryTabs";
-import ArticleCard from "@/components/resources/ArticleCard";
-import CTASection from "@/components/resources/CTASection";
+import SearchBar from "@/Components/resources/SearchBar";
+import CategoryTabs from "@/Components/resources/CategoryTabs";
+import ArticleCard from "@/Components/resources/ArticleCard";
+import CTASection from "@/Components/resources/CTASection";
 
 const categories = [
   "All",

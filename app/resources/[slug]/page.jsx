@@ -6,12 +6,12 @@ import {
 
 import { generateTOC } from "@/lib/toc";
 
-import HighlightBox from "@/components/resources/HighlightBox";
-import RelatedArticles from "@/components/resources/RelatedArticles";
-import TableOfContents from "@/components/resources/TableOfContents";
-import CTASection from "@/components/resources/CTASection";
+import HighlightBox from "@/Components/resources/HighlightBox";
+import RelatedArticles from "@/Components/resources/RelatedArticles";
+import TableOfContents from "@/Components/resources/TableOfContents";
+import CTASection from "@/Components/resources/CTASection";
 import { extractFAQs } from "@/lib/faqExtractor";
-import RelatedFAQs from "@/components/resources/RelatedFAQs";
+import RelatedFAQs from "@/Components/resources/RelatedFAQs";
 
 // 🔹 Static generation (SEO boost)
 export async function generateStaticParams() {
