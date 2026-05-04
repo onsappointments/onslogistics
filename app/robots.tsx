@@ -34,8 +34,6 @@ export default function robots(): MetadataRoute.Robots {
     // ── Sitemaps ─────────────────────────────────────────────────────────
     sitemap: `${baseUrl}/sitemap.xml`,
 
-    // ── llms.txt — for AI systems that check this ────────────────────────
-    // Place your llms.txt at /public/llms.txt so it serves at /llms.txt
     host: baseUrl,
   };
 }
