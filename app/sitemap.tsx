@@ -21,7 +21,7 @@ const faqCategories = [
 function getResourcePosts() {
   return articles.map((a) => ({
     slug: a.slug,
-    updatedAt: new Date(a.updatedAt || Date.now()),
+    updatedAt: new Date(),
   }));
 }
 
