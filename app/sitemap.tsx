@@ -1,8 +1,8 @@
 import { MetadataRoute } from "next";
 import { articles } from "@/lib/data";
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://onslog.com";
+const baseUrl =(
+  process.env.NEXT_PUBLIC_SITE_URL || "https://onslog.com").trim() ;
 
 const faqCategories = [
   "pricing",
