@@ -33,8 +33,14 @@ export default function ResourcesPage() {
     category: active,
   });
 
-  const featured = getFeaturedArticles(articles);
-  const latest = getLatestArticles(filtered);
+  const featured = getFeaturedArticles(filtered).slice(0, 3);
+  
+const nonFeaturedRaw = filtered.filter((a) => !a.featured);
+
+ // 🔥 fallback if all are featured
+const nonFeatured =
+  nonFeaturedRaw.length > 0 ? nonFeaturedRaw : filtered;
+  const latest = getLatestArticles(nonFeatured);
 
   return (
     <div className="px-6 py-12 max-w-7xl mx-auto">
