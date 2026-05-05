@@ -27,6 +27,36 @@ function slugify(text) {
     .replace(/[^\w\s]/g, "")
     .replace(/\s+/g, "-");
 }
+export async function generateMetadata({ params }) {
+  const article = articles.find(
+    (a) => a.slug === params.slug
+  );
+
+  if (!article) {
+    return {
+      title: "Article Not Found | ONS Logistics",
+    };
+  }
+
+  return {
+    title: `${article.title} | ONS Logistics`,
+    description: article.description,
+    keywords: article.keywords,
+
+    openGraph: {
+      title: article.title,
+      description: article.description,
+      url: `https://onslog.com/resources/${article.slug}`,
+      type: "article",
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.description,
+    },
+  };
+}
 
 export default function ArticlePage({ params }) {
   const article = getArticleBySlug(params.slug, articles);
@@ -191,6 +221,43 @@ export default function ArticlePage({ params }) {
 
         {/* CTA */}
         <CTASection />
+
+        <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: article.title,
+            description: article.description,
+            author: {
+              "@type": "Organization",
+              name: "ONS Logistics India Pvt Ltd",
+            },
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": `https://onslog.com/resources/${article.slug}`,
+            },
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map((faq) => ({
+              "@type": "Question",
+              name: faq.question,
+               acceptedAnswer: {
+                "@type": "Answer",
+                text: faq.answer,
+              },
+            })),
+          }),
+        }}
+      />
       </div>
 
       {/* SIDEBAR */}
@@ -204,6 +271,7 @@ export default function ArticlePage({ params }) {
 
         </div>
       </div>
+      
     </div>
   );
 }
