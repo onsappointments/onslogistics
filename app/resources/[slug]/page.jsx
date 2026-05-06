@@ -41,7 +41,7 @@ export async function generateMetadata({ params }) {
   const url = `https://onslog.com/resources/${article.slug}`;
   const image = `https://onslog.com/api/og?title=${encodeURIComponent(
     article.title
-  )}`;
+  )}&category=${encodeURIComponent(article.category)}`;
 
   return {
     title: `${article.title} | ONS Logistics`,
