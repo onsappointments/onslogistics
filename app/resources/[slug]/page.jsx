@@ -38,6 +38,11 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  const url = `https://onslog.com/resources/${article.slug}`;
+  const image = `https://onslog.com/api/og?title=${encodeURIComponent(
+    article.title
+  )}`;
+
   return {
     title: `${article.title} | ONS Logistics`,
     description: article.description,
@@ -46,14 +51,24 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: article.title,
       description: article.description,
-      url: `https://onslog.com/resources/${article.slug}`,
+      url,
       type: "article",
+
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
     },
 
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.description,
+      images: [image],
     },
   };
 }
