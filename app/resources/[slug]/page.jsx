@@ -28,10 +28,11 @@ function slugify(text) {
     .replace(/\s+/g, "-");
 }
 export async function generateMetadata({ params }) {
-  const article = articles.find(
-    (a) => a.slug === params.slug
-  );
+  const { slug } = await params;
 
+  const article = articles.find(
+    (a) => a.slug === slug
+  );
   if (!article) {
     return {
       title: "Article Not Found | ONS Logistics",
