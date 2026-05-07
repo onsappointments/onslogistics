@@ -46,12 +46,7 @@ export async function GET(req) {
               gap: "18px",
             }}
           >
-            <img
-              src="https://onslog.com/logo.png"
-              width="52"
-              height="52"
-            />
-
+            
             <div
               style={{
                 fontSize: "28px",
