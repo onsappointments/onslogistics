@@ -15,12 +15,9 @@ import CTASection from "@/Components/resources/CTASection";
 
 const categories = [
   "All",
-  "Pricing",
-  "Shipping Methods",
-  "Customs",
-  "Documents",
-  "Comparisons",
-  "India Trade",
+  ...Array.from(
+    new Set(articles.map((a) => a.category))
+  ),
 ];
 
 export default function ResourcesPage() {
@@ -33,14 +30,13 @@ export default function ResourcesPage() {
     category: active,
   });
 
-  const featured = getFeaturedArticles(filtered).slice(0, 3);
-  
-const nonFeaturedRaw = filtered.filter((a) => !a.featured);
+  const featured = filtered
+  .filter((a) => a.featured)
+  .slice(0, 3);
 
- // 🔥 fallback if all are featured
-const nonFeatured =
-  nonFeaturedRaw.length > 0 ? nonFeaturedRaw : filtered;
-  const latest = getLatestArticles(nonFeatured);
+  const latest = filtered.filter(
+    (a) => !a.featured
+  );
 
   return (
     <div className="px-6 py-12 max-w-7xl mx-auto">
@@ -87,9 +83,16 @@ const nonFeatured =
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {latest.map((a) => (
-            <ArticleCard key={a.slug} article={a} />
-          ))}
+          {latest.map((a, i) => {
+            console.log("ARTICLE:", i, a.slug);
+
+            return (
+              <ArticleCard
+                key={a.slug || i}
+                article={a}
+              />
+            );
+          })}
         </div>
 
         {latest.length === 0 && (
