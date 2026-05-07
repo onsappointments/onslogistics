@@ -205,8 +205,7 @@ export async function GET(req) {
               </div>
             </div>
           </div>
-
-          
+        </div>
       </div>
     ),
     {
