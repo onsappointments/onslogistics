@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
+export const contentType = "image/png";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);

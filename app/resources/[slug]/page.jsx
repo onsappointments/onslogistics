@@ -45,6 +45,8 @@ export async function generateMetadata({ params }) {
   )}&category=${encodeURIComponent(article.category)}`;
 
   return {
+    metadataBase: new URL("https://onslog.com"),
+
     title: `${article.title} | ONS Logistics`,
     description: article.description,
     keywords: article.keywords,
@@ -53,6 +55,7 @@ export async function generateMetadata({ params }) {
       title: article.title,
       description: article.description,
       url,
+      siteName: "ONS Logistics",
       type: "article",
 
       images: [
@@ -74,8 +77,10 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function ArticlePage({ params }) {
-  const article = getArticleBySlug(params.slug, articles);
+export default async function ArticlePage({ params }) {
+  const { slug } = await params;
+
+  const article = getArticleBySlug(slug, articles);
 
   if (!article) return <div>Not found</div>;
 
