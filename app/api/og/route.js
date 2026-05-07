@@ -164,15 +164,11 @@ export async function GET(req) {
                 marginTop: "24px",
               }}
             >
-              {/* BLUE DOT */}
-              <div
-                style={{
-                  width: "18px",
-                  height: "18px",
-                  borderRadius: "999px",
-                  backgroundColor: accent,
-                  marginRight: "18px",
-                }}
+              <img
+                src={visual}
+                width="42"
+                height="42"
+                alt="ONS"
               />
 
               {/* BRAND */}
@@ -210,27 +206,7 @@ export async function GET(req) {
             </div>
           </div>
 
-          {/* RIGHT VISUAL PANEL */}
-          <div
-            style={{
-              width: "320px",
-              height: "100%",
-              backgroundColor: "#eff6ff",
-              borderRadius: "24px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginLeft: "10px",
-            }}
-          >
-            <img
-              src={visual}
-              width="190"
-              height="190"
-              alt="ONS Logistics"
-            />
-          </div>
-        </div>
+          
       </div>
     ),
     {
