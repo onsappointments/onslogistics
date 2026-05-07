@@ -13,8 +13,8 @@ export async function GET(req) {
     "Logistics Guide";
 
   const shortTitle =
-    title.length > 85
-      ? title.slice(0, 85) + "…"
+    title.length > 90
+      ? title.slice(0, 90) + "…"
       : title;
 
   return new ImageResponse(
@@ -24,11 +24,11 @@ export async function GET(req) {
           width: "1200px",
           height: "630px",
           display: "flex",
-          background: "#020617",
+          backgroundColor: "#020617",
           color: "white",
         }}
       >
-        {/* LEFT */}
+        {/* LEFT SIDE */}
         <div
           style={{
             flex: 1,
@@ -36,21 +36,31 @@ export async function GET(req) {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            backgroundColor: "#020617",
           }}
         >
-          {/* TOP */}
+          {/* BRAND */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "18px",
             }}
           >
-            
             <div
               style={{
-                fontSize: "28px",
+                width: "14px",
+                height: "14px",
+                borderRadius: "999px",
+                backgroundColor: "#2563eb",
+                marginRight: "14px",
+              }}
+            />
+
+            <div
+              style={{
+                fontSize: "30px",
                 fontWeight: 700,
+                color: "#ffffff",
               }}
             >
               ONS Logistics
@@ -63,7 +73,8 @@ export async function GET(req) {
               fontSize: "58px",
               fontWeight: 800,
               lineHeight: 1.1,
-              maxWidth: "700px",
+              maxWidth: "720px",
+              color: "#ffffff",
             }}
           >
             {shortTitle}
@@ -77,14 +88,12 @@ export async function GET(req) {
               alignItems: "center",
             }}
           >
+            {/* CATEGORY */}
             <div
               style={{
-                background:
-                  "rgba(59,130,246,0.15)",
-                border:
-                  "1px solid rgba(59,130,246,0.35)",
-                color: "#93c5fd",
-                padding: "10px 18px",
+                backgroundColor: "#1e3a8a",
+                color: "#dbeafe",
+                padding: "12px 20px",
                 borderRadius: "999px",
                 fontSize: "20px",
                 fontWeight: 600,
@@ -93,10 +102,11 @@ export async function GET(req) {
               {category}
             </div>
 
+            {/* DOMAIN */}
             <div
               style={{
                 fontSize: "18px",
-                opacity: 0.6,
+                color: "#94a3b8",
               }}
             >
               onslog.com
@@ -104,53 +114,24 @@ export async function GET(req) {
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT PANEL */}
         <div
           style={{
-            width: "420px",
+            width: "360px",
             height: "100%",
-            position: "relative",
-            background:
-              "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
-            overflow: "hidden",
+            backgroundColor: "#2563eb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "40px",
           }}
         >
-          {/* GRID */}
           <div
             style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
-              backgroundSize: "42px 42px",
-            }}
-          />
-
-          {/* CIRCLE 1 */}
-          <div
-            style={{
-              position: "absolute",
-              width: "320px",
-              height: "320px",
+              width: "220px",
+              height: "220px",
               borderRadius: "999px",
-              background:
-                "rgba(255,255,255,0.12)",
-              top: "80px",
-              left: "50px",
-            }}
-          />
-
-          {/* CIRCLE 2 */}
-          <div
-            style={{
-              position: "absolute",
-              width: "160px",
-              height: "160px",
-              borderRadius: "999px",
-              background:
-                "rgba(255,255,255,0.10)",
-              bottom: "80px",
-              right: "40px",
+              backgroundColor: "rgba(255,255,255,0.12)",
             }}
           />
         </div>
