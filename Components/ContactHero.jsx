@@ -212,17 +212,17 @@ export default function ContactHero() {
         
         <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100">
           <div className="w-full h-[400px] md:h-[500px]">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3423.234567890!2d75.8572!3d30.9010!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDU0JzAzLjYiTiA3NcKwNTEnMjUuOSJF!5e0!3m2!1sen!2sin!4v1234567890"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="ONS Logistics Office Location"
-            ></iframe>
-          </div>
+  <iframe
+    src="https://www.google.com/maps?q=ONS+Logistics,+Aatma+Nagar,+Mundian+Kalan,+Ludhiana,+Punjab,+India&output=embed"
+    width="100%"
+    height="100%"
+    style={{ border: 0 }}
+    allowFullScreen
+    loading="lazy"
+    referrerPolicy="no-referrer-when-downgrade"
+    title="ONS Logistics Office Location"
+  ></iframe>
+</div>
         </div>
       </div>
     </section>
