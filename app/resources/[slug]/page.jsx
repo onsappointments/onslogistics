@@ -28,17 +28,25 @@ function slugify(text) {
     .replace(/\s+/g, "-");
 }
 export async function generateMetadata({ params }) {
-  const article = articles.find(
-    (a) => a.slug === params.slug
-  );
+  const { slug } = await params;
 
+  const article = articles.find(
+    (a) => a.slug === slug
+  );
   if (!article) {
     return {
       title: "Article Not Found | ONS Logistics",
     };
   }
 
+  const url = `https://onslog.com/resources/${article.slug}`;
+  const image = `https://onslog.com/api/og?title=${encodeURIComponent(
+    article.title
+  )}&category=${encodeURIComponent(article.category)}`;
+
   return {
+    metadataBase: new URL("https://onslog.com"),
+
     title: `${article.title} | ONS Logistics`,
     description: article.description,
     keywords: article.keywords,
@@ -46,20 +54,33 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: article.title,
       description: article.description,
-      url: `https://onslog.com/resources/${article.slug}`,
+      url,
+      siteName: "ONS Logistics",
       type: "article",
+
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
     },
 
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.description,
+      images: [image],
     },
   };
 }
 
-export default function ArticlePage({ params }) {
-  const article = getArticleBySlug(params.slug, articles);
+export default async function ArticlePage({ params }) {
+  const { slug } = await params;
+
+  const article = getArticleBySlug(slug, articles);
 
   if (!article) return <div>Not found</div>;
 
