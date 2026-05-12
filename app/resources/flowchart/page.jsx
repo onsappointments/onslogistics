@@ -1,679 +1,201 @@
-"use client";
+import Link from "next/link";
+import {
+  ChevronRight,
+  ArrowRight,
+} from "lucide-react";
 
-import { useMemo, useState } from "react";
+import FlowchartExplorer from "@/Components/resources/FlowchartExplorer";
 
-const NODE_WIDTH = 260;
-const NODE_HEIGHT = 72;
-const HORIZONTAL_GAP = 340;
-const VERTICAL_GAP = 120;
+export const metadata = {
+  title:
+    "Interactive Logistics Flowcharts | ONS Logistics",
 
-const TREE = {
-  id: "root",
-  label: "Global Shipping, Logistics, and Warehousing (India)",
-  root: true,
-  children: [
-    {
-      id: "ons",
-      label: "ONS Logistics India",
-      children: [
-        {
-          id: "core-services",
-          label: "Core Services",
-          children: [
-            {
-              id: "freight-forwarding",
-              label: "Freight Forwarding (Sea, Air, Road)",
-              children: [],
-            },
-            {
-              id: "customs-clearance",
-              label: "Customs Clearance & Compliance",
-              children: [],
-            },
-            {
-              id: "consultation",
-              label: "Export/Import Consultation",
-              children: [],
-            },
-            {
-              id: "licensing",
-              label: "Licensing & Documentation",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "capabilities",
-          label: "Capabilities",
-          children: [
-            {
-              id: "experience",
-              label: "15+ Years Experience",
-              children: [],
-            },
-            {
-              id: "countries",
-              label: "50+ Countries Served",
-              children: [],
-            },
-            {
-              id: "tracking",
-              label: "24/7 Tracking & Support",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "Certifications",
-          label: "Certifications",
-          children: [
-            {
-              id: "MSME-Registered",
-              label: "MSME Registered",
-              children: [],
-            },
-            {
-              id: "MTO-Registration",
-              label: "MTO-Registration",
-              children: [],
-            },
-            {
-              id: "Concor-Empanelled-CHA",
-              label: "Concor Empanelled CHA",
-              children: [],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "imports",
-      label: "Import Process into India",
-      children: [
-        {
-          id: "pre-import",
-          label: "Pre-Import Setup",
-          children: [
-            {
-              id: "iec",
-              label: "IEC Registration (DGFT)",
-              children: [],
-            },
-            {
-              id: "gst",
-              label: "GST & AD Code",
-              children: [],
-            },
-            {
-              id: "special-licenses",
-              label: "Special Licenses (FSSAI, BIS, WPC)",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "Order-Shipping",
-          label: "Order & Shipping",
-          children: [
-            {
-              id: " Purchase-Order-Incoterms",
-              label: " Purchase Order & Incoterms",
-              children: [],
-            },
-            {
-              id: " Payment",
-              label: " Payment (LC or Advance)",
-              children: [],
-            },
-            {
-              id: " Shipping-Docs",
-              label: " Shipping Docs (B/L, AWB, Invoice)",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "Customs-Clearance",
-          label: "Customs Clearance (ICEGATE)",
-          children: [
-            {
-              id: " IGM-Bill-Entry",
-              label: "IGM & Bill of Entry (BOE) Filing",
-              children: [],
-            },
-            {
-              id: "Duty-Assessment-Payment",
-              label: "Duty Assessment & Payment",
-              children: [],
-            },
-            {
-              id: "Examination-Out-Charge",
-              label: "Examination & Out of Charge (OOC)",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "Final-Receipt",
-          label: "Final Receipt",
-          children: [
-            {
-              id: " Delivery-Order",
-              label: " Delivery Order (DO)",
-              children: [],
-            },
-            {
-              id: " Warehouse-Transport",
-              label: " Warehouse Transport",
-              children: [],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "exports",
-      label: "Export Process from India",
-      children: [
-        {
-          id: "Preparation",
-          label: "Preparation",
-          children: [
-            {
-              id: "Business-Registration-PAN",
-              label: "Business Registration & PAN",
-              children: [],
-            },
-            {
-              id: "IEC-GST-Compliance",
-              label: "IEC & GST Compliance",
-              children: [],
-            },
-            {
-              id: " Market-Research",
-              label: " Market Research",
-              children: [],
-            },
-          ],
-        },
-         {
-          id: "Contract-Production",
-          label: "Contract & Production",
-          children: [
-            {
-              id: "Proforma-Invoice-Negotiation",
-              label: "Proforma Invoice & Negotiation",
-              children: [],
-            },
-            {
-              id: "Manufacturing-Quality-Control",
-              label: "Manufacturing & Quality Control",
-              children: [],
-            },
-            {
-              id: "Packaging-Labeling",
-              label: "Packaging & Labeling",
-              children: [],
-            },
-          ],
-        },
-         {
-          id: "documentation",
-          label: "Documentation",
-          children: [
-            {
-              id: "commercial-invoice",
-              label: "Commercial Invoice & Packing List",
-              children: [],
-            },
-            {
-              id: "bill-lading",
-              label: "Bill of Lading / Airway Bill",
-              children: [],
-            },
-            {
-              id: "Certificate-of-Origin",
-              label: "Certificate of Origin",
-              children: [],
-            },
-          ],
-        },
-         {
-          id: "Shipping-Payment",
-          label: "Shipping & Payment",
-          children: [
-            {
-              id: "Shipping-Bill-Filing",
-              label: "Shipping Bill Filing",
-              children: [],
-            },
-            {
-              id: "Let-Export-Order",
-              label: "Let Export Order (LEO)",
-              children: [],
-            },
-            {
-              id: " Bank-Document-Submission",
-              label: " Bank Document Submission",
-              children: [],
-            },
-            {
-              id: "RBI-Foreign-Exchange-Realization",
-              label: "RBI Foreign Exchange Realization",
-              children: [],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "warehousing",
-      label: "Warehousing in India",
-      children: [
-        {
-          id: "Licenses-Safety",
-          label: "Licenses & Safety",
-          children: [
-            {
-              id: "WDRA-Registration",
-              label: "WDRA Registration",
-              children: [],
-            },
-            {
-              id: "Fire-Pollution-NOC",
-              label: "Fire & Pollution NOC",
-              children: [],
-            },
-            {
-              id: "FSSAI-Bonded-Licenses",
-              label: "FSSAI & Bonded Licenses",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "operations",
-          label: "Operational Excellence",
-          children: [
-            {
-              id: "wms",
-              label: "Warehouse Management System (WMS)",
-              children: [],
-            },
-            {
-              id: "layout",
-              label: "Unidirectional Flow Layout",
-              children: [],
-            },
-            {
-              id: "Principles",
-              label: "F.A.C.T. Principles",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "Market-Trends",
-          label: "Market Trends (2025–2026)",
-          children: [
-            {
-              id: "Grade-A-Institutional-Parks",
-              label: "Grade A Institutional Parks",
-              children: [],
-            },
-            {
-              id: "Manufacturing-E-commerce-Growth",
-              label: "Manufacturing & E-commerce Growth",
-              children: [],
-            },
-            {
-              id: "Hubs-Pune-Mumbai-Nagpur-Delhi-NCR",
-              label: "Hubs: Pune, Mumbai, Nagpur, Delhi-NCR",
-              children: [],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "sea-freight",
-      label: "Sea Freight: India to USA",
-      children: [
-        {
-          id: "service-options",
-          label: "Service Options",
-          children: [
-            {
-              id: "fcl",
-              label: "FCL (Full Container Load)",
-              children: [],
-            },
-            {
-              id: "lcl",
-              label: "LCL (Less than Container Load)",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "Transit-Timelines",
-          label: "Transit Timelines",
-          children: [
-            {
-              id: "West-Coast",
-              label: "West Coast: ~50 Days Door-to-Door",
-              children: [],
-            },
-            {
-              id: "East-Coast",
-              label: "East Coast: ~60 Days Door-to-Door",
-              children: [],
-            },
-          ],
-        },
-        {
-          id: "Critical-Compliance",
-          label: "Critical Compliance",
-          children: [
-            {
-              id: "ISF-Filing",
-              label: "ISF Filing (24hr Rule)",
-              children: [],
-            },
-            {
-              id: "Fumigation-Certificate",
-              label: "Fumigation Certificate",
-              children: [],
-            },
-             {
-              id: " DDP-vs-DAP-Terms",
-              label: " DDP vs DAP Terms",
-              children: [],
-            },
-          ],
-        },
-      ],
-    },
+  description:
+    "Explore interactive logistics flowcharts covering imports, exports, customs clearance, warehousing, freight forwarding, and shipping processes in India.",
+
+  keywords: [
+    "logistics flowchart",
+    "import export process India",
+    "customs clearance process",
+    "freight forwarding guide",
+    "warehousing process India",
+    "shipping flowchart",
+    "international logistics",
+    "supply chain flowchart",
   ],
 };
 
-function normalizeNode(node) {
-  return {
-    id: String(node?.id || crypto.randomUUID()),
-    label: String(node?.label || "Untitled"),
-    root: Boolean(node?.root),
-    children: Array.isArray(node?.children)
-      ? node.children.map(normalizeNode)
-      : [],
-  };
-}
-
-const SAFE_TREE = normalizeNode(TREE);
-
-function countExpanded(node, expanded) {
-  if (!node) {
-    return 1;
-  }
-
-  if (!expanded.has(node.id) || node.children.length === 0) {
-    return 1;
-  }
-
-  return node.children.reduce((total, child) => {
-    return total + countExpanded(child, expanded);
-  }, 1);
-}
-
-function buildLayout(
-  node,
-  expanded,
-  depth = 0,
-  startY = 0,
-  nodes = [],
-  lines = [],
-  parent = null
-) {
-  const totalUnits = countExpanded(node, expanded);
-  const totalHeight = totalUnits * VERTICAL_GAP;
-
-  const x = depth * HORIZONTAL_GAP + 120;
-  const y = startY + totalHeight / 2 - VERTICAL_GAP / 2;
-
-  nodes.push({
-    id: node.id,
-    x,
-    y,
-    label: node.label,
-    root: node.root,
-    hasChildren: node.children.length > 0,
-  });
-
-  if (parent) {
-    lines.push({
-      id: `${parent.id}-${node.id}`,
-      x1: parent.x + NODE_WIDTH,
-      y1: parent.y + NODE_HEIGHT / 2,
-      x2: x,
-      y2: y + NODE_HEIGHT / 2,
-    });
-  }
-
-  if (expanded.has(node.id)) {
-    let currentY = startY;
-
-    node.children.forEach((child) => {
-      const childHeight = countExpanded(child, expanded) * VERTICAL_GAP;
-
-      buildLayout(
-        child,
-        expanded,
-        depth + 1,
-        currentY,
-        nodes,
-        lines,
-        {
-          x,
-          y,
-          id: node.id,
-        }
-      );
-
-      currentY += childHeight;
-    });
-  }
-
-  return {
-    nodes,
-    lines,
-  };
-}
-
-function NodeCard({ node, expanded, onToggle }) {
-  const cardClassName = node.root
-    ? "absolute rounded-2xl border border-[#6078ff55] bg-[#3a445f] p-4 shadow-2xl transition-all duration-500 ease-in-out hover:scale-[1.02]"
-    : "absolute rounded-2xl border border-[#2d5a4a] bg-[#20362e] p-4 shadow-2xl transition-all duration-500 ease-in-out hover:scale-[1.02]";
-
+export default function FlowchartsPage() {
   return (
-    <div
-      className={cardClassName}
-      style={{
-        width: NODE_WIDTH,
-        minHeight: NODE_HEIGHT,
-        left: node.x,
-        top: node.y,
-      }}
-    >
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm font-medium leading-relaxed text-white">
-          {node.label}
+    <div className="min-h-screen bg-[#f8fafc]">
+
+      <div className="max-w-7xl mx-auto px-6 py-12">
+
+        {/* BREADCRUMBS */}
+        <div className="flex items-center gap-2 text-sm text-slate-500 mb-8">
+
+          <Link
+            href="/resources"
+            className="hover:text-blue-600 transition"
+          >
+            Resources
+          </Link>
+
+          <ChevronRight className="w-4 h-4" />
+
+          <span className="font-medium text-slate-900">
+            Interactive Flowcharts
+          </span>
         </div>
 
-        {node.hasChildren ? (
-          <button
-            type="button"
-            onClick={() => onToggle(node.id)}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-black/20 text-lg text-white transition hover:bg-black/40"
-          >
-            {expanded.has(node.id) ? "−" : "+"}
-          </button>
-        ) : null}
-      </div>
-    </div>
-  );
-}
+        {/* HERO */}
+        <section className="relative overflow-hidden rounded-[40px] border border-slate-200 bg-white px-8 py-14 md:px-14 md:py-20">
 
-export default function Page() {
-  const [expanded, setExpanded] = useState(
-    new Set([
-      "root",
-      "ons",
-      "imports",
-      "exports",
-      "warehousing",
-      "sea-freight",
-    ])
-  );
+          {/* BACKGROUND GRADIENT */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-100/40" />
 
-  const [zoom, setZoom] = useState(1);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+          {/* GLOW */}
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100/30 blur-3xl rounded-full" />
 
-  const graph = useMemo(() => {
-    return buildLayout(SAFE_TREE, expanded);
-  }, [expanded]);
+          <div className="relative z-10 max-w-4xl">
 
-  function toggleNode(id) {
-    setExpanded((previous) => {
-      const next = new Set(previous);
+            {/* TAG */}
+            <div className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 mb-6">
+              Interactive Logistics Knowledge System
+            </div>
 
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+            {/* TITLE */}
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 leading-tight">
+              Learn Logistics Through
+              <span className="block text-blue-600">
+                Interactive Flowcharts
+              </span>
+            </h1>
 
-      return next;
-    });
-  }
+            {/* DESCRIPTION */}
+            <p className="mt-6 text-lg md:text-xl text-slate-600 leading-relaxed max-w-3xl">
+              Explore imports, exports,
+              customs clearance,
+              freight forwarding,
+              warehousing,
+              sea freight,
+              and supply chain operations
+              through interactive visual logistics maps.
+            </p>
 
-  function toggleFullscreen() {
-    if (typeof document === "undefined") {
-      return;
-    }
+            {/* ACTIONS */}
+            <div className="flex flex-wrap items-center gap-4 mt-10">
 
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  }
+              <Link
+                href="/resources"
+                className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-4 text-white font-medium hover:bg-blue-700 transition"
+              >
+                Explore Articles
 
-  const width = Math.max(
-    ...graph.nodes.map((node) => node.x + NODE_WIDTH + 200),
-    1800
-  );
+                <ArrowRight className="w-4 h-4" />
+              </Link>
 
-  const height = Math.max(
-    ...graph.nodes.map((node) => node.y + NODE_HEIGHT + 200),
-    1200
-  );
+              <Link
+                href="/resources/faq"
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-4 text-slate-700 font-medium hover:bg-slate-50 transition"
+              >
+                Browse FAQs
+              </Link>
 
-  return (
-    <div className="flex h-screen w-full flex-col bg-[#0b1220] text-white">
-      <div className="border-b border-white/10 bg-black/20 px-8 py-6 backdrop-blur-xl">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Global Shipping, Logistics & Warehousing
-        </h1>
+            </div>
+          </div>
+        </section>
 
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-300">
-          Interactive expandable logistics knowledge graph.
-        </p>
-      </div>
+        {/* FLOWCHART */}
+        <FlowchartExplorer fullPage />
 
-      <div className="flex items-center justify-between border-b border-white/5 bg-black/10 px-6 py-3">
-        <div className="text-sm text-zinc-400">
-          Zoom: {Math.round(zoom * 100)}%
-        </div>
+        {/* RESOURCE NAVIGATION */}
+        <section className="mt-16">
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setZoom((prev) => Math.max(0.4, prev - 0.1))}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-lg transition hover:bg-white/10"
-          >
-            −
-          </button>
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8">
 
-          <button
-            type="button"
-            onClick={() => setZoom(1)}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:bg-white/10"
-          >
-            Reset
-          </button>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
 
-          <button
-            type="button"
-            onClick={() => setZoom((prev) => Math.min(2, prev + 0.1))}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-lg transition hover:bg-white/10"
-          >
-            +
-          </button>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">
+                  Explore More Resources
+                </h2>
 
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:bg-white/10"
-          >
-            {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-          </button>
-        </div>
-      </div>
+                <p className="text-slate-600 mt-2">
+                  Continue learning through logistics
+                  articles and frequently asked questions.
+                </p>
+              </div>
 
-      <div className="flex-1 overflow-auto">
-        <div
-          className="relative mx-auto origin-top transition-all duration-500 ease-in-out"
-          style={{
-            width,
-            height,
-            transform: `scale(${zoom})`,
-          }}
-        >
-          <svg
-            width={width}
-            height={height}
-            className="absolute inset-0"
-          >
-            {graph.lines.map((line) => {
-              const curveX = (line.x1 + line.x2) / 2;
+              <div className="flex flex-wrap gap-3">
 
-              return (
-                <path
-                  key={line.id}
-                  d={`M ${line.x1} ${line.y1} C ${curveX} ${line.y1}, ${curveX} ${line.y2}, ${line.x2} ${line.y2}`}
-                  fill="none"
-                  stroke="#7aa2ff"
-                  strokeWidth="2"
-                  style={{
-                    transition: "all 500ms ease-in-out",
-                  }}
-                />
-              );
-            })}
-          </svg>
+                <Link
+                  href="/resources"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-slate-700 font-medium hover:bg-slate-50 transition"
+                >
+                  Articles
 
-          {graph.nodes.map((node) => {
-            return (
-              <NodeCard
-                key={node.id}
-                node={node}
-                expanded={expanded}
-                onToggle={toggleNode}
-              />
-            );
-          })}
-        </div>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <Link
+                  href="/resources/faq"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-white font-medium hover:bg-blue-700 transition"
+                >
+                  FAQs
+
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SEO CONTENT */}
+        <section className="mt-20 max-w-4xl">
+
+          <div className="space-y-6 text-slate-600 leading-relaxed">
+
+            <h2 className="text-3xl font-bold text-slate-900 leading-tight">
+              Interactive Logistics Learning Platform
+            </h2>
+
+            <p>
+              ONS Logistics provides interactive
+              logistics flowcharts designed to help
+              businesses understand import-export
+              workflows, customs clearance,
+              freight forwarding,
+              warehousing operations,
+              shipping documentation,
+              and international logistics systems.
+            </p>
+
+            <p>
+              These interactive logistics maps simplify
+              complex supply chain operations and help
+              importers, exporters, manufacturers,
+              logistics teams,
+              and business owners understand
+              shipping processes visually.
+            </p>
+
+            <p>
+              Explore logistics processes covering
+              imports into India,
+              exports from India,
+              sea freight,
+              customs compliance,
+              warehousing,
+              transportation,
+              and international trade operations
+              through expandable visual flowcharts.
+            </p>
+
+          </div>
+        </section>
+
       </div>
     </div>
   );

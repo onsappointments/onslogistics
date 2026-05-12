@@ -12,6 +12,7 @@ import SearchBar from "@/Components/resources/SearchBar";
 import CategoryTabs from "@/Components/resources/CategoryTabs";
 import ArticleCard from "@/Components/resources/ArticleCard";
 import CTASection from "@/Components/resources/CTASection";
+import LearningPaths from "@/Components/resources/LearningPaths";
 
 const categories = [
   "All",
@@ -53,6 +54,8 @@ export default function ResourcesPage() {
 
         <SearchBar value={search} onChange={setSearch} />
       </div>
+
+      <LearningPaths />
 
       {/* CATEGORY FILTER */}
       <CategoryTabs
