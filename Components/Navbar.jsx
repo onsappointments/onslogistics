@@ -77,7 +77,6 @@ export default function Navbar() {
 
   // Secondary nav — tucked into "More" dropdown
   const moreNav = [
-    { label: "FAQ", path: "/faq" },
     { label: "Contact Us", path: "/contact" },
   ];
 
