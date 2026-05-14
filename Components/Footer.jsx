@@ -20,6 +20,11 @@ export default function Footer() {
     { name: "Export / Import Consultation", href: "/services#export" },
     { name: "Custom Clearance", href: "/services#custom" },
   ];
+  const resources = [
+    { name: "Blogs", href: "/resources" },
+    { name: "Flowchart", href: "/resources/flowchart" },
+    { name: "FAQs", href: "/resources/faq" },
+  ];
 
     const containerDimension = [
       { name: "Standard Containers", href: "/container-dimensions/standard" },
@@ -189,30 +194,32 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Containers Column */}
+          {/* Resources  Column */}
           <div className="flex flex-col fade-in-delay-2">
             <a
-              href="/container-dimensions"
+              href="/resources"
               className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider transition-colors duration-300 hover:text-blue-600"
             >
-              Container Dimensions
+              Resources
             </a>
             <ul className="space-y-3 sm:space-y-4 text-sm">
-              {containerDimension.map((dimension, idx) => (
+              {resources.map((resource, idx) => (
                 <li
                   key={idx}
                   className="transform transition-all duration-300 hover:translate-x-2"
                 >
                   <a
-                    href={dimension.href}
+                    href={resource.href}
                     className="hover:text-blue-600 transition-all duration-300 inline-block"
                   >
-                    → {dimension.name}
+                    → {resource.name}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
+
+          
 
           {/* Services Column */}
           <div className="flex flex-col fade-in-delay-2">
@@ -238,6 +245,8 @@ export default function Footer() {
               ))}
             </ul>
           </div>
+
+          
 
           {/* Contact Info */}
           <div className="flex flex-col fade-in-delay-3">
@@ -281,6 +290,32 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+
+          {/* Containers Column */}
+          <div className="flex flex-col fade-in-delay-2">
+            <a
+              href="/container-dimensions"
+              className="mb-4 sm:mb-6 text-sm sm:text-base font-semibold uppercase tracking-wider transition-colors duration-300 hover:text-blue-600"
+            >
+              Container Dimensions
+            </a>
+            <ul className="space-y-3 sm:space-y-4 text-sm">
+              {containerDimension.map((dimension, idx) => (
+                <li
+                  key={idx}
+                  className="transform transition-all duration-300 hover:translate-x-2"
+                >
+                  <a
+                    href={dimension.href}
+                    className="hover:text-blue-600 transition-all duration-300 inline-block"
+                  >
+                    → {dimension.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
         </div>
       </div>
 
