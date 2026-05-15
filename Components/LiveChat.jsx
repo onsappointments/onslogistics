@@ -7,16 +7,18 @@ export default function LiveChat() {
     if (typeof window === "undefined") return;
 
     // Prevent multiple injections
-    if (window.Tawk_API) return;
-
-    window.Tawk_API = window.Tawk_API || {};
-    window.Tawk_LoadStart = new Date();
+    if (document.getElementById("aisensy-wa-widget")) return;
 
     const script = document.createElement("script");
-    script.async = true;
-    script.src = "https://embed.tawk.to/694148d0de3785197bbfa03f/1jcjg8sia";
-    script.charset = "UTF-8";
-    script.setAttribute("crossorigin", "*");
+
+    script.type = "text/javascript";
+    script.src =
+      "https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
+
+    script.id = "aisensy-wa-widget";
+
+    // Your widget ID
+    script.setAttribute("widget-id", "aab1v3");
 
     document.body.appendChild(script);
   }, []);
