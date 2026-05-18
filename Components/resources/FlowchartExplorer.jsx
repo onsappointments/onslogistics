@@ -1311,6 +1311,8 @@ export default function FlowchartExplorer({
                   <Link
                     key={item.href}
                     href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="group flex items-center justify-between rounded-2xl border border-slate-200 p-4 hover:border-blue-200 hover:bg-blue-50/50 transition"
                   >
 
