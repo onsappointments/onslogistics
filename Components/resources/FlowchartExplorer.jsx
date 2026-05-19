@@ -9,6 +9,13 @@ import {
    X,
   ExternalLink,
 } from "lucide-react";
+import {
+  useRouter,
+  usePathname,
+} from "next/navigation";
+import {
+  useEffect,
+} from "react";
 
 const NODE_WIDTH = 260;
 const NODE_HEIGHT = 72;
@@ -790,6 +797,20 @@ They also manage customs documentation, shipment tracking, cargo consolidation, 
   },
 };
 
+const NODE_SLUGS = {
+  "freight-forwarding":
+    "freight-forwarding",
+
+  "customs-clearance":
+    "customs-clearance",
+
+  consultation:
+    "export-import-consultation",
+
+  licensing:
+    "licensing-documentation",
+};
+
 function buildLayout(
   node,
   expanded,
@@ -962,6 +983,29 @@ export default function FlowchartExplorer({
 
   const [selectedNode, setSelectedNode] =
     useState(null);
+
+  const router = useRouter();
+  const pathname =
+   usePathname();
+
+useEffect(() => {
+  const slug =
+    pathname.split("/").pop();
+
+  const match =
+    Object.entries(
+      NODE_SLUGS
+    ).find(
+      ([_, value]) =>
+        value === slug
+    );
+
+  if (match) {
+    setSelectedNode(
+      match[0]
+    );
+  }
+}, [pathname]);
 
   const graph =
     useMemo(() => {
@@ -1165,7 +1209,20 @@ export default function FlowchartExplorer({
                     onToggle={
                       toggleNode
                     }
-                    onSelect={setSelectedNode}
+                    onSelect={(id) => {
+                      setSelectedNode(id);
+
+                      const slug =
+                        NODE_SLUGS[id];
+
+                      if (slug) {
+                        window.history.replaceState(
+                          {},
+                          "",
+                          `/resources/flowchart/${slug}`,
+                        );
+                      }
+                    }}
 
                   />
                 );
@@ -1174,12 +1231,18 @@ export default function FlowchartExplorer({
           </div>
         </div>
       </div>
-      {/* OVERLAY */}
+{/* OVERLAY */}
 {selectedNode && (
   <div
-    onClick={() =>
-      setSelectedNode(null)
-    }
+    onClick={() => {
+      setSelectedNode(null);
+
+      window.history.replaceState(
+        {},
+        "",
+        "/resources/flowchart"
+      );
+    }}
     className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
   />
 )}
@@ -1209,13 +1272,19 @@ export default function FlowchartExplorer({
           </div>
 
           <button
-            onClick={() =>
-              setSelectedNode(null)
-            }
-            className="h-10 w-10 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
+           onClick={() => {
+             setSelectedNode(null);
+
+              window.history.replaceState(
+                          {},
+                          "",
+                          `/resources/flowchart`,
+                        );
+           }}
+           className="h-10 w-10 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition"
+         >
+           <X className="w-5 h-5" />
+         </button>
         </div>
 
         {/* DESCRIPTION */}

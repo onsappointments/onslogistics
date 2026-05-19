@@ -104,14 +104,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // ── FAQ ────────────────────────────────────
     {
-      url: `${baseUrl}/faq`,
+      url: `${baseUrl}/resources/faq`,
       lastModified: new Date("2025-04-20"),
       changeFrequency: "weekly",
       priority: 0.9,
     },
 
     ...faqCategories.map((slug) => ({
-      url: `${baseUrl}/faq/${slug}`,
+      url: `${baseUrl}/resources/faq/${slug}`,
       lastModified: new Date("2025-04-20"),
       changeFrequency: "monthly" as const,
       priority:
