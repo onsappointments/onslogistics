@@ -4,6 +4,7 @@ import HeroSection from "@/Components/home/HeroSection";
 import AboutSection from "@/Components/home/AboutSection";
 import KnowledgeHubGateway from "@/Components/home/KnowledgeHubGateway";
 import CertificationsSection from "@/Components/home/CertificationsSection";
+import GlobalLogisticsMap from "@/Components/home/GlobalLogisticsMap";
 
 export default function Home() {
   return (
@@ -12,6 +13,8 @@ export default function Home() {
       <HeroSection />
 
       <AboutSection />
+
+      <GlobalLogisticsMap />
 
       <KnowledgeHubGateway />
 
