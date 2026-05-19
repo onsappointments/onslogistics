@@ -1,0 +1,260 @@
+"use client";
+
+import Image from "next/image";
+import {
+  Truck,
+  Globe,
+  Shield,
+  Clock,
+  CheckCircle2,
+} from "lucide-react";
+
+export default function AboutSection() {
+  const features = [
+    {
+      icon: <Truck className="w-6 h-6" />,
+      title: "Multi-Modal Transport",
+      description:
+        "Sea, air, and road freight solutions",
+    },
+
+    {
+      icon: <Globe className="w-6 h-6" />,
+      title: "Global Network",
+      description:
+        "Coverage across 50+ countries",
+    },
+
+    {
+      icon: <Shield className="w-6 h-6" />,
+      title: "Customs Expertise",
+      description:
+        "Seamless clearance & compliance",
+    },
+
+    {
+      icon: <Clock className="w-6 h-6" />,
+      title: "24/7 Support",
+      description:
+        "Real-time tracking & assistance",
+    },
+  ];
+
+  return (
+    <section
+      className="relative px-6 py-20 lg:py-12"
+      id="about"
+    >
+      <div className="max-w-7xl mx-auto">
+
+        {/* HEADER */}
+        <div className="text-center mb-16">
+
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-medium mb-4">
+            <CheckCircle2 className="w-4 h-4" />
+
+            Trusted Logistics Partner
+          </div>
+
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+            About{" "}
+
+            <span className="text-blue-600">
+              ONS Logistics
+            </span>
+          </h2>
+
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Your trusted partner in global shipping,
+            logistics, and customs clearance.
+            We deliver efficiency, reliability,
+            and transparency across every shipment.
+          </p>
+        </div>
+
+        {/* HERO IMAGE */}
+        <div className="relative mb-20">
+
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+
+            <Image
+              rel="preload"
+              src="/About-us.webp"
+              alt="About ONS Logistics - Professional freight forwarding services"
+              width={1000}
+              height={1000}
+              className="aspect-video w-full h-[30rem]"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-900/40 to-transparent" />
+
+            {/* STATS */}
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+
+              <div className="grid grid-cols-3 gap-6 md:gap-12">
+
+                <div className="text-center md:text-left">
+
+                  <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
+                    15+
+                  </div>
+
+                  <div className="text-sm md:text-base text-blue-100">
+                    Years in Business
+                  </div>
+                </div>
+
+                <div className="text-center md:text-left">
+
+                  <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
+                    5000+
+                  </div>
+
+                  <div className="text-sm md:text-base text-blue-100">
+                    Shipments Delivered
+                  </div>
+                </div>
+
+                <div className="text-center md:text-left">
+
+                  <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
+                    99.8%
+                  </div>
+
+                  <div className="text-sm md:text-base text-blue-100">
+                    On-Time Delivery
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* FEATURES */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+
+          {features.map((feature, idx) => (
+            <div
+              key={idx}
+              className="group p-6 rounded-2xl bg-white border border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            >
+
+              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                {feature.icon}
+              </div>
+
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                {feature.title}
+              </h3>
+
+              <p className="text-sm text-gray-600">
+                {feature.description}
+              </p>
+
+            </div>
+          ))}
+        </div>
+
+        {/* CONTENT CARDS */}
+        <div className="space-y-12 p-10 bg-white rounded-3xl shadow-xl">
+
+          {/* CARD 1 */}
+          <div className="overflow-hidden">
+
+            <div className="grid md:grid-cols-2 gap-0">
+
+              <div className="relative h-64 md:h-auto">
+
+                <Image
+                  rel="preload"
+                  src="/about-photo.jpg"
+                  alt="Global logistics and freight forwarding operations by ONS Logistics"
+                  fill
+                  className="object-cover rounded-xl"
+                />
+              </div>
+
+              <div className="p-8 md:p-12 flex flex-col justify-center">
+
+                <div className="inline-flex items-center gap-2 text-blue-600 text-sm font-medium mb-4">
+                  <Globe className="w-4 h-4" />
+
+                  Our Mission
+                </div>
+
+                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                  We Move the World Forward
+                </h3>
+
+                <p className="text-gray-600 leading-relaxed mb-6">
+                  At ONS Logistics India Pvt. Ltd.,
+                  every shipment reflects our commitment
+                  to precision, trust, and seamless global movement.
+                </p>
+
+                <p className="text-gray-600 leading-relaxed">
+                  Our expertise spans international freight forwarding,
+                  multimodal transportation, customs clearance,
+                  warehousing, and supply chain optimization.
+                </p>
+
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 2 */}
+          <div className="overflow-hidden">
+
+            <div className="grid md:grid-cols-2 gap-0">
+
+              <div className="p-8 md:p-12 flex flex-col justify-center order-2 md:order-1">
+
+                <div className="inline-flex items-center gap-2 text-blue-600 text-sm font-medium mb-4">
+                  <Shield className="w-4 h-4" />
+
+                  Our Commitment
+                </div>
+
+                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                  Tailored Solutions for Your Needs
+                </h3>
+
+                <p className="text-gray-600 leading-relaxed mb-6">
+                  From containerized shipments and industrial cargo
+                  to time-critical deliveries and specialized freight,
+                  we tailor logistics solutions to exact requirements.
+                </p>
+
+                <p className="text-gray-600 leading-relaxed mb-6">
+                  Our advanced tracking systems provide
+                  real-time visibility and seamless coordination.
+                </p>
+
+                <p className="text-gray-600 leading-relaxed">
+                  We move global trade forward with reliability,
+                  expertise, and on-time delivery across oceans,
+                  skies, roads, and borders.
+                </p>
+
+              </div>
+
+              <div className="relative h-64 md:h-auto order-1 md:order-2">
+
+                <Image
+                  src="/about-photo2.jpg"
+                  alt="International shipping containers and cranes handled by ONS Logistics"
+                  fill
+                  className="object-cover rounded-xl"
+                />
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  );
+}
