@@ -6,6 +6,8 @@ import {
   ZoomIn,
   ZoomOut,
   ArrowRight,
+   X,
+  ExternalLink,
 } from "lucide-react";
 
 const NODE_WIDTH = 260;
@@ -574,6 +576,219 @@ function countExpanded(
     1
   );
 }
+const NODE_DETAILS = {
+  "freight-forwarding": {
+    title:
+      "Freight Forwarding (Sea, Air, Road)",
+
+    description:
+      "Freight forwarding is an end-to-end logistics service where specialized agents organize, consolidate, and track the transport of goods across global supply chains.",
+
+    sections: [
+      {
+        heading: "Overview",
+
+        content: `
+Freight forwarders act as strategic intermediaries between shippers, transport carriers, customs authorities, and warehouses.
+
+Instead of physically transporting cargo themselves, forwarders coordinate global movement through sea freight, air freight, and overland transportation systems.
+
+They also manage customs documentation, shipment tracking, cargo consolidation, and carrier negotiations.
+        `,
+      },
+
+      {
+        heading: "Sea Freight (Ocean Freight)",
+
+        bullets: [
+          "Best for high-volume, oversized, or low-cost cargo transportation.",
+          "Supports Full Container Load (FCL) and Less than Container Load (LCL).",
+          "Uses Bill of Lading (B/L) as the key legal transport document.",
+        ],
+      },
+
+      {
+        heading: "Air Freight",
+
+        bullets: [
+          "Best for urgent, high-value, lightweight, or perishable goods.",
+          "Provides significantly faster international transit times.",
+          "Uses Airway Bill (AWB) as the shipment document.",
+        ],
+      },
+
+      {
+        heading:
+          "Rail & Road Freight",
+
+        bullets: [
+          "Used for domestic distribution and inland transportation.",
+          "Supports point-to-point trucking and consolidated cargo movement.",
+          "Essential for last-mile delivery and warehouse connectivity.",
+        ],
+      },
+    ],
+
+    related: [
+      {
+        label:
+          "Sea Freight vs Air Freight",
+        href:
+          "/resources/air-vs-sea-freight-from-india",
+      },
+
+      {
+        label:
+          "How Freight Forwarding Works",
+        href:
+          "/resources/freight-forwarding-explained-india",
+      },
+    ],
+  },
+
+  "customs-clearance": {
+    title:
+      "Customs Clearance & Compliance",
+
+    description:
+      "Customs clearance is the official process of verifying and approving goods crossing international borders.",
+
+    sections: [
+      {
+        heading:
+          "The Clearance Process",
+
+        bullets: [
+          "Document submission including invoices, packing lists, and bills of lading.",
+          "HS code classification and customs valuation.",
+          "Duty and tax assessment based on cargo type and origin.",
+          "Inspection and cargo release approvals.",
+        ],
+      },
+
+      {
+        heading:
+          "Compliance Requirements",
+
+        bullets: [
+          "Import/export licenses and permits.",
+          "Accurate transaction value declarations.",
+          "Verification of restricted or prohibited goods.",
+          "Regulatory approvals for controlled products.",
+        ],
+      },
+    ],
+
+    related: [
+      {
+        label:
+          "Customs Clearance Process in India",
+        href:
+          "/resources/customs-clearance-india",
+      },
+      {
+        label:
+          "Customs Inspection Process in India",
+        href:
+          "/resources/customs-inspection-process-india",
+      },
+    ],
+  },
+
+  consultation: {
+    title:
+      "Export/Import Consultation",
+
+    description:
+      "Export-import consultation helps businesses navigate global trade regulations, logistics planning, and compliance requirements.",
+
+    sections: [
+      {
+        heading:
+          "Core Consultation Services",
+
+        bullets: [
+          "DGFT and customs compliance guidance.",
+          "Import Export Code (IEC) assistance.",
+          "Shipping documentation support.",
+          "Foreign market research and logistics planning.",
+          "Government incentive optimization.",
+        ],
+      },
+
+      {
+        heading:
+          "Business Benefits",
+
+        bullets: [
+          "Reduced customs and compliance risks.",
+          "Improved shipping efficiency.",
+          "Optimized tariffs and duty planning.",
+          "Better international supply chain visibility.",
+        ],
+      },
+    ],
+
+    related: [
+      {
+        label:
+          "Import Process in India",
+        href:
+          "/resources/import-process-in-india-step-by-step",
+      },
+      {
+        label:
+          "Export Process in India",
+        href:
+          "/resources/export-process-in-india-step-by-step",
+      },
+    ],
+  },
+
+  licensing: {
+    title:
+      "Licensing & Documentation",
+
+    description:
+      "Licensing and documentation define the legal, regulatory, and compliance framework required for international trade operations.",
+
+    sections: [
+      {
+        heading:
+          "Key Documentation",
+
+        bullets: [
+          "Import Export Code (IEC)",
+          "GST registration and AD Code",
+          "Commercial invoices and packing lists",
+          "Certificates of Origin",
+          "Shipping and customs documentation",
+        ],
+      },
+
+      {
+        heading:
+          "Compliance Requirements",
+
+        bullets: [
+          "Regulatory registrations and approvals.",
+          "Industry-specific permits and certifications.",
+          "Trade documentation accuracy.",
+          "Cross-border compliance procedures.",
+        ],
+      },
+    ],
+
+    related: [
+      {
+        label:
+          "Documents Required for Export from India",
+        href:
+          "/resources/documents-required-for-export-from-india",
+      },
+    ],
+  },
+};
 
 function buildLayout(
   node,
@@ -678,6 +893,7 @@ function NodeCard({
   node,
   expanded,
   onToggle,
+  onSelect,
 }) {
   return (
     <div
@@ -692,37 +908,40 @@ function NodeCard({
       `}
       style={{
         width: NODE_WIDTH,
-        minHeight:
-          NODE_HEIGHT,
+        minHeight: NODE_HEIGHT,
         left: node.x,
         top: node.y,
       }}
     >
-      <div className="p-5 flex items-center justify-between gap-4">
+      <div
+        className="p-5 flex items-center justify-between gap-4 cursor-pointer"
+        onClick={() => {
+          if (node.hasChildren) {
+            onToggle(node.id);
+          } else {
+            onSelect(node.id);
+          }
+        }}
+      >
         <div className="text-sm font-semibold leading-relaxed">
           {node.label}
         </div>
 
         {node.hasChildren ? (
-          <button
-            type="button"
-            onClick={() =>
-              onToggle(node.id)
-            }
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition text-lg"
-          >
-            {expanded.has(
-              node.id
-            )
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">
+            {expanded.has(node.id)
               ? "−"
               : "+"}
-          </button>
-        ) : null}
+          </div>
+        ) : (
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm">
+            →
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
 export default function FlowchartExplorer({
   fullPage = false,
 }) {
@@ -740,6 +959,9 @@ export default function FlowchartExplorer({
 
   const [zoom, setZoom] =
     useState(1);
+
+  const [selectedNode, setSelectedNode] =
+    useState(null);
 
   const graph =
     useMemo(() => {
@@ -943,6 +1165,8 @@ export default function FlowchartExplorer({
                     onToggle={
                       toggleNode
                     }
+                    onSelect={setSelectedNode}
+
                   />
                 );
               }
@@ -950,6 +1174,165 @@ export default function FlowchartExplorer({
           </div>
         </div>
       </div>
+      {/* OVERLAY */}
+{selectedNode && (
+  <div
+    onClick={() =>
+      setSelectedNode(null)
+    }
+    className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+  />
+)}
+
+{/* SIDEBAR */}
+{selectedNode &&
+  NODE_DETAILS[selectedNode] && (
+    <div className="fixed top-0 right-0 h-screen w-[520px] bg-white border-l border-slate-200 shadow-2xl z-50 overflow-y-auto">
+
+      <div className="p-8">
+
+        {/* HEADER */}
+        <div className="flex items-start justify-between gap-4">
+
+          <div>
+            <div className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 mb-4">
+              Logistics Knowledge
+            </div>
+
+            <h2 className="text-3xl font-bold text-slate-900 leading-tight">
+              {
+                NODE_DETAILS[
+                  selectedNode
+                ].title
+              }
+            </h2>
+          </div>
+
+          <button
+            onClick={() =>
+              setSelectedNode(null)
+            }
+            className="h-10 w-10 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* DESCRIPTION */}
+        <p className="mt-5 text-slate-600 leading-relaxed text-[15px]">
+          {
+            NODE_DETAILS[
+              selectedNode
+            ].description
+          }
+        </p>
+
+        {/* DYNAMIC SECTIONS */}
+        {NODE_DETAILS[
+          selectedNode
+        ].sections.map(
+          (section, index) => (
+            <div
+              key={index}
+              className="mt-10"
+            >
+
+              {/* SECTION TITLE */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                {section.heading}
+              </h3>
+
+              {/* PARAGRAPH CONTENT */}
+              {section.content && (
+                <div className="space-y-4 text-slate-600 leading-relaxed text-[15px]">
+
+                  {section.content
+                    .trim()
+                    .split("\n")
+                    .filter(Boolean)
+                    .map(
+                      (
+                        paragraph,
+                        i
+                      ) => (
+                        <p key={i}>
+                          {paragraph}
+                        </p>
+                      )
+                    )}
+
+                </div>
+              )}
+
+              {/* BULLET CARDS */}
+              {section.bullets && (
+                <div className="space-y-3">
+
+                  {section.bullets.map(
+                    (item) => (
+                      <div
+                        key={item}
+                        className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3"
+                      >
+
+                        <div className="w-2 h-2 rounded-full bg-blue-600 mt-2" />
+
+                        <span className="text-slate-700 leading-relaxed text-[15px]">
+                          {item}
+                        </span>
+
+                      </div>
+                    )
+                  )}
+
+                </div>
+              )}
+            </div>
+          )
+        )}
+
+        {/* RELATED RESOURCES */}
+        {NODE_DETAILS[
+          selectedNode
+        ].related?.length >
+          0 && (
+          <div className="mt-12">
+
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Related Resources
+            </h3>
+
+            <div className="space-y-3">
+
+              {NODE_DETAILS[
+                selectedNode
+              ].related.map(
+                (item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between rounded-2xl border border-slate-200 p-4 hover:border-blue-200 hover:bg-blue-50/50 transition"
+                  >
+
+                    <span className="font-medium text-slate-800">
+                      {item.label}
+                    </span>
+
+                    <ExternalLink className="w-4 h-4 text-blue-600 transition group-hover:translate-x-1" />
+
+                  </Link>
+                )
+              )}
+
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  )}
     </section>
   );
 }
