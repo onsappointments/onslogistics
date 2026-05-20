@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import Featuredarticletoast from "@/Components/home/Featuredarticletoast";
+
 
 const images = [
   "/OnsLogistics1.jpg",
@@ -30,6 +32,7 @@ export default function Hero() {
 
   return (
     <section className="relative w-full h-screen overflow-hidden   bg-gradient-to-br from-blue-50 via-white to-gray-50">
+      <Featuredarticletoast />
       <div className="absolute inset-0">
         {images.map((src, i) => (
           <div
@@ -119,15 +122,6 @@ export default function Hero() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 right-8 z-20 hidden lg:block">
-        <div className="flex flex-col items-center gap-2 text-white/70">
-          <span className="text-xs uppercase tracking-wider">Scroll</span>
-          <div className="w-px h-12 bg-gradient-to-b from-white/70 to-transparent"></div>
         </div>
       </div>
     </section>
