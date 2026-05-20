@@ -22,7 +22,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className="bg-[--color-background] text-gray-900 antialiased">
+      <body suppressHydrationWarning className="bg-[--color-background] text-gray-900 antialiased">
 
         {/* 🔹 Hidden Google Translate mount point */}
         <div

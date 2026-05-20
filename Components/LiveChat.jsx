@@ -12,13 +12,11 @@ export default function LiveChat() {
     const script = document.createElement("script");
 
     script.type = "text/javascript";
-    script.src =
-      "https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
-
+    script.src="https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
     script.id = "aisensy-wa-widget";
 
     // Your widget ID
-    script.setAttribute("widget-id", "aab1v3");
+    script.setAttribute("widget-id", "aabfl0");
 
     document.body.appendChild(script);
   }, []);
