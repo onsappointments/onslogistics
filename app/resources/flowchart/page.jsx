@@ -101,6 +101,13 @@ export default function FlowchartsPage() {
               >
                 Browse FAQs
               </Link>
+              
+              <Link
+                href="/resources/flashcards"
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-4 text-slate-700 font-medium hover:bg-slate-50 transition"
+              >
+                Browse Flashcards
+              </Link>
 
             </div>
           </div>
