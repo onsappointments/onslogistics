@@ -321,6 +321,14 @@ export default function FAQClient({ initialCategory = "all" }) {
                   Flowcharts
                 </Link>
 
+                <Link
+                  href="/resources/flashcards"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-slate-700 font-medium hover:bg-slate-50 transition"
+                >
+                  <Workflow className="w-4 h-4" />
+                  Flashcards
+                </Link>
+
                 <div className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-white font-medium">
                   <HelpCircle className="w-4 h-4" />
                   FAQs

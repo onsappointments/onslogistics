@@ -7,33 +7,62 @@ import {
   BookOpen,
   Workflow,
   MessagesSquare,
+   Brain,
 } from "lucide-react";
 
 const learningItems = [
   {
     title: "Blogs",
+
     description:
-      "Read detailed logistics guides covering shipping, customs, freight, export processes, and international trade.",
+      "Read detailed logistics guides covering shipping, customs, freight forwarding, export processes, documentation, and international trade.",
+
     href: "#articles",
+
     icon: BookOpen,
+
     active: true,
-    badge: "Default",
+
+    badge: "Deep Learning",
   },
+
   {
     title: "Interactive Flowcharts",
+
     description:
-      "Understand complex logistics processes visually through interactive step-by-step flowcharts.",
+      "Understand complex logistics systems visually through expandable process maps, customs workflows, and shipping operations.",
+
     href: "/resources/flowchart",
+
     icon: Workflow,
+
     badge: "Interactive",
   },
+
   {
     title: "FAQs",
+
     description:
-      "Find quick answers to common questions about logistics, shipping timelines, customs, and freight costs.",
-    href: "resources/faq",
+      "Get quick answers to common logistics, shipping, customs clearance, freight forwarding, and import-export questions.",
+
+    href: "/resources/faq",
+
     icon: MessagesSquare,
+
     badge: "Quick Answers",
+  },
+
+  {
+    title: "Flashcards",
+
+    description:
+      "Learn logistics concepts through interactive flashcards optimized for fast learning, revision, AI search discovery, and knowledge retention.",
+
+    href: "/resources/flashcards",
+
+    icon: Brain,
+
+    badge: "Micro Learning",
   },
 ];
 
@@ -68,7 +97,7 @@ export default function LearningPaths() {
         </div>
 
         {/* CARDS */}
-        <div className="grid md:grid-cols-3 gap-6 relative z-10">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10">
           {learningItems.map((item, index) => {
             const Icon = item.icon;
 

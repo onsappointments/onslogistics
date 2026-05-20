@@ -24,6 +24,7 @@ export default function Footer() {
     { name: "Blogs", href: "/resources" },
     { name: "Flowchart", href: "/resources/flowchart" },
     { name: "FAQs", href: "/resources/faq" },
+    { name: "Flashcards", href: "/resources/flashcards" },
   ];
 
     const containerDimension = [
@@ -169,14 +170,6 @@ export default function Footer() {
               </li>
               <li className="transform transition-all duration-300 hover:translate-x-2">
                 <a
-                  href="/faq"
-                  className="hover:text-blue-600 transition-all duration-300 inline-block"
-                >
-                  → FAQ
-                </a>
-              </li>
-              <li className="transform transition-all duration-300 hover:translate-x-2">
-                <a
                   href="/contact"
                   className="hover:text-blue-600 transition-all duration-300 inline-block"
                 >
@@ -315,7 +308,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          
+
         </div>
       </div>
 
