@@ -53,7 +53,7 @@ export default function FeaturedArticleToast() {
   return (
     <div
       className={`
-        absolute top-4 right-2 z-40 w-[300px]
+        absolute top-2 right-2 z-40 w-[300px]
         transition-all duration-500 ease-out
         ${visible
           ? "translate-y-0 opacity-100"
