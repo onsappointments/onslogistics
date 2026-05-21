@@ -43,7 +43,10 @@ export default function ResourcesPage() {
     <div className="px-6 py-12 max-w-7xl mx-auto">
 
       {/* HERO */}
-      <div className="text-center mb-12">
+
+      <LearningPaths />
+
+         <div className="text-center mb-12 mt-12">
         <h1 className="text-4xl font-bold mb-3">
           Logistics Knowledge Hub
         </h1>
@@ -54,8 +57,6 @@ export default function ResourcesPage() {
 
         <SearchBar value={search} onChange={setSearch} />
       </div>
-
-      <LearningPaths />
 
       {/* CATEGORY FILTER */}
       <CategoryTabs
@@ -85,7 +86,7 @@ export default function ResourcesPage() {
           All Articles
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div id="articles" className="grid md:grid-cols-3 gap-6">
           {latest.map((a, i) => {
             console.log("ARTICLE:", i, a.slug);
 
