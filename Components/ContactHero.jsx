@@ -14,7 +14,6 @@ export default function ContactHero() {
 
   const emails = [
     { text: "info@onslog.com", href: "mailto:info@onslog.com" },
-    { text: "exim@onslogistics.org", href: "mailto:exim@onslogistics.org" },
   ];
 
   return (
