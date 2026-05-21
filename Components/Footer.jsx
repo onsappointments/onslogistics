@@ -259,10 +259,10 @@ export default function Footer() {
               <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
                 <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110" />
                 <a
-                  href="mailto:info@onslogistics.com"
+                  href="mailto:info@onslog.com"
                   className="break-words hover:text-blue-600 transition-colors duration-300"
                 >
-                  info@onslogistics.com
+                  info@onslog.com
                 </a>
               </li>
               <li className="flex gap-2 sm:gap-3 group transition-all duration-300 hover:translate-x-1">
