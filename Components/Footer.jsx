@@ -101,10 +101,10 @@ export default function Footer() {
           <div className="flex flex-col space-y-4 sm:space-y-6 sm:col-span-2 lg:col-span-1 fade-in">
             <div className="flex items-center gap-3 group">
               <div className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                <Image src={"/logo.png"} alt="logo" width={70} height={70} />
+                <Image src={"/logo.png"} alt="ONS Logistics India Pvt Ltd logo" width={70} height={70} />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-blue-600">
-                ONS
+                ONS Logistics India Pvt Ltd
               </h2>
             </div>
 
@@ -116,7 +116,7 @@ export default function Footer() {
 
             <div className="flex gap-3 sm:gap-4 pt-2">
               <a
-                href="https://www.facebook.com/bestcustombroker"
+                href="https://www.facebook.com/onslogisticsindia"
                 target="_blank"
                 className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-slate-900 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 hover:scale-110 hover:-translate-y-1 hover:shadow-lg"
               >
