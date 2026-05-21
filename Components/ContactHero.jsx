@@ -131,7 +131,7 @@ export default function ContactHero() {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  Email Addresses
+                  Email Address
                 </h3>
                 <div className="space-y-2">
                   {emails.map((email, idx) => (
