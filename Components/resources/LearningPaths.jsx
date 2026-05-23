@@ -14,7 +14,7 @@ import {
 
 const learningItems = [
   {
-    num: "01",
+    num: "02",
     title: "Blogs",
     description:
       "In-depth logistics guides covering shipping, customs, freight forwarding, export processes, documentation, and international trade.",
@@ -23,7 +23,7 @@ const learningItems = [
     badge: "Deep Learning",
   },
   {
-    num: "02",
+    num: "01",
     title: "Flowcharts",
     description:
       "Visualise complex logistics systems through expandable process maps, customs workflows, and shipping operations.",

@@ -162,7 +162,7 @@ export default function RequestQuotePage() {
     {
       icon: "🛡️",
       title: "Expert Guidance",
-      desc: "Our 15+ year team advises on mode selection, Incoterms, and documentation upfront.",
+      desc: "Our 22+ year team advises on mode selection, Incoterms, and documentation upfront.",
     },
   ];
 
@@ -325,7 +325,7 @@ export default function RequestQuotePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════
-            SECTION 3 — WHY GET A QUOTE
+            SECTION 2 — WHY GET A QUOTE
         ═══════════════════════════════════════════════════════════════ */}
         <section className="py-20 px-6 bg-white" aria-labelledby="why-quote-heading">
           <div className="max-w-5xl mx-auto">
@@ -368,7 +368,7 @@ export default function RequestQuotePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════
-            SECTION 4 — HOW IT WORKS
+            SECTION 3 — HOW IT WORKS
         ═══════════════════════════════════════════════════════════════ */}
         <section className="py-20 px-6 bg-[#F5F5F7]" aria-labelledby="how-it-works-heading">
           <div className="max-w-5xl mx-auto">
@@ -432,7 +432,7 @@ export default function RequestQuotePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════
-            SECTION 5 — SERVICES WE QUOTE FOR
+            SECTION 4 — SERVICES WE QUOTE FOR
         ═══════════════════════════════════════════════════════════════ */}
         <section className="py-20 px-6 bg-white" aria-labelledby="services-heading">
           <div className="max-w-5xl mx-auto">
@@ -470,22 +470,9 @@ export default function RequestQuotePage() {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            SECTION 6 — SOCIAL PROOF STRIP
-        ═══════════════════════════════════════════════════════════════ */}
-        <section className="py-14 px-6 bg-gradient-to-r from-blue-600 to-blue-800">
-          <div className="max-w-4xl mx-auto text-center">
-            <p className="text-white text-2xl md:text-3xl font-extrabold leading-snug mb-3">
-              "ONS Logistics reduced our freight costs by 22% and our shipments always arrive on time. Best decision we made for our supply chain."
-            </p>
-            <p className="text-blue-200 text-sm font-medium">
-              — Export Manager, Punjab-based Textile Manufacturer
-            </p>
-          </div>
-        </section>
 
         {/* ═══════════════════════════════════════════════════════════════
-            SECTION 7 — FAQ (SEO SCHEMA)
+            SECTION 4 — FAQ (SEO SCHEMA)
         ═══════════════════════════════════════════════════════════════ */}
         <section
           className="py-20 px-6 bg-[#F5F5F7]"
