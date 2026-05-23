@@ -1,4 +1,5 @@
 // app/layout.tsx
+// @ts-ignore: side-effect import for global CSS
 import "./globals.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
@@ -12,7 +13,7 @@ export const metadata = {
   alternates: { canonical: "/" },
   title: "ONS Logistics India – Global Shipping & Freight Services",
   description:
-    "Reliable global shipping, freight forwarding, customs clearance, and supply chain solutions by ONS Logistics.",
+    "Reliable global shipping, custom broker ,freight forwarding, Air & Sea freight, customs clearance, and supply chain solutions by ONS Logistics India Pvt Ltd.",
 };
 
 interface RootLayoutProps {

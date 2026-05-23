@@ -8,6 +8,7 @@ import {
   MessagesSquare,
   Brain,
   CalculatorIcon,
+  Box,
   ArrowUpRight,
 } from "lucide-react";
 
@@ -49,15 +50,6 @@ const learningItems = [
     href: "/resources/flashcards",
     icon: Brain,
     badge: "Micro Learning",
-  },
-  {
-    num: "05",
-    title: "Duty Calculator",
-    description:
-      "Calculate import duties and taxes for your shipments into India instantly with our free tool.",
-    href: "/resources/import-duty-calculator",
-    icon: CalculatorIcon,
-    badge: "Tool",
   },
 ];
 
@@ -592,7 +584,7 @@ export default function LearningPaths() {
           }}
         >
           {[
-            { val: "5", label: "Learning formats" },
+            { val: "4", label: "Learning formats" },
             { val: "100+", label: "Logistics guides" },
             { val: "Free", label: "Always & forever" },
             { val: "India-focused", label: "Import & export coverage" },
