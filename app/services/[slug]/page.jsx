@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 
 import { servicesData } from "@/lib/servicesData";
-import IndustriesSection from "@/components/services/IndustriesSection";
-import GeoPresenceSection from "@/components/services/GeoPresenceSection";
+import IndustriesSection from "@/Components/services/IndustriesSection";
+import GeoPresenceSection from "@/Components/services/GeoPresenceSection";
 
 export async function generateMetadata({ params }) {
   const service = servicesData[params.slug];
