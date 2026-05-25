@@ -12,13 +12,13 @@ import Image from "next/image";
 
 export default function Footer() {
   const services = [
-    { name: "Freight Forwarding", href: "/services#freight" },
-    { name: "Road Transportation", href: "/services#road" },
-    { name: "Sea Cargo", href: "/services#sea" },
-    { name: "Air Cargo", href: "/services#air" },
-    { name: "Licensing", href: "/services#licensing" },
-    { name: "Export / Import Consultation", href: "/services#export" },
-    { name: "Custom Clearance", href: "/services#custom" },
+    { name: "Freight Forwarding", href: "/servicesfreight-forwarding" },
+    { name: "Road Transportation", href: "/services/road-transportation" },
+    { name: "Sea Cargo", href: "/services/sea-freight" },
+    { name: "Air Cargo", href: "/services/air-freight" },
+    { name: "Licensing", href: "/services/licensing" },
+    { name: "Export / Import Consultation", href: "/services/import-export-consultation" },
+    { name: "Custom Clearance", href: "/services/customs-clearance" },
   ];
   const resources = [
     { name: "Blogs", href: "/resources" },

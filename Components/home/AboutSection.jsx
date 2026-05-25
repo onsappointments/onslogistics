@@ -96,7 +96,7 @@ export default function AboutSection() {
                 <div className="text-center md:text-left">
 
                   <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
-                    15+
+                    22+
                   </div>
 
                   <div className="text-sm md:text-base text-blue-100">
@@ -107,7 +107,7 @@ export default function AboutSection() {
                 <div className="text-center md:text-left">
 
                   <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
-                    5000+
+                    10k+
                   </div>
 
                   <div className="text-sm md:text-base text-blue-100">

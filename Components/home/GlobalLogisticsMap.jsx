@@ -372,7 +372,7 @@ export default function GlobalLogisticsMap() {
 
                 {[
                   {
-                    value: "5000+",
+                    value: "10k+",
                     label:
                       "Shipments Delivered",
                   },
@@ -390,7 +390,7 @@ export default function GlobalLogisticsMap() {
                   },
 
                   {
-                    value: "15+",
+                    value: "22+",
                     label:
                       "Years Experience",
                   },
