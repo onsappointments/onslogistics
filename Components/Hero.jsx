@@ -109,7 +109,7 @@ export default function Hero() {
             {/* Stats Bar */}
             <div className="mt-16  grid-cols-3 gap-8 lg:grid hidden">
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-white mb-1">15+</div>
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">22+</div>
                 <div className="text-sm text-blue-100">Years Experience</div>
               </div>
               <div>

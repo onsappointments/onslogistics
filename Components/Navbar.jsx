@@ -78,6 +78,8 @@ export default function Navbar() {
   // Secondary nav — tucked into "More" dropdown
   const moreNav = [
     { label: "Contact Us", path: "/contact" },
+    // {label: "Import Duty Calculator", path:"/tools/import-duty-calculator"},
+    {label : "CBM Calculator", path:"/tools/cbm-calculator"},
   ];
 
   const allMobileNav = [...primaryNav, ...moreNav];
