@@ -38,6 +38,7 @@ export async function generateMetadata({ params }) {
 
 export default function ServiceSlugPage({ params }) {
   const service = servicesData[params.slug];
+  const { slug } = params;
 
   if (!service) {
     notFound();
@@ -224,7 +225,7 @@ export default function ServiceSlugPage({ params }) {
         </div>
       </section>
 
-      <GeoPresenceSection />
+      <GeoPresenceSection currentService={slug} />
       <IndustriesSection />
 
       {/* RELATED ARTICLES */}
