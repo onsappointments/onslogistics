@@ -79,6 +79,7 @@ export default function Navbar() {
   const moreNav = [
     { label: "Contact Us", path: "/contact" },
     // {label: "Import Duty Calculator", path:"/tools/import-duty-calculator"},
+    {label: "Industries We Serve", path:"/industries"},
     {label : "CBM Calculator", path:"/tools/cbm-calculator"},
   ];
 
