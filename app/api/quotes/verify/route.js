@@ -5,7 +5,8 @@ import Quote from "@/models/Quote";
 import QuoteOtp from "@/models/QuoteOtp";
 import User from "@/models/User"; // ✅ ADD
 import { getNextQuoteNumber } from "@/lib/getNextQuoteNumber";
-
+import sendClientEmail from "@/lib/sendClientEmail";
+import { quoteRequestTemplate } from "@/lib/notifications/quoteRequestTemplate";
 
 export async function POST(req) {
   try {
@@ -131,7 +132,26 @@ export async function POST(req) {
     const finalQuote = await Quote.create(quoteDataToSave);
 
     console.log("VERIFY: Quote created successfully with ID:", finalQuote._id);
+    try {
 
+  await sendClientEmail({
+    to: process.env.SALES_TEAM_EMAIL,
+    subject: `New Quote Request - ${finalQuote.company}`,
+    html: quoteRequestTemplate(finalQuote)
+  });
+
+  console.log(
+    "QUOTE NOTIFICATION SENT"
+  );
+
+} catch (emailError) {
+
+  console.error(
+    "QUOTE EMAIL FAILED:",
+    emailError
+  );
+
+}
     // Remove OTP record
     await QuoteOtp.deleteOne({ _id: quoteId });
     console.log("VERIFY: OTP record deleted");

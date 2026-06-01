@@ -11,8 +11,7 @@ export async function POST(req) {
             return NextResponse.json({ error: "quoteId required" }, { status: 400 });
         }
 
-        // ── Reuse the same endpoint your frontend already calls ──
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
         const quoteRes = await fetch(`${baseUrl}/api/admin/quotes/${quoteId}`, {
             headers: {

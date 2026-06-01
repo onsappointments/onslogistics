@@ -20,8 +20,11 @@ const ContainerEventSchema = new mongoose.Schema(
   {
     status: { type: String, required: true },
     location: String,
-    eventDate: { type: Date, required: true },
     remarks: String,
+    eta: { type: Date, default: null },
+    actualDeparture: { type: Date, default: null },
+    etaEmailSentAt: { type: Date, default: null },
+    actualEmailSentAt: { type: Date, default: null },
   },
   { _id: false }
 );
