@@ -13,6 +13,12 @@ export default async function JobTrackingAdminPage({ params }) {
     .populate("quoteId")
     .lean();
 
+    const emailIdForShipmentUpdates = Quote.findById(job.quoteId)?.email || job.quoteId?.clientEmail;
+
+    if (!emailIdForShipmentUpdates) {
+      console.warn(`No client email found for job ${id}. Shipment update emails will not be sent.`);
+    }
+
   if (!job) notFound();
 
   const plainJob = JSON.parse(JSON.stringify(job));
@@ -21,7 +27,7 @@ export default async function JobTrackingAdminPage({ params }) {
   return (
     <div className="p-10 max-w-6xl mx-auto">
       <RouteHeader job={plainJob} quote={quote} />
-      <TrackingAdminClient job={plainJob} />
+      <TrackingAdminClient job={plainJob} defaultEmail={emailIdForShipmentUpdates} />
     </div>
   );
 }
