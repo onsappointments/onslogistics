@@ -7,6 +7,8 @@ import generateJobId from "@/lib/generateJobId";
 import { logAudit } from "@/lib/audit";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import sendClientEmail from "@/lib/sendClientEmail";
+import { jobCreatedTemplate } from "@/lib/notifications/jobCreatedTemplate";
 
 export async function POST(req) {
   await connectDB();
@@ -123,7 +125,34 @@ export async function POST(req) {
     documents,
     currentStage: 2,
   });
+  try {
 
+  await sendClientEmail({
+    to: process.env.OPERATIONS_MANAGER_EMAIL,
+
+    subject: `New Job Created - ${job.jobId}`,
+
+    html: jobCreatedTemplate({
+      jobNumber: job.jobId,
+      company: quote.company,
+      customerName: job.customerName,
+      shipmentType: quote.shipmentType,
+      createdBy: session.user.name || "System"
+    })
+  });
+
+  console.log(
+    "JOB CREATION EMAIL SENT"
+  );
+
+} catch (emailError) {
+
+  console.error(
+    "JOB CREATION EMAIL FAILED",
+    emailError
+  );
+
+}
   /* ---------------- AUDIT LOG ---------------- */
   await logAudit({
     entityType: "job",
