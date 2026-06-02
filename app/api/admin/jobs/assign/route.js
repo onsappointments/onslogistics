@@ -27,7 +27,7 @@ if (assignedUser?.email) {
 
     await sendClientEmail({
       to: assignedUser.personalEmail,
-      subject: `Job Assigned - ${job.jobNumber}`,
+      subject: `Job Assigned - ${job.jobId}`,
       html: jobAssignedTemplate(job)
     });
 
