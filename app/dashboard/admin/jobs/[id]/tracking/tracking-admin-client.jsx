@@ -2,10 +2,6 @@
 
 import { useState } from "react";
 
-/* ------------------------------------------------------------------ */
-/*  CONSTANTS                                                            */
-/* ------------------------------------------------------------------ */
-
 const PRESET_STATUSES = [
   "Empty Picked Up", "Gate In", "Loaded on Vessel", "Vessel Departed",
   "Arrived at Transshipment Port", "Vessel Arrived", "Discharged", "Gate Out", "Delivered",
@@ -35,6 +31,23 @@ function fmtDate(d) {
   });
 }
 
+function isValidDate(val) {
+  if (!val) return false;
+  const d = val instanceof Date ? val : new Date(val);
+  return !isNaN(d.getTime());
+}
+
+function toDate(val) {
+  if (!val) return null;
+  if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+  if (typeof val === "string") {
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) return null;
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
 const INPUT_CLS =
   "w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white " +
   "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent " +
@@ -54,9 +67,6 @@ function Label({ children, color = "gray", hint }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  STATUS TOGGLE                                                        */
-/* ------------------------------------------------------------------ */
 function StatusToggle({ useCustom, onChange }) {
   return (
     <div className="flex gap-1.5 mb-3">
@@ -76,13 +86,17 @@ function StatusToggle({ useCustom, onChange }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  EMAIL SEND MODAL                                                     */
+/*  EMAIL CONFIRM MODAL                                                  */
 /* ------------------------------------------------------------------ */
-function EmailSendModal({ event, defaultEmail, onSend, onSkip, sending }) {
+function EmailConfirmModal({ event, defaultEmail, onConfirm, onSkip, saving }) {
   const [recipientEmail, setRecipientEmail] = useState(defaultEmail || "");
-  const hasEta    = !!event.eta;
-  const hasActual = !!event.actualDeparture;
 
+  const hasEta    = isValidDate(event.eta);
+  const hasActual = isValidDate(event.actualDeparture);
+
+  // Only show the option that matches what was filled in —
+  // since ETA and Actual are now mutually exclusive per event,
+  // there will only ever be one date-based option here.
   const options = [
     hasActual && {
       key: "actual",
@@ -106,16 +120,14 @@ function EmailSendModal({ event, defaultEmail, onSend, onSkip, sending }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-blue-100">
-
         <div className="bg-blue-600 px-6 py-4">
           <h2 className="text-white font-semibold text-base">Notify client?</h2>
           <p className="text-blue-200 text-xs mt-0.5">
-            Status saved — choose whether to send an email
+            Choose whether to send an email — then the status will be saved
           </p>
         </div>
 
         <div className="px-6 py-5 space-y-4">
-          {/* Email type selector */}
           <div className="space-y-2">
             {options.map(opt => (
               <label key={opt.key}
@@ -136,7 +148,6 @@ function EmailSendModal({ event, defaultEmail, onSend, onSkip, sending }) {
             ))}
           </div>
 
-          {/* Recipient — pre-filled from quote, overridable */}
           <div>
             <Label>Send to</Label>
             <input type="email" className={INPUT_CLS}
@@ -144,46 +155,44 @@ function EmailSendModal({ event, defaultEmail, onSend, onSkip, sending }) {
               value={recipientEmail}
               onChange={e => setRecipientEmail(e.target.value)} />
             {defaultEmail && recipientEmail !== defaultEmail && (
-              <p className="text-xs text-amber-500 mt-1">
-                ⚠ Default is {defaultEmail}
-              </p>
+              <p className="text-xs text-amber-500 mt-1">⚠ Default is {defaultEmail}</p>
             )}
           </div>
 
-          <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2.5">
-            <svg className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" fill="none"
+          <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2.5">
+            <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none"
                  viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="text-xs text-blue-700">
-              The status is already saved. You can skip sending entirely.
+            <p className="text-xs text-amber-700">
+              The status has <strong>not been saved yet</strong>. It will be saved when you confirm below.
             </p>
           </div>
         </div>
 
         <div className="px-6 pb-5 flex gap-3">
-          <button type="button" onClick={onSkip} disabled={sending}
+          <button type="button" onClick={onSkip} disabled={saving}
             className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-600
                        text-sm font-medium hover:bg-gray-50 transition-colors">
-            Skip — don't notify
+            Skip — save without email
           </button>
           <button type="button"
-            disabled={sending || !recipientEmail}
-            onClick={() => onSend({ emailType: selected, recipientEmail })}
+            disabled={saving || !recipientEmail}
+            onClick={() => onConfirm({ emailType: selected, recipientEmail })}
             className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm
                        font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60
                        flex items-center justify-center gap-2">
-            {sending ? (
+            {saving ? (
               <>
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10"
                           stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
-                Sending…
+                Saving…
               </>
-            ) : "Send email →"}
+            ) : "Save & send email →"}
           </button>
         </div>
       </div>
@@ -192,10 +201,24 @@ function EmailSendModal({ event, defaultEmail, onSend, onSkip, sending }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  EVENT FORM FIELDS                                                    */
-/* ------------------------------------------------------------------ */
+/*  EVENT FORM FIELDS
+ *
+ *  KEY CHANGE: ETA and Actual Departure are now mutually exclusive.
+ *  Filling one clears the other. A toggle lets the admin pick which
+ *  date type this event represents, keeping the UI unambiguous.
+ * ------------------------------------------------------------------ */
 function EventFormFields({ fields, onChange }) {
-  const { useCustom, status, customStatus, eta, actualDeparture, location, remarks } = fields;
+  const { useCustom, status, customStatus, dateMode, eta, actualDeparture, location, remarks } = fields;
+
+  // dateMode: "none" | "eta" | "actual"
+  // Controls which date field is shown and sent.
+  function handleDateModeChange(mode) {
+    onChange("dateMode", mode);
+    // Clear both dates when switching, let user re-enter
+    if (mode !== "eta")    onChange("eta", "");
+    if (mode !== "actual") onChange("actualDeparture", "");
+  }
+
   return (
     <div className="space-y-3">
       <StatusToggle useCustom={useCustom} onChange={val => onChange("useCustom", val)} />
@@ -217,18 +240,48 @@ function EventFormFields({ fields, onChange }) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* Date type toggle — mutually exclusive */}
+      <div>
+        <Label>Date type</Label>
+        <div className="flex gap-1.5">
+          {[
+            { key: "none",   label: "None" },
+            { key: "eta",    label: "🕐 ETA (estimated)" },
+            { key: "actual", label: "🚢 Actual departure" },
+          ].map(({ key, label }) => (
+            <button key={key} type="button"
+              onClick={() => handleDateModeChange(key)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                dateMode === key
+                  ? key === "eta"
+                    ? "bg-amber-50 border-amber-300 text-amber-700"
+                    : key === "actual"
+                    ? "bg-green-50 border-green-300 text-green-700"
+                    : "bg-gray-100 border-gray-300 text-gray-600"
+                  : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
+              }`}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Show only the selected date field */}
+      {dateMode === "eta" && (
         <div>
-          <Label color="amber" hint="estimated arrival at destination">ETA</Label>
+          <Label color="amber" hint="estimated arrival at destination">ETA date & time</Label>
           <input type="datetime-local" className={INPUT_CLS} value={eta}
             onChange={e => onChange("eta", e.target.value)} />
         </div>
+      )}
+
+      {dateMode === "actual" && (
         <div>
-          <Label color="green" hint="when vessel / truck left">Actual departure</Label>
+          <Label color="green" hint="when vessel / truck left">Actual departure date & time</Label>
           <input type="datetime-local" className={INPUT_CLS} value={actualDeparture}
             onChange={e => onChange("actualDeparture", e.target.value)} />
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
@@ -251,10 +304,19 @@ function EventFormFields({ fields, onChange }) {
 /* ------------------------------------------------------------------ */
 function EditEventModal({ event, onSave, onClose, loading }) {
   const isPreset = PRESET_STATUSES.includes(event.status);
+
+  // Derive dateMode from what's stored on the event
+  const initDateMode = event.eta
+    ? "eta"
+    : event.actualDeparture
+    ? "actual"
+    : "none";
+
   const [fields, setFields] = useState({
     useCustom:       !isPreset,
     status:          isPreset ? event.status : "",
     customStatus:    !isPreset ? event.status : "",
+    dateMode:        initDateMode,
     eta:             event.eta ? new Date(event.eta).toISOString().slice(0, 16) : "",
     actualDeparture: event.actualDeparture
       ? new Date(event.actualDeparture).toISOString().slice(0, 16) : "",
@@ -286,11 +348,10 @@ function EditEventModal({ event, onSave, onClose, loading }) {
           <button type="button" disabled={loading || !finalStatus}
             onClick={() => onSave({
               status:          finalStatus,
-              eta:             fields.eta ? new Date(fields.eta) : null,
-              actualDeparture: fields.actualDeparture
-                ? new Date(fields.actualDeparture) : null,
-              location: fields.location,
-              remarks:  fields.remarks,
+              eta:             fields.dateMode === "eta" ? toDate(fields.eta) : null,
+              actualDeparture: fields.dateMode === "actual" ? toDate(fields.actualDeparture) : null,
+              location:        fields.location,
+              remarks:         fields.remarks,
             })}
             className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm
                        font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60">
@@ -312,6 +373,13 @@ function EventRow({ event, index, isLast, onEdit, onDelete }) {
   const etaSent    = !!event.etaEmailSentAt;
   const actualSent = !!event.actualEmailSentAt;
 
+  // eventType badge — shows what kind of event this is
+  const eventTypeBadge = event.eventType === "eta"
+    ? <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 font-medium ml-2">ETA</span>
+    : event.eventType === "actual"
+    ? <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-200 font-medium ml-2">Actual</span>
+    : null;
+
   return (
     <div className="relative flex gap-3">
       <div className="flex flex-col items-center flex-shrink-0 w-8">
@@ -330,8 +398,9 @@ function EventRow({ event, index, isLast, onEdit, onDelete }) {
 
       <div className={`flex-1 ${!isLast ? "pb-5" : "pb-1"}`}>
         <div className="flex items-start justify-between gap-2">
-          <span className="text-sm font-semibold text-gray-800 leading-tight mt-0.5">
+          <span className="text-sm font-semibold text-gray-800 leading-tight mt-0.5 flex items-center flex-wrap gap-1">
             {event.status}
+            {eventTypeBadge}
           </span>
           <div className="flex gap-1 flex-shrink-0">
             <button type="button" onClick={() => onEdit(index)}
@@ -373,9 +442,8 @@ function EventRow({ event, index, isLast, onEdit, onDelete }) {
             {hasEta && (
               <span className={`inline-flex items-center gap-1.5 text-xs font-medium
                                px-2.5 py-1 rounded-full border ${
-                etaSent
-                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                  : "bg-amber-50 text-amber-600 border-amber-100"
+                etaSent ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-amber-50 text-amber-600 border-amber-100"
               }`}>
                 🕐 ETA: {fmtDate(event.eta)}
                 {etaSent && (
@@ -389,9 +457,8 @@ function EventRow({ event, index, isLast, onEdit, onDelete }) {
             {hasActual && (
               <span className={`inline-flex items-center gap-1.5 text-xs font-medium
                                px-2.5 py-1 rounded-full border ${
-                actualSent
-                  ? "bg-green-50 text-green-700 border-green-200"
-                  : "bg-green-50 text-green-600 border-green-100"
+                actualSent ? "bg-green-50 text-green-700 border-green-200"
+                           : "bg-green-50 text-green-600 border-green-100"
               }`}>
                 🚢 Departed: {fmtDate(event.actualDeparture)}
                 {actualSent && (
@@ -418,52 +485,88 @@ function EventRow({ event, index, isLast, onEdit, onDelete }) {
 /* ------------------------------------------------------------------ */
 /*  ADD EVENT FORM                                                       */
 /* ------------------------------------------------------------------ */
-function AddEventForm({ onSubmit, loading }) {
+function AddEventForm({ onSubmit, loading, defaultEmail }) {
   const blank = {
-    useCustom: false, status: "", customStatus: "",
-    eta: "", actualDeparture: "", location: "", remarks: "",
+    useCustom:      false,
+    status:         "",
+    customStatus:   "",
+    dateMode:       "none",   // "none" | "eta" | "actual"
+    eta:            "",
+    actualDeparture:"",
+    location:       "",
+    remarks:        "",
   };
-  const [fields, setFields] = useState(blank);
+  const [fields, setFields]        = useState(blank);
+  const [pendingEvent, setPending] = useState(null);
 
   const finalStatus = fields.useCustom ? fields.customStatus : fields.status;
-  const pendingEvent = {
-    status:          finalStatus,
-    eta:             fields.eta ? new Date(fields.eta) : null,
-    actualDeparture: fields.actualDeparture ? new Date(fields.actualDeparture) : null,
-    location:        fields.location,
-    remarks:         fields.remarks,
-  };
+
+  function handleAddClick() {
+    const event = {
+      status:          finalStatus,
+      eta:             fields.dateMode === "eta" ? toDate(fields.eta) : null,
+      actualDeparture: fields.dateMode === "actual" ? toDate(fields.actualDeparture) : null,
+      location:        fields.location,
+      remarks:         fields.remarks,
+    };
+    setPending(event);
+  }
+
+  function handleConfirm(emailOpts) {
+    onSubmit(pendingEvent, emailOpts, () => {
+      setFields(blank);
+      setPending(null);
+    });
+  }
+
+  function handleSkip() {
+    onSubmit(pendingEvent, null, () => {
+      setFields(blank);
+      setPending(null);
+    });
+  }
 
   return (
-    <div className="border-t border-gray-100 pt-5">
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
-        Add new event
-      </p>
-      <EventFormFields fields={fields}
-        onChange={(k, v) => setFields(p => ({ ...p, [k]: v }))} />
-      <div className="mt-4">
-        <button type="button" disabled={loading || !finalStatus}
-          onClick={() => onSubmit(pendingEvent, () => setFields(blank))}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700
-                     text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24"
-               stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          Add status
-        </button>
+    <>
+      {pendingEvent && (
+        <EmailConfirmModal
+          event={pendingEvent}
+          defaultEmail={defaultEmail}
+          saving={loading}
+          onConfirm={handleConfirm}
+          onSkip={handleSkip}
+        />
+      )}
+
+      <div className="border-t border-gray-100 pt-5">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
+          Add new event
+        </p>
+        <EventFormFields fields={fields}
+          onChange={(k, v) => setFields(p => ({ ...p, [k]: v }))} />
+        <div className="mt-4">
+          <button type="button" disabled={loading || !finalStatus}
+            onClick={handleAddClick}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700
+                       text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add status
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/*  ADD CONTAINER FORM  — fixed: confirm before hitting the API         */
+/*  ADD CONTAINER FORM                                                   */
 /* ------------------------------------------------------------------ */
 function AddContainerForm({ onSubmit, loading }) {
   const [containerNumber, setContainerNumber] = useState("");
   const [sizeType, setSizeType]               = useState("");
-  // "idle" | "form" | "confirm"
   const [stage, setStage]                     = useState("idle");
 
   function reset() {
@@ -472,18 +575,13 @@ function AddContainerForm({ onSubmit, loading }) {
     setStage("idle");
   }
 
-  // Stage: idle — just the "Add container" button
   if (stage === "idle") {
     return (
-      <div className="rounded-xl border border-dashed border-blue-200
-                      hover:border-blue-400 transition-colors bg-white">
+      <div className="rounded-xl border border-dashed border-blue-200 hover:border-blue-400 transition-colors bg-white">
         <button type="button" onClick={() => setStage("form")}
-          className="w-full flex items-center gap-3 px-6 py-4 text-blue-500
-                     hover:text-blue-700 transition-colors">
-          <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center
-                          border border-dashed border-blue-300">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor" strokeWidth={2}>
+          className="w-full flex items-center gap-3 px-6 py-4 text-blue-500 hover:text-blue-700 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-dashed border-blue-300">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
           </div>
@@ -493,17 +591,14 @@ function AddContainerForm({ onSubmit, loading }) {
     );
   }
 
-  // Stage: form — fill in container number & size
   if (stage === "form") {
     return (
       <div className="rounded-xl border border-blue-200 bg-white">
         <div className="px-6 py-5 space-y-3">
           <div className="flex items-center justify-between mb-1">
             <p className="text-sm font-semibold text-gray-700">New container</p>
-            <button type="button" onClick={reset}
-              className="text-gray-300 hover:text-gray-500 transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                   stroke="currentColor" strokeWidth={2}>
+            <button type="button" onClick={reset} className="text-gray-300 hover:text-gray-500 transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -524,14 +619,12 @@ function AddContainerForm({ onSubmit, loading }) {
           </div>
           <div className="flex gap-2 pt-1">
             <button type="button" onClick={reset}
-              className="px-4 py-2 rounded-lg border border-gray-200 text-gray-500
-                         text-sm font-medium hover:bg-gray-50 transition-colors">
+              className="px-4 py-2 rounded-lg border border-gray-200 text-gray-500 text-sm font-medium hover:bg-gray-50 transition-colors">
               Cancel
             </button>
             <button type="button" disabled={!containerNumber}
               onClick={() => setStage("confirm")}
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold
-                         hover:bg-blue-700 disabled:opacity-50 transition-colors">
+              className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
               Review →
             </button>
           </div>
@@ -540,17 +633,12 @@ function AddContainerForm({ onSubmit, loading }) {
     );
   }
 
-  // Stage: confirm — review before hitting the API
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center
-                    bg-black/40 backdrop-blur-sm px-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden
-                      border border-blue-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-blue-100">
         <div className="bg-blue-600 px-6 py-4">
           <h2 className="text-white font-semibold text-base">Add container?</h2>
-          <p className="text-blue-200 text-xs mt-0.5">
-            This will create the container and add an initial event
-          </p>
+          <p className="text-blue-200 text-xs mt-0.5">This will create the container with no events</p>
         </div>
         <div className="px-6 py-5 space-y-3">
           <div className="bg-gray-50 rounded-lg border border-gray-100 px-4 py-3 space-y-1.5">
@@ -564,34 +652,23 @@ function AddContainerForm({ onSubmit, loading }) {
                 <span className="font-semibold text-gray-800">{sizeType}</span>
               </div>
             )}
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Initial status</span>
-              <span className="font-semibold text-gray-800">📦 Empty Picked Up</span>
-            </div>
           </div>
           <p className="text-xs text-gray-400">
-            No email will be sent automatically — you'll be prompted after saving
-            if you want to notify the client.
+            No email will be sent for the initial container creation.
           </p>
         </div>
         <div className="px-6 pb-5 flex gap-3">
           <button type="button" onClick={() => setStage("form")} disabled={loading}
-            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-600
-                       text-sm font-medium hover:bg-gray-50 transition-colors">
+            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors">
             Back
           </button>
           <button type="button" disabled={loading}
-            onClick={() =>
-              onSubmit(containerNumber, sizeType, { status: "Empty Picked Up" }, reset)
-            }
-            className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm
-                       font-semibold hover:bg-blue-700 disabled:opacity-60
-                       flex items-center justify-center gap-2 transition-colors">
+            onClick={() => onSubmit(containerNumber, sizeType, null, null, reset)}
+            className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 flex items-center justify-center gap-2 transition-colors">
             {loading ? (
               <>
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10"
-                          stroke="currentColor" strokeWidth="4" />
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
                 Adding…
@@ -608,47 +685,70 @@ function AddContainerForm({ onSubmit, loading }) {
 /*  MAIN COMPONENT                                                       */
 /* ------------------------------------------------------------------ */
 export default function TrackingAdminClient({ job }) {
-  const [containers, setContainers] = useState(job.containers || []);
-  const [saving, setSaving]         = useState(false);
-  const [sending, setSending]       = useState(false);
-  const [editTarget, setEditTarget] = useState(null);
+  const [containers, setContainers]           = useState(job.containers || []);
+  const [saving, setSaving]                   = useState(false);
+  const [editTarget, setEditTarget]           = useState(null);
+  const [editEmailPrompt, setEditEmailPrompt] = useState(null);
 
-  // { event, containerNumber, sizeType, clientEmail }
-  // Only set AFTER a successful save — this is what gates the email modal
-  const [emailPrompt, setEmailPrompt] = useState(null);
+  const clientEmail = job.quoteId?.email || "";
+  const BASE_URL    = process.env.NEXT_PUBLIC_SITE_URL || "";
 
-  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "";
-
-  /* ── SAVE event (no email sent here) ── */
-  async function saveEvent(containerNumber, sizeType, event, onSuccess) {
+  async function saveEvent(containerNumber, sizeType, event, emailOpts, onSuccess) {
     try {
       setSaving(true);
-      const res = await fetch("/api/admin/jobs/container-event", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId: job._id, containerNumber, sizeType, event }),
-      });
-      const data = await res.json();
-      if (!res.ok) { alert(data.error || "Failed to update container"); return; }
 
-      setContainers(data.job.containers);
-      onSuccess?.();
-
-      // ── BUG FIX 1: clientEmail comes from the API response, not guessed on client ──
-      // ── BUG FIX 2: modal only opens here, after a confirmed save ──
-      if (event.eta || event.actualDeparture) {
-        setEmailPrompt({
-          event,
-          containerNumber,
-          sizeType,
-          clientEmail: data.clientEmail || "",   // populated server-side from Quote
+      if (event !== null) {
+        const res = await fetch("/api/admin/jobs/container-event", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId: job._id, containerNumber, sizeType, event }),
         });
+        const data = await res.json();
+        if (!res.ok) { alert(data.error || "Failed to save event"); return; }
+
+        const savedClientEmail = data.clientEmail || clientEmail;
+        setContainers(data.job.containers);
+
+        if (emailOpts) {
+          const emailRes = await fetch("/api/admin/jobs/container-event/send-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              jobId:          job._id,
+              containerNumber,
+              sizeType,
+              event,
+              emailType:      emailOpts.emailType,
+              recipientEmail: emailOpts.recipientEmail,
+              trackingUrl:    `${BASE_URL}/tracking/${containerNumber}`,
+              fromCity:       job.quoteId?.fromCity,
+              toCity:         job.quoteId?.toCity,
+            }),
+          });
+          const emailData = await emailRes.json();
+          if (!emailRes.ok) {
+            alert(`Status saved, but email failed: ${emailData.error || "Unknown error"}`);
+          } else {
+            setContainers(emailData.job.containers);
+          }
+        }
+      } else {
+        setContainers(prev => {
+          if (prev.find(c => c.containerNumber === containerNumber)) return prev;
+          return [...prev, { containerNumber, sizeType, events: [] }];
+        });
+        onSuccess?.();
+        return;
       }
-    } catch { alert("Something went wrong"); }
-    finally { setSaving(false); }
+
+      onSuccess?.();
+    } catch {
+      alert("Something went wrong");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  /* ── EDIT event (no email sent here) ── */
   async function editEvent(containerNumber, updatedEvent) {
     try {
       setSaving(true);
@@ -656,8 +756,10 @@ export default function TrackingAdminClient({ job }) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          jobId: job._id, containerNumber,
-          eventIndex: editTarget.eventIndex, event: updatedEvent,
+          jobId:        job._id,
+          containerNumber,
+          eventIndex:   editTarget.eventIndex,
+          event:        updatedEvent,
         }),
       });
       const data = await res.json();
@@ -666,51 +768,50 @@ export default function TrackingAdminClient({ job }) {
       setContainers(data.job.containers);
       setEditTarget(null);
 
-      if (updatedEvent.eta || updatedEvent.actualDeparture) {
-        setEmailPrompt({
-          event:          updatedEvent,
+      if (isValidDate(updatedEvent.eta) || isValidDate(updatedEvent.actualDeparture)) {
+        setEditEmailPrompt({
+          event:           updatedEvent,
           containerNumber,
-          sizeType:       updatedEvent.sizeType,
-          clientEmail:    data.clientEmail || "",
+          clientEmail:     data.clientEmail || clientEmail,
         });
       }
-    } catch { alert("Something went wrong"); }
-    finally { setSaving(false); }
+    } catch {
+      alert("Something went wrong");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  /* ── SEND email (separate endpoint, explicit action) ── */
-  async function sendEmail({ emailType, recipientEmail }) {
-    if (!emailPrompt) return;
+  async function sendEditEmail({ emailType, recipientEmail }) {
+    if (!editEmailPrompt) return;
     try {
-      setSending(true);
-      const { event, containerNumber, sizeType } = emailPrompt;
-      const trackingUrl = `${BASE_URL}/tracking/${containerNumber}`;
-
+      setSaving(true);
+      const { event, containerNumber } = editEmailPrompt;
       const res = await fetch("/api/admin/jobs/container-event/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          jobId: job._id,
+          jobId:          job._id,
           containerNumber,
-          sizeType,
           event,
           emailType,
           recipientEmail,
-          trackingUrl,
-          fromCity: job.quoteId?.fromCity,
-          toCity:   job.quoteId?.toCity,
+          trackingUrl:    `${BASE_URL}/tracking/${containerNumber}`,
+          fromCity:       job.quoteId?.fromCity,
+          toCity:         job.quoteId?.toCity,
         }),
       });
       const data = await res.json();
       if (!res.ok) { alert(data.error || "Failed to send email"); return; }
-
       setContainers(data.job.containers);
-      setEmailPrompt(null);
-    } catch { alert("Failed to send email"); }
-    finally { setSending(false); }
+      setEditEmailPrompt(null);
+    } catch {
+      alert("Failed to send email");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  /* ── DELETE event ── */
   async function deleteEvent(containerNumber, eventIndex) {
     if (!confirm("Delete this event? This cannot be undone.")) return;
     try {
@@ -723,8 +824,11 @@ export default function TrackingAdminClient({ job }) {
       const data = await res.json();
       if (!res.ok) { alert(data.error || "Failed to delete event"); return; }
       setContainers(data.job.containers);
-    } catch { alert("Something went wrong"); }
-    finally { setSaving(false); }
+    } catch {
+      alert("Something went wrong");
+    } finally {
+      setSaving(false);
+    }
   }
 
   const editContainer = editTarget
@@ -735,18 +839,16 @@ export default function TrackingAdminClient({ job }) {
   return (
     <div className="space-y-5">
 
-      {/* Email prompt — only appears after explicit save */}
-      {emailPrompt && (
-        <EmailSendModal
-          event={emailPrompt.event}
-          defaultEmail={emailPrompt.clientEmail}
-          sending={sending}
-          onSend={sendEmail}
-          onSkip={() => setEmailPrompt(null)}
+      {editEmailPrompt && (
+        <EmailConfirmModal
+          event={editEmailPrompt.event}
+          defaultEmail={editEmailPrompt.clientEmail}
+          saving={saving}
+          onConfirm={sendEditEmail}
+          onSkip={() => setEditEmailPrompt(null)}
         />
       )}
 
-      {/* Edit modal */}
       {editTarget && editEventData && (
         <EditEventModal
           event={editEventData}
@@ -756,7 +858,6 @@ export default function TrackingAdminClient({ job }) {
         />
       )}
 
-      {/* Container cards */}
       {containers.map(container => (
         <div key={container.containerNumber}
           className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -801,8 +902,9 @@ export default function TrackingAdminClient({ job }) {
             )}
             <AddEventForm
               loading={saving}
-              onSubmit={(event, onSuccess) =>
-                saveEvent(container.containerNumber, container.sizeType, event, onSuccess)
+              defaultEmail={clientEmail}
+              onSubmit={(event, emailOpts, onSuccess) =>
+                saveEvent(container.containerNumber, container.sizeType, event, emailOpts, onSuccess)
               }
             />
           </div>

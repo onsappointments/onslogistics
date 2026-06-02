@@ -136,26 +136,6 @@ export default async function PublicTrackingPage({ params }) {
 
       <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
 
-      {/* ── NAVBAR ── */}
-      <nav className="sticky top-0 z-40 bg-white border-b border-[#dde3ed]
-                      px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-        </div>
-        <div className="flex items-center gap-3">
-          {latestStatus && (
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium
-                             text-emerald-700 bg-emerald-50 border border-emerald-200
-                             rounded-full px-3 py-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              {latestStatus}
-            </span>
-          )}
-          <Link href="/tracking"
-            className="text-xs text-[#1a56db] font-medium hover:underline transition-colors">
-            Track another →
-          </Link>
-        </div>
-      </nav>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-5">
 
