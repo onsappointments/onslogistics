@@ -8,7 +8,6 @@ import { authOptions } from "@/lib/authOptions";
 import sendClientEmail from "@/lib/sendClientEmail";
 import { buildStatusEmailHtml } from "@/lib/emails/containerStatusEmail";
 
-
 export async function POST(req) {
     try {
         await connectDB();
@@ -30,16 +29,21 @@ export async function POST(req) {
         const job = await Job.findById(jobId);
         if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
-        const container = job.containers.find(c => c.containerNumber === containerNumber);
-        if (!container) return NextResponse.json({ error: "Container not found" }, { status: 404 });
+        // ✅ FIX: trim and case-insensitive container match
+        const container = job.containers.find(
+            c => c.containerNumber.trim().toLowerCase() === containerNumber.trim().toLowerCase()
+        );
 
-        // Find the event by status (most recent match)
-        const eventIndex = [...container.events]
-            .map((e, i) => ({ e, i }))
-            .reverse()
-            .find(({ e }) => e.status === event.status)?.i;
+        // ✅ FIX: Don't block email sending if container/eventIndex not found
+        // Just skip the stamp — still send the email
+        const eventIndex = container
+            ? [...container.events]
+                .map((e, i) => ({ e, i }))
+                .reverse()
+                .find(({ e }) => e.status === event.status)?.i
+            : undefined;
 
-        /* Build and send email */
+        // ✅ Always build and send the email regardless of eventIndex
         const html = buildStatusEmailHtml({
             jobId: job.jobId,
             containerNumber,
@@ -47,7 +51,7 @@ export async function POST(req) {
             status: event.status,
             location: event.location,
             eta: event.eta ? new Date(event.eta) : null,
-            actualDeparture: event.actualDeparture ? new Date(event.actualDeparture) : null,
+            actualDeparture: event.actualDeparture || null,
             remarks: event.remarks,
             fromCity,
             toCity,
@@ -61,33 +65,37 @@ export async function POST(req) {
             status: `Shipment Update: ${event.status} — Job ${job.jobId}`,
         };
 
+        // ✅ Send email first — outside the eventIndex guard
         await sendClientEmail({
             to: recipientEmail,
-            subject: subjects[emailType] || subjects.status,
+            subject: subjects[emailType] ?? subjects.status,
             html,
         });
 
-        /* Stamp sent timestamp on the event */
-        if (eventIndex !== undefined) {
+        // Stamp sent timestamp + audit log if we found the event
+        if (container && eventIndex !== undefined) {
             const now = new Date();
             if (emailType === "eta") {
                 container.events[eventIndex].etaEmailSentAt = now;
             } else if (emailType === "actual") {
                 container.events[eventIndex].actualEmailSentAt = now;
             }
-            job.auditLogs.push({
-                entityType: "container",
-                action: "email_sent",
-                description: `${emailType} email sent to ${recipientEmail} for container ${containerNumber}`,
-                performedBy: session.user.id,
-                performedAt: new Date(),
-                reference: { jobId: job.jobId, containerNumber },
-                metadata: { emailType, recipientEmail },
-            });
-            await job.save();
         }
 
-        return NextResponse.json({ job });
+        // ✅ Always push audit log regardless
+        job.auditLogs.push({
+            entityType: "container",
+            action: "email_sent",
+            description: `${emailType} email sent to ${recipientEmail} for container ${containerNumber}`,
+            performedBy: session.user.id,
+            performedAt: new Date(),
+            reference: { jobId: job.jobId, containerNumber },
+            metadata: { emailType, recipientEmail },
+        });
+
+        await job.save();
+
+        return NextResponse.json({ success: true, job });
     } catch (err) {
         console.error("Send email error:", err);
         return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
