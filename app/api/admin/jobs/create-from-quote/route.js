@@ -125,34 +125,35 @@ export async function POST(req) {
     documents,
     currentStage: 2,
   });
-  try {
+  
+//   try {
 
-  await sendClientEmail({
-    to: process.env.OPERATIONS_MANAGER_EMAIL,
+//   await sendClientEmail({
+//     to: process.env.OPERATIONS_MANAGER_EMAIL,
 
-    subject: `New Job Created - ${job.jobId}`,
+//     subject: `New Job Created - ${job.jobId}`,
 
-    html: jobCreatedTemplate({
-      jobNumber: job.jobId,
-      company: quote.company,
-      customerName: job.customerName,
-      shipmentType: quote.shipmentType,
-      createdBy: session.user.name || "System"
-    })
-  });
+//     html: jobCreatedTemplate({
+//       jobNumber: job.jobId,
+//       company: quote.company,
+//       customerName: job.customerName,
+//       shipmentType: quote.shipmentType,
+//       createdBy: session.user.name || "System"
+//     })
+//   });
 
-  console.log(
-    "JOB CREATION EMAIL SENT"
-  );
+//   console.log(
+//     "JOB CREATION EMAIL SENT"
+//   );
 
-} catch (emailError) {
+// } catch (emailError) {
 
-  console.error(
-    "JOB CREATION EMAIL FAILED",
-    emailError
-  );
+//   console.error(
+//     "JOB CREATION EMAIL FAILED",
+//     emailError
+//   );
 
-}
+// }
   /* ---------------- AUDIT LOG ---------------- */
   await logAudit({
     entityType: "job",
