@@ -21,26 +21,26 @@ export async function POST(req) {
   const assignedUser =
   await User.findById(userId);
 
-// if (assignedUser?.email) {
+if (assignedUser?.email) {
 
-//   try {
+  try {
 
-//     await sendClientEmail({
-//       to: assignedUser.personalEmail,
-//       subject: `Job Assigned - ${job.jobId}`,
-//       html: jobAssignedTemplate(job)
-//     });
+    await sendClientEmail({
+      to: assignedUser.personalEmail,
+      subject: `Job Assigned - ${job.jobId}`,
+      html: jobAssignedTemplate(job)
+    });
 
-//   } catch (error) {
+  } catch (error) {
 
-//     console.error(
-//       "ASSIGNMENT EMAIL FAILED",
-//       error
-//     );
+    console.error(
+      "ASSIGNMENT EMAIL FAILED",
+      error
+    );
 
-//   }
+  }
 
-// }
+}
 
   return Response.json(job);
 }
