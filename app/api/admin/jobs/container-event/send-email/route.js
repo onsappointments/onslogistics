@@ -29,13 +29,10 @@ export async function POST(req) {
         const job = await Job.findById(jobId);
         if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
-        // ✅ FIX: trim and case-insensitive container match
         const container = job.containers.find(
             c => c.containerNumber.trim().toLowerCase() === containerNumber.trim().toLowerCase()
         );
 
-        // ✅ FIX: Don't block email sending if container/eventIndex not found
-        // Just skip the stamp — still send the email
         const eventIndex = container
             ? [...container.events]
                 .map((e, i) => ({ e, i }))
@@ -43,15 +40,15 @@ export async function POST(req) {
                 .find(({ e }) => e.status === event.status)?.i
             : undefined;
 
-        // ✅ Always build and send the email regardless of eventIndex
+
         const html = buildStatusEmailHtml({
             jobId: job.jobId,
             containerNumber,
             sizeType,
             status: event.status,
             location: event.location,
-            eta: event.eta ? new Date(event.eta) : null,
-            actualDeparture: event.actualDeparture || null,
+            eta: event.eta ?? null,   // pass raw — string or null
+            actualDeparture: event.actualDeparture ?? null,   // pass raw — string or null
             remarks: event.remarks,
             fromCity,
             toCity,
@@ -65,24 +62,19 @@ export async function POST(req) {
             status: `Shipment Update: ${event.status} — Job ${job.jobId}`,
         };
 
-        // ✅ Send email first — outside the eventIndex guard
         await sendClientEmail({
             to: recipientEmail,
             subject: subjects[emailType] ?? subjects.status,
             html,
         });
 
-        // Stamp sent timestamp + audit log if we found the event
+        // Stamp sent-at timestamp on the event if we found it
         if (container && eventIndex !== undefined) {
             const now = new Date();
-            if (emailType === "eta") {
-                container.events[eventIndex].etaEmailSentAt = now;
-            } else if (emailType === "actual") {
-                container.events[eventIndex].actualEmailSentAt = now;
-            }
+            if (emailType === "eta") container.events[eventIndex].etaEmailSentAt = now;
+            if (emailType === "actual") container.events[eventIndex].actualEmailSentAt = now;
         }
 
-        // ✅ Always push audit log regardless
         job.auditLogs.push({
             entityType: "container",
             action: "email_sent",
@@ -94,7 +86,6 @@ export async function POST(req) {
         });
 
         await job.save();
-
         return NextResponse.json({ success: true, job });
     } catch (err) {
         console.error("Send email error:", err);
