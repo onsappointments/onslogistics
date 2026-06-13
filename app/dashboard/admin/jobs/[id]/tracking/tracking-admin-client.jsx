@@ -25,29 +25,36 @@ function getStatusColor(s) {
 
 function fmtDate(d) {
   if (!d) return null;
-  return new Date(d).toLocaleString(undefined, {
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return null;
+
+  const hasTime =
+    dt.getUTCHours() !== 0 ||
+    dt.getUTCMinutes() !== 0 ||
+    dt.getUTCSeconds() !== 0;
+
+  if (hasTime) {
+    return dt.toLocaleString(undefined, {
+      month: "short", day: "numeric", year: "numeric",
+      hour: "2-digit", minute: "2-digit",
+    });
+  }
+  return dt.toLocaleDateString(undefined, {
     month: "short", day: "numeric", year: "numeric",
-    hour: "2-digit", minute: "2-digit",
   });
 }
 
-function isValidDate(val) {
-  if (!val) return false;
-  const d = val instanceof Date ? val : new Date(val);
-  return !isNaN(d.getTime());
-}
-
-function toDate(val) {
+function toDateValue(val) {
   if (!val) return null;
-  if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
-  if (typeof val === "string") {
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) return null;
-    const d = new Date(val);
-    return isNaN(d.getTime()) ? null : d;
-  }
-  return null;
+  const trimmed = typeof val === "string" ? val.trim() : "";
+  if (!trimmed) return null;
+  if (!/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return null;
+  // Date-only (no time) → keep as string to avoid UTC timezone shift
+  // Full datetime → convert to Date so Mongoose stores it correctly
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed; // "2026-12-25"
+  const d = new Date(trimmed);
+  return isNaN(d.getTime()) ? null : d;
 }
-
 const INPUT_CLS =
   "w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white " +
   "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent " +
@@ -91,8 +98,8 @@ function StatusToggle({ useCustom, onChange }) {
 function EmailConfirmModal({ event, defaultEmail, onConfirm, onSkip, saving }) {
   const [recipientEmail, setRecipientEmail] = useState(defaultEmail || "");
 
-  const hasEta    = isValidDate(event.eta);
-  const hasActual = isValidDate(event.actualDeparture);
+  const hasEta    = event.eta;
+  const hasActual = event.actualDeparture;
 
   // Only show the option that matches what was filled in —
   // since ETA and Actual are now mutually exclusive per event,
@@ -268,20 +275,66 @@ function EventFormFields({ fields, onChange }) {
 
       {/* Show only the selected date field */}
       {dateMode === "eta" && (
-        <div>
-          <Label color="amber" hint="estimated arrival at destination">ETA date & time</Label>
-          <input type="datetime-local" className={INPUT_CLS} value={eta}
-            onChange={e => onChange("eta", e.target.value)} />
-        </div>
-      )}
+  <div >
+    <Label color="amber">ETA date &amp; time</Label>
+    <div className="flex gap-2">
+      <input
+        type="date"
+        className={INPUT_CLS}
+        value={eta ? eta.split("T")[0] : ""}
+        onChange={e => {
+          const datePart = e.target.value;           // "2026-12-25"
+          const timePart = eta?.split("T")[1] || ""; // keep existing time if any
+          onChange("eta", timePart ? `${datePart}T${timePart}` : datePart);
+        }}
+      />
+      <input
+        type="time"
+        className={`w-[50%]  flex-shrink-0 text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white 
+  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+  placeholder:text-gray-300`}
+        value={eta?.includes("T") ? eta.split("T")[1] : ""}
+        onChange={e => {
+          const datePart = eta?.split("T")[0] || "";
+          const timePart = e.target.value;           // "11:11"
+          onChange("eta", datePart ? `${datePart}T${timePart}` : timePart);
+        }}
+      />
+    </div>
+  </div>
+)}
 
-      {dateMode === "actual" && (
-        <div>
-          <Label color="green" hint="when vessel / truck left">Actual departure date & time</Label>
-          <input type="datetime-local" className={INPUT_CLS} value={actualDeparture}
-            onChange={e => onChange("actualDeparture", e.target.value)} />
-        </div>
-      )}
+{dateMode === "actual" && (
+  <div>
+    <Label color="green">Actual departure date &amp; time</Label>
+    <div className="flex gap-2">
+      <input
+        type="date"
+        className={INPUT_CLS}
+        value={actualDeparture ? actualDeparture.split("T")[0] : ""}
+        onChange={e => {
+          const datePart = e.target.value;
+          const timePart = actualDeparture?.split("T")[1] || "";
+          onChange("actualDeparture", timePart ? `${datePart}T${timePart}` : datePart);
+        }}
+      />
+      <input
+        type="time"
+                className={`w-[50%]  flex-shrink-0 text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white 
+  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+  placeholder:text-gray-300`}
+        value={actualDeparture?.includes("T") ? actualDeparture.split("T")[1] : ""}
+        placeholder="Time (optional)"
+        onChange={e => {
+          const datePart = actualDeparture?.split("T")[0] || "";
+          const timePart = e.target.value;
+          onChange("actualDeparture", datePart ? `${datePart}T${timePart}` : timePart);
+        }}
+      />
+    </div>
+    <p className="text-xs text-gray-300 mt-1">Time is optional — date alone is enough to send</p>
+  </div>
+)}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
@@ -346,10 +399,10 @@ function EditEventModal({ event, onSave, onClose, loading }) {
             Cancel
           </button>
           <button type="button" disabled={loading || !finalStatus}
-            onClick={() => onSave({
+           onClick={() => onSave({
               status:          finalStatus,
-              eta:             fields.dateMode === "eta" ? toDate(fields.eta) : null,
-              actualDeparture: fields.dateMode === "actual" ? toDate(fields.actualDeparture) : null,
+              eta:             fields.dateMode === "eta"    ? toDateValue(fields.eta)            : null,
+              actualDeparture: fields.dateMode === "actual" ? toDateValue(fields.actualDeparture) : null,
               location:        fields.location,
               remarks:         fields.remarks,
             })}
@@ -501,16 +554,17 @@ function AddEventForm({ onSubmit, loading, defaultEmail }) {
 
   const finalStatus = fields.useCustom ? fields.customStatus : fields.status;
 
-  function handleAddClick() {
-    const event = {
-      status:          finalStatus,
-      eta:             fields.dateMode === "eta" ? toDate(fields.eta) : null,
-      actualDeparture: fields.dateMode === "actual" ? toDate(fields.actualDeparture) : null,
-      location:        fields.location,
-      remarks:         fields.remarks,
-    };
-    setPending(event);
-  }
+function handleAddClick() {
+  const event = {
+    status:          finalStatus,
+    eta:             fields.dateMode === "eta"    ? toDateValue(fields.eta)            : null,
+    actualDeparture: fields.dateMode === "actual" ? toDateValue(fields.actualDeparture) : null,
+    location:        fields.location,
+    remarks:         fields.remarks,
+  };
+  setPending(event);
+}
+
 
   function handleConfirm(emailOpts) {
     onSubmit(pendingEvent, emailOpts, () => {
@@ -768,7 +822,7 @@ export default function TrackingAdminClient({ job }) {
       setContainers(data.job.containers);
       setEditTarget(null);
 
-      if (isValidDate(updatedEvent.eta) || isValidDate(updatedEvent.actualDeparture)) {
+      if (updatedEvent.eta || updatedEvent.actualDeparture) {
         setEditEmailPrompt({
           event:           updatedEvent,
           containerNumber,

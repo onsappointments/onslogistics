@@ -6,7 +6,7 @@ import Footer from "../Components/Footer";
 import LiveChat from "../Components/LiveChat";
 import SessionWrapper from "../Components/SessionWrapper";
 import Script from "next/script";
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
@@ -15,6 +15,8 @@ export const metadata = {
   description:
     "Reliable global shipping, custom broker ,freight forwarding, Air & Sea freight, customs clearance, and supply chain solutions by ONS Logistics India Pvt Ltd.",
 };
+
+
 
 interface RootLayoutProps {
   children: ReactNode ;
@@ -72,7 +74,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         />
 
         <SessionWrapper>
-          <Navbar />
+          <Navbar/>
           <main className="pt-[72px] min-h-screen ">{children}</main>
           <Footer />
         </SessionWrapper>
