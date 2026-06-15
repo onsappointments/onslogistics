@@ -101,25 +101,47 @@ export async function POST(req) {
   const job = await Job.create({
     jobId,
     quoteId: quote._id,
-    technicalQuoteId: technicalQuote._id, // ✅ FIXED: Link to technical quote for revenue tracking
-    
+    technicalQuoteId: technicalQuote._id,
+
     assignedTo: null,
     assignedToName: null,
-    assignedAt: null,
     createdBy: session.user.id,
-    
-    clientUser, // ✅ LINKED TO CLIENT
+    clientUser,
 
-
+    /* ── Copied from quote ── */
     company: quote.company || "",
     customerName: `${quote.firstName} ${quote.lastName}`.trim(),
     shipmentType: quote.shipmentType,
 
-    containerType: quote.containerType || null,
-    commodity: quote.natureOfGoods || null,
+    // Route — quote stores city names, job stores port names
+    // Pre-fill with city so admin only needs to refine, not retype
+    portOfLoading: quote.fromCity || null,
+    portOfDischarge: quote.toCity || null,
 
+    // Parties — quote has company as shipper/consignee depending on direction
+    // Pre-fill both from company; admin corrects the other party manually
+    consignee: quote.shipmentType === "import"
+      ? (quote.company || null)          // importer = consignee
+      : null,
+    shipper: quote.shipmentType === "export"
+      ? (quote.company || null)          // exporter = shipper
+      : null,
+
+    // Cargo
+    containerType: quote.containerType || null,
+    pkgs: quote.pieces ? String(quote.pieces) : null,
+    grossWeight: quote.totalWeight ? String(quote.totalWeight) : null,
+    cbm: null,                // not in quote, admin fills manually
+
+    // Commodity / nature of goods
+    commodity: quote.item  || null,
+
+    // Reference
+    referenceNumber: quote.referenceNo || null,
+
+    /* ── System fields ── */
     status: "new",
-    source: "quote", // ✅ Mark as created from quote
+    source: "quote",
     stage: "Documentation",
     stages,
     documents,

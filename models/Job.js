@@ -176,6 +176,16 @@ const JobSchema = new mongoose.Schema(
       default: null,
     },
     editApprovedAt: { type: Date, default: null },
+    // Add these two fields to JobSchema — they're used in job creation but missing from schema
+    shipmentType: {
+      type: String,
+      enum: ["import", "export", null],
+      default: null,
+    },
+    commodity: {
+      type: String,
+      default: null,
+    },
 
     // Step 3: Admin used the edit once
     editUsed: { type: Boolean, default: false },

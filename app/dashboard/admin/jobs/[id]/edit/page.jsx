@@ -140,11 +140,7 @@ export default async function EditJobPage({ params }) {
 
         {/* CONTAINER & COMMODITY */}
         <section className="bg-white p-6 rounded-xl shadow space-y-4">
-          <h2 className="text-xl font-semibold mb-2">Container & Commodity</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FieldInput label="Container Number" name="containerNumber" defaultValue={job.containerNumber || ""} />
-            <FieldInput label="Container Type" name="containerType" defaultValue={job.containerType || ""} />
-          </div>
+          <h2 className="text-xl font-semibold mb-2">Commodity</h2>
           <FieldInput label="Commodity" name="commodity" defaultValue={job.commodity || ""} />
         </section>
 

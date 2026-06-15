@@ -192,7 +192,6 @@ export default async function JobDetails({ params }) {
             <Field label="Job ID" value={plainJob.jobId} />
             <Field label="Stage" value={plainJob.stage} />
             <Field label="Company" value={plainJob.company} />
-            <Field label="Container No." value={plainJob.containerNumber} />
           </Group>
            
            <Group title="Booking and Invoice Numbers ">
@@ -212,11 +211,11 @@ export default async function JobDetails({ params }) {
             <Field label="AWB Number" value={plainJob.awbNumber} />
             <Field label="AWB Date" value={formatDate(plainJob.awbDate)} />
           </Group>
-          <Group title="Route & Parties">
-            <Field label="Port of Loading" value={plainJob.portOfLoading} />
+            <Group title="Route & Parties">
+            <Field label="Port of Loading"   value={plainJob.portOfLoading} />
             <Field label="Port of Discharge" value={plainJob.portOfDischarge} />
-            <Field label="Consignee" value={plainJob.consignee} />
-            <Field label="Shipper" value={plainJob.shipper} />
+            <Field label="Consignee"         value={plainJob.consignee} />
+            <Field label="Shipper"           value={plainJob.shipper} />
           </Group>
           <Group title="Cargo">
             <Field label="Packages" value={plainJob.pkgs} />
@@ -230,6 +229,10 @@ export default async function JobDetails({ params }) {
             <Field label="SB Date" value={formatDate(plainJob.sbDate)} />
             <Field label="Assessable Value" value={plainJob.assessableValue} />
             <Field label="Reference Number" value={plainJob.referenceNumber} />
+          </Group>
+          <Group title="Shipment">
+            <Field label="Shipment Type" value={plainJob.shipmentType} />
+            <Field label="Commodity"     value={plainJob.commodity} />
           </Group>
         </div>
       </section>
