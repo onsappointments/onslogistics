@@ -101,26 +101,23 @@ function EmailConfirmModal({ event, defaultEmail, onConfirm, onSkip, saving }) {
   const hasEta    = event.eta;
   const hasActual = event.actualDeparture;
 
-  // Only show the option that matches what was filled in —
-  // since ETA and Actual are now mutually exclusive per event,
-  // there will only ever be one date-based option here.
-  const options = [
-    hasActual && {
-      key: "actual",
-      label: "🚢 Send departure confirmation",
-      sub: `Departed: ${fmtDate(event.actualDeparture)}`,
-    },
-    hasEta && {
-      key: "eta",
-      label: "🕐 Send ETA notification",
-      sub: `Estimated arrival: ${fmtDate(event.eta)}`,
-    },
-    {
-      key: "status",
-      label: "📦 Send general status update",
-      sub: `Status: ${event.status}`,
-    },
-  ].filter(Boolean);
+const options = [
+  hasActual && {
+    key: "actual",
+    label: "✓ Send date confirmation",          // was "🚢 Send departure confirmation"
+    sub: `Confirmed: ${fmtDate(event.actualDeparture)}`,
+  },
+  hasEta && {
+    key: "eta",
+    label: "🕐 Send estimated date notification", // was "🕐 Send ETA notification"
+    sub: `Estimated: ${fmtDate(event.eta)}`,
+  },
+  {
+    key: "status",
+    label: "📦 Send status update",              // was "📦 Send general status update"
+    sub: `Status: ${event.status}`,
+  },
+].filter(Boolean);
 
   const [selected, setSelected] = useState(options[0].key);
 
@@ -217,15 +214,10 @@ function EmailConfirmModal({ event, defaultEmail, onConfirm, onSkip, saving }) {
 function EventFormFields({ fields, onChange }) {
   const { useCustom, status, customStatus, dateMode, eta, actualDeparture, location, remarks } = fields;
 
-  // dateMode: "none" | "eta" | "actual"
-  // Controls which date field is shown and sent.
-  function handleDateModeChange(mode) {
-    onChange("dateMode", mode);
-    // Clear both dates when switching, let user re-enter
-    if (mode !== "eta")    onChange("eta", "");
-    if (mode !== "actual") onChange("actualDeparture", "");
-  }
 
+function handleDateModeChange(mode) {
+  onChange("dateMode", mode);
+}
   return (
     <div className="space-y-3">
       <StatusToggle useCustom={useCustom} onChange={val => onChange("useCustom", val)} />
@@ -253,8 +245,8 @@ function EventFormFields({ fields, onChange }) {
         <div className="flex gap-1.5">
           {[
             { key: "none",   label: "None" },
-            { key: "eta",    label: "🕐 ETA (estimated)" },
-            { key: "actual", label: "🚢 Actual departure" },
+            { key: "eta",    label: "🕐 Estimated date" },   // was "🕐 ETA (estimated)"
+            { key: "actual", label: "✓ Confirmed date" },  
           ].map(({ key, label }) => (
             <button key={key} type="button"
               onClick={() => handleDateModeChange(key)}
@@ -306,7 +298,7 @@ function EventFormFields({ fields, onChange }) {
 
 {dateMode === "actual" && (
   <div>
-    <Label color="green">Actual departure date &amp; time</Label>
+    <Label color="green">Actual date &amp; time</Label>
     <div className="flex gap-2">
       <input
         type="date"
@@ -427,11 +419,11 @@ function EventRow({ event, index, isLast, onEdit, onDelete }) {
   const actualSent = !!event.actualEmailSentAt;
 
   // eventType badge — shows what kind of event this is
-  const eventTypeBadge = event.eventType === "eta"
-    ? <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 font-medium ml-2">ETA</span>
-    : event.eventType === "actual"
-    ? <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-200 font-medium ml-2">Actual</span>
-    : null;
+const eventTypeBadge = event.eventType === "eta"
+  ? <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 font-medium ml-2">Estimated</span>  // was "ETA"
+  : event.eventType === "actual"
+  ? <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-200 font-medium ml-2">Confirmed</span>   // was "Actual"
+  : null;
 
   return (
     <div className="relative flex gap-3">
@@ -492,36 +484,36 @@ function EventRow({ event, index, isLast, onEdit, onDelete }) {
 
         {(hasEta || hasActual) && (
           <div className="flex flex-wrap gap-2 mt-2">
-            {hasEta && (
-              <span className={`inline-flex items-center gap-1.5 text-xs font-medium
-                               px-2.5 py-1 rounded-full border ${
-                etaSent ? "bg-amber-50 text-amber-700 border-amber-200"
-                        : "bg-amber-50 text-amber-600 border-amber-100"
-              }`}>
-                🕐 ETA: {fmtDate(event.eta)}
-                {etaSent && (
-                  <span className="text-amber-400 font-normal"
-                        title={`Email sent ${fmtDate(event.etaEmailSentAt)}`}>
-                    · ✓ notified
-                  </span>
-                )}
-              </span>
-            )}
-            {hasActual && (
-              <span className={`inline-flex items-center gap-1.5 text-xs font-medium
-                               px-2.5 py-1 rounded-full border ${
-                actualSent ? "bg-green-50 text-green-700 border-green-200"
-                           : "bg-green-50 text-green-600 border-green-100"
-              }`}>
-                🚢 Departed: {fmtDate(event.actualDeparture)}
-                {actualSent && (
-                  <span className="text-green-400 font-normal"
-                        title={`Email sent ${fmtDate(event.actualEmailSentAt)}`}>
-                    · ✓ notified
-                  </span>
-                )}
-              </span>
-            )}
+          {hasEta && (
+            <span className={`inline-flex items-center gap-1.5 text-xs font-medium
+                            px-2.5 py-1 rounded-full border ${
+              etaSent ? "bg-amber-50 text-amber-700 border-amber-200"
+                      : "bg-amber-50 text-amber-600 border-amber-100"
+            }`}>
+              🕐 Est. {fmtDate(event.eta)}   {/* was "ETA:" */}
+              {etaSent && (
+                <span className="text-amber-400 font-normal"
+                      title={`Email sent ${fmtDate(event.etaEmailSentAt)}`}>
+                  · ✓ notified
+                </span>
+              )}
+            </span>
+          )}
+          {hasActual && (
+            <span className={`inline-flex items-center gap-1.5 text-xs font-medium
+                            px-2.5 py-1 rounded-full border ${
+              actualSent ? "bg-green-50 text-green-700 border-green-200"
+                        : "bg-green-50 text-green-600 border-green-100"
+            }`}>
+              ✓ Confirmed: {fmtDate(event.actualDeparture)}   {/* was "🚢 Departed:" */}
+              {actualSent && (
+                <span className="text-green-400 font-normal"
+                      title={`Email sent ${fmtDate(event.actualEmailSentAt)}`}>
+                  · ✓ notified
+                </span>
+              )}
+            </span>
+          )}
           </div>
         )}
 
