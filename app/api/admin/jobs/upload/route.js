@@ -11,23 +11,37 @@ import mongoose from "mongoose";
 
 export async function POST(req) {
   try {
+    console.log("=== UPLOAD START ===");
+
     await connectDB();
+    console.log("✅ DB connected");
 
     const session = await getServerSession(authOptions);
+    console.log("✅ Session:", JSON.stringify(session?.user));
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ restrict upload (recommended)
     const isAdmin = session.user.role === "admin";
     if (!isAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const formData = await req.formData();
+    let formData;
+    try {
+      formData = await req.formData();
+      console.log("✅ FormData parsed");
+    } catch (formErr) {
+      console.error("❌ FormData parse failed:", formErr.message);
+      return NextResponse.json({ error: "Failed to parse form data: " + formErr.message }, { status: 400 });
+    }
+
     const jobId = formData.get("jobId");
     const documentName = formData.get("documentName");
     const file = formData.get("file");
+
+    console.log("Fields:", { jobId, documentName, fileName: file?.name, fileSize: file?.size, fileType: file?.type });
 
     if (!jobId || !documentName || !file) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -38,43 +52,47 @@ export async function POST(req) {
     }
 
     const job = await Job.findById(jobId);
+    console.log("✅ Job found:", job?._id);
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // ✅ Use base64 instead of upload_stream (more reliable in serverless)
+    let buffer;
+    try {
+      buffer = Buffer.from(await file.arrayBuffer());
+      console.log("✅ Buffer created, size:", buffer.length);
+    } catch (bufErr) {
+      console.error("❌ Buffer failed:", bufErr.message);
+      return NextResponse.json({ error: "Failed to read file: " + bufErr.message }, { status: 500 });
+    }
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            folder: "onslogistics/documents",
-            resource_type: "auto",
-            access_mode: "public",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        )
-        .end(buffer);
-    });
+    let uploadResult;
+    try {
+      const base64 = buffer.toString("base64");
+      const dataUri = `data:${file.type};base64,${base64}`;
+      console.log("⬆️ Uploading to Cloudinary...");
+
+      uploadResult = await cloudinary.uploader.upload(dataUri, {
+        folder: "onslogistics/documents",
+        resource_type: "auto",
+        access_mode: "public",
+      });
+      console.log("✅ Cloudinary upload done:", uploadResult?.secure_url);
+    } catch (cloudErr) {
+      console.error("❌ Cloudinary upload failed:", cloudErr.message, cloudErr);
+      return NextResponse.json({ error: "Cloudinary upload failed: " + cloudErr.message }, { status: 500 });
+    }
 
     const fileUrl = uploadResult.secure_url;
-
-    // ✅ Update existing doc OR create it (match your DocumentSchema)
     const docName = String(documentName).trim();
     let doc = job.documents?.find((d) => d.name === docName);
 
     if (doc) {
       doc.fileUrl = fileUrl;
       doc.uploadedAt = new Date();
-
-      // reset confirmation state when new file uploaded
       doc.confirmed = false;
       doc.confirmedAt = null;
-
-      // optional if you still store uploadedFile
       doc.uploadedFile = fileUrl;
     } else {
       job.documents.push({
@@ -88,6 +106,7 @@ export async function POST(req) {
     }
 
     await job.save();
+    console.log("✅ Job saved");
 
     await logAudit({
       entityType: "job",
@@ -103,9 +122,18 @@ export async function POST(req) {
       },
     });
 
+    console.log("=== UPLOAD SUCCESS ===");
     return NextResponse.json({ success: true, fileUrl, job }, { status: 200 });
+
   } catch (err) {
-    console.error("UPLOAD ERROR:", err);
-    return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
+    console.error("❌ UPLOAD ERROR:", {
+      message: err.message,
+      stack: err.stack,
+      name: err.name,
+    });
+    return NextResponse.json({
+      error: err.message || "Internal server error",
+      type: err.name,
+    }, { status: 500 });
   }
 }
