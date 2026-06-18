@@ -18,16 +18,21 @@ export async function GET(req) {
    }
 
    const currentUser = await User.findOne({ email: session.user.email }).lean();
-   const isSuperAdmin = currentUser?.adminType === "super_admin";
+   const isAuthorized = currentUser?.adminType === "super_admin" || currentUser?.adminType === "manager";
 
   const pipeline = [
     {
       $match: {
         status,
-        ...(isSuperAdmin
+        ...(isAuthorized
           ? {}
-          : { assignedTo: new mongoose.Types.ObjectId(currentUser._id) }),
-      },
+          : {
+            $or: [
+              { assignedTo: new mongoose.Types.ObjectId(currentUser._id) },
+              { createdBy: new mongoose.Types.ObjectId(currentUser._id) }
+            ]
+          })
+      }
     },
     {
       $lookup: {
