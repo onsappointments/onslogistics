@@ -60,7 +60,7 @@ const JobSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
-
+    
     assignedToName: {
       type: String,
       default: null,
