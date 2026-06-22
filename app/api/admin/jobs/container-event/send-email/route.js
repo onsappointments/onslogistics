@@ -19,7 +19,7 @@ import { PRE_CONTAINER_SENTINEL } from "@/models/Job";
 //                    on the matching event and write an audit log entry.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
@@ -47,12 +47,12 @@ export async function POST(req: Request) {
     const job = await Job.findById(jobId);
     if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
-    const shipmentType: "import" | "export" =
+    const shipmentType =
       job.shipmentType === "export" ? "export" : "import";
 
     // ── Resolve cycleStep from the stored event (preferred) or payload ──
     const container = job.containers.find(
-      (c: any) =>
+      (c) =>
         c.containerNumber.trim().toLowerCase() ===
         containerNumber.trim().toLowerCase()
     );
@@ -60,9 +60,9 @@ export async function POST(req: Request) {
     const matchedEventIndex =
       container
         ? [...container.events]
-          .map((e: any, i: number) => ({ e, i }))
+          .map((e, i) => ({ e, i }))
           .reverse()
-          .find(({ e }: { e: any }) => e.status === event.status)?.i
+          .find(({ e }) => e.status === event.status)?.i
         : undefined;
 
     const dbEvent =
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         ? container.events[matchedEventIndex]
         : null;
 
-    const cycleStep: string =
+    const cycleStep =
       dbEvent?.cycleStep ||
       event?.cycleStep ||
       event?.stepKey ||

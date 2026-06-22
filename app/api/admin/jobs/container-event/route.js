@@ -33,10 +33,10 @@ const JOB_LEVEL_STEPS = new Set([
  * Container-level steps require a real container number.
  */
 function resolveContainerNumber(
-  cycleStepKey: string,
-  cycleStepDef: any,
-  suppliedContainerNumber: string | undefined
-): string {
+  cycleStepKey,
+  cycleStepDef,
+  suppliedContainerNumber
+) {
   if (JOB_LEVEL_STEPS.has(cycleStepKey) || !cycleStepDef?.requiresContainer) {
     return PRE_CONTAINER_SENTINEL;
   }
@@ -54,7 +54,7 @@ function resolveContainerNumber(
  * eta filled             → "eta"
  * neither                → "single"
  */
-function deriveEventType(event: any): "actual" | "eta" | "single" {
+function deriveEventType(event) {
   if (event.actualDeparture) return "actual";
   if (event.eta) return "eta";
   return "single";
@@ -66,11 +66,11 @@ function deriveEventType(event: any): "actual" | "eta" | "single" {
  * excludeIndex lets PATCH skip the record being edited.
  */
 function isDuplicateEvent(
-  events: any[],
-  cycleStep: string,
-  eventType: string,
+  events,
+  cycleStep,
+  eventType,
   excludeIndex = -1
-): boolean {
+) {
   return events.some(
     (e, i) =>
       i !== excludeIndex &&
@@ -87,11 +87,11 @@ function isDuplicateEvent(
  * The violation is advisory — the API still saves the event.
  */
 function detectSequenceViolation(
-  shipmentType: string,
-  containerEvents: any[],
-  incomingCycleStep: string,
+  shipmentType,
+  containerEvents,
+  incomingCycleStep,
   excludeIndex = -1
-): string | null {
+) {
   const cycle = getCycleForShipment(shipmentType);
   const stepIndex = cycle.findIndex((s) => s.key === incomingCycleStep);
   if (stepIndex === -1) return null; // unknown step — can't check
@@ -118,7 +118,7 @@ function detectSequenceViolation(
 // POST — add new event
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
@@ -152,14 +152,14 @@ export async function POST(req: Request) {
     }
 
     // ── Resolve container number ──────────────────────────────────────
-    let effectiveContainerNumber: string;
+    let effectiveContainerNumber;
     try {
       effectiveContainerNumber = resolveContainerNumber(
         event.cycleStep,
         cycleStepDef,
         containerNumber
       );
-    } catch (e: any) {
+    } catch (e) {
       return NextResponse.json({ error: e.message }, { status: 400 });
     }
 
@@ -172,7 +172,7 @@ export async function POST(req: Request) {
 
     // ── Find or create container bucket ──────────────────────────────
     let container = job.containers.find(
-      (c: any) => c.containerNumber === effectiveContainerNumber
+      (c) => c.containerNumber === effectiveContainerNumber
     );
     if (!container) {
       job.containers.push({
@@ -258,7 +258,7 @@ export async function POST(req: Request) {
 // PATCH — edit existing event
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function PATCH(req: Request) {
+export async function PATCH(req) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
@@ -281,7 +281,7 @@ export async function PATCH(req: Request) {
     if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
     const container = job.containers.find(
-      (c: any) => c.containerNumber === containerNumber
+      (c) => c.containerNumber === containerNumber
     );
     if (!container) {
       return NextResponse.json({ error: "Container not found" }, { status: 404 });
@@ -364,7 +364,7 @@ export async function PATCH(req: Request) {
 // DELETE — remove event
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function DELETE(req: Request) {
+export async function DELETE(req) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
@@ -386,7 +386,7 @@ export async function DELETE(req: Request) {
     if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
     const container = job.containers.find(
-      (c: any) => c.containerNumber === containerNumber
+      (c) => c.containerNumber === containerNumber
     );
     if (!container) {
       return NextResponse.json({ error: "Container not found" }, { status: 404 });

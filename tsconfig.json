@@ -35,7 +35,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/faq/page.jsx"  ],
+, "app/faq/page.jsx", "app/api/admin/jobs/container-event/send-email/route.js", "app/api/admin/jobs/container-event/route.js"  ],
   "exclude": [
     "node_modules"
   ]
