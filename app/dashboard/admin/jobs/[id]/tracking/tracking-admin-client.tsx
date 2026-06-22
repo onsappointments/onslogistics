@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { resolveStepTitle } from "@/lib/trackingStatus";
 import { getCycleForShipment } from "@/lib/shipmentCycles";
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -676,6 +677,14 @@ const DEFAULT_COLOR = { dot: "#6366f1", bar: "#e0e7ff" };
    Timeline event row
    Includes Edit, Delete, and Resend email buttons.
 ───────────────────────────────────────────────────────────────────── */
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD THIS IMPORT to the top of TrackingAdminClient.tsx alongside the others:
+//
+//   import { resolveStepTitle } from "@/lib/trackingCopy";
+//
+// Then replace the existing EventRow function with this one.
+// Everything else in TrackingAdminClient.tsx stays exactly the same.
+// ─────────────────────────────────────────────────────────────────────────────
 
 function EventRow({
   event,
@@ -698,8 +707,13 @@ function EventRow({
   const etaSent = !!event.etaEmailSentAt;
   const actualSent = !!event.actualEmailSentAt;
 
-  // Only show resend if there's something to re-send (has a date, or is status-only)
-  const canResend = true;
+  // ── Resolve the client-facing label from trackingCopy.ts ──────────────────
+  // Falls back to event.status (the raw internal label) if no copy entry exists.
+  const displayLabel = resolveStepTitle(
+    event.cycleStep ?? "",
+    (event.eventType as "eta" | "actual" | "single" | "status") ?? "status",
+    event.status ?? ""
+  );
 
   const badge =
     event.eventType === "eta" ? (
@@ -740,37 +754,39 @@ function EventRow({
           />
         )}
       </div>
+
       <div className={`flex-1 ${!isLast ? "pb-5" : "pb-1"}`}>
         <div className="flex items-start justify-between gap-2">
+          {/* Client-facing label from trackingCopy.ts */}
           <span className="text-sm font-semibold text-gray-800 leading-tight mt-0.5 flex items-center flex-wrap gap-1">
-            {event.status}
+            {displayLabel}
             {badge}
           </span>
+
           <div className="flex gap-1 flex-shrink-0">
             {/* Resend email */}
-            {canResend && (
-              <button
-                type="button"
-                onClick={() => onResend(index)}
-                title="Resend email notification"
-                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-purple-500 border border-transparent hover:border-purple-200 hover:bg-purple-50 transition-colors"
+            <button
+              type="button"
+              onClick={() => onResend(index)}
+              title="Resend email notification"
+              className="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-purple-500 border border-transparent hover:border-purple-200 hover:bg-purple-50 transition-colors"
+            >
+              <svg
+                className="w-3 h-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
               >
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                Resend
-              </button>
-            )}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              Resend
+            </button>
+
             {/* Edit */}
             <button
               type="button"
@@ -792,6 +808,7 @@ function EventRow({
               </svg>
               Edit
             </button>
+
             {/* Delete */}
             <button
               type="button"
@@ -815,6 +832,7 @@ function EventRow({
             </button>
           </div>
         </div>
+
         {event.location && (
           <span className="flex items-center gap-1 text-xs text-gray-400 mt-1.5">
             <svg
@@ -838,6 +856,7 @@ function EventRow({
             {event.location}
           </span>
         )}
+
         {(hasEta || hasActual) && (
           <div className="flex flex-wrap gap-2 mt-2">
             {hasEta && (
@@ -849,9 +868,7 @@ function EventRow({
               >
                 🕐 Est. {fmtDate(event.eta)}
                 {etaSent && (
-                  <span className="text-amber-400 font-normal">
-                    · ✓ notified
-                  </span>
+                  <span className="text-amber-400 font-normal">· ✓ notified</span>
                 )}
               </span>
             )}
@@ -864,14 +881,13 @@ function EventRow({
               >
                 ✓ {fmtDate(event.actualDeparture)}
                 {actualSent && (
-                  <span className="text-green-400 font-normal">
-                    · ✓ notified
-                  </span>
+                  <span className="text-green-400 font-normal">· ✓ notified</span>
                 )}
               </span>
             )}
           </div>
         )}
+
         {event.remarks && (
           <p className="text-xs text-gray-400 italic mt-1.5 pl-2 border-l-2 border-gray-100">
             {event.remarks}
