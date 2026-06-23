@@ -187,6 +187,7 @@ export default function Footer() {
                 </a>
               </li>
             </ul>
+           
           </div>
 
           {/* Resources  Column */}
@@ -286,6 +287,17 @@ export default function Footer() {
                 </span>
               </li>
             </ul>
+              <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3915.734618769521!2d75.93214616966836!3d30.890359269866227!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391a9d0535972011%3A0x9277ef49a7be9bc4!2sONS%20Logistics%20(I)%20Pvt.%20Ltd.%20-%20Custom%20House%20Agent%2C%20Top%20Custom%20Broker%20Agents%20in%20Ludhiana!5e0!3m2!1sen!2sin!4v1782197421121!5m2!1sen!2sin"
+                width="100%"
+                height="180"
+                style={{ border: 0 }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="ONS Logistics India Location"
+              />
+            </div>
           </div>
 
           {/* Containers Column */}

@@ -24,7 +24,6 @@ const categories = [
 export default function ResourcesPage() {
   const [search, setSearch] = useState("");
   const [active, setActive] = useState("All");
-
   const filtered = filterArticles({
     articles,
     search,
