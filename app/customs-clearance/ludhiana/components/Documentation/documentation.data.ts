@@ -35,7 +35,7 @@ export const documentationData: CustomsDocument[] = [
       name: "Indian Customs",
     },
 
-    learnMoreHref: "/resources/commercial-invoice-guide",
+    learnMoreHref: "/resources/commercial-invoice-vs-packing-list-explained",
 
     relatedEntities: [
       "Invoice Value",
@@ -89,7 +89,7 @@ export const documentationData: CustomsDocument[] = [
       name: "Indian Customs",
     },
 
-    learnMoreHref: "/resources/packing-list-guide",
+    learnMoreHref: "/resources/commercial-invoice-vs-packing-list-explained",
 
     relatedEntities: [
       "Commercial Invoice",
@@ -144,7 +144,7 @@ export const documentationData: CustomsDocument[] = [
       name: "Indian Customs",
     },
 
-    learnMoreHref: "/resources/bill-of-entry-guide",
+    learnMoreHref: "/resources/import-duties-in-india-explained",
 
     relatedEntities: [
       "ICEGATE",
@@ -200,7 +200,7 @@ export const documentationData: CustomsDocument[] = [
       name: "Indian Customs",
     },
 
-    learnMoreHref: "/resources/shipping-bill-guide",
+    learnMoreHref: "/resources/what-is-a-shipping-bill-in-india",
 
     relatedEntities: [
       "ICEGATE",
@@ -255,7 +255,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "The IEC identifies businesses engaged in cross-border trade and is required for most import and export activities.",
 
-    learnMoreHref: "/resources/iec-guide",
+    learnMoreHref: "/resources/iec-code-india-how-to-get",
 
     relatedEntities: [
       "DGFT",
@@ -309,7 +309,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "The AD Code connects export customs declarations with the exporter's authorised bank.",
 
-    learnMoreHref: "/resources/ad-code-guide",
+    learnMoreHref: "/resources/customs-clearance-india",
 
     relatedEntities: [
       "DGFT",
@@ -359,7 +359,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "The Certificate of Origin verifies where exported goods originate and may support preferential tariff treatment.",
 
-    learnMoreHref: "/resources/certificate-of-origin-guide",
+    learnMoreHref: "/resources/documents-required-for-export-from-india",
 
     relatedEntities: [
       "FTA",
@@ -408,7 +408,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "The Bill of Lading records cargo transportation details for international sea freight shipments.",
 
-    learnMoreHref: "/resources/bill-of-lading-guide",
+    learnMoreHref: "/resources/bill-of-lading-explained-international-shipping",
 
     relatedEntities: [
       "Sea Freight",
@@ -457,7 +457,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "The Air Waybill documents the transportation of international air cargo shipments.",
 
-    learnMoreHref: "/resources/air-waybill-guide",
+    learnMoreHref: "/resources/air-vs-sea-freight-from-india",
 
     relatedEntities: [
       "Air Freight",
@@ -506,7 +506,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "The Insurance Certificate confirms cargo insurance coverage for international shipments.",
 
-    learnMoreHref: "/resources/cargo-insurance-guide",
+    learnMoreHref: "/resources/marine-insurance-machinery",
 
     relatedEntities: [
       "Cargo Insurance",
@@ -555,7 +555,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "Some products require an Import Licence before customs clearance can proceed.",
 
-    learnMoreHref: "/resources/import-license-guide",
+    learnMoreHref: "/resources/import-process-in-india-step-by-step",
 
     relatedEntities: [
       "DGFT",
@@ -604,7 +604,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "The Fumigation Certificate helps demonstrate compliance for treated wood packaging materials.",
 
-    learnMoreHref: "/resources/fumigation-certificate-guide",
+    learnMoreHref: "/resources/freight-forwarding-explained-india",
 
     relatedEntities: [
       "ISPM 15",
@@ -653,7 +653,7 @@ export const documentationData: CustomsDocument[] = [
     summary:
       "The Phytosanitary Certificate demonstrates compliance with plant health requirements for eligible exports.",
 
-    learnMoreHref: "/resources/phytosanitary-certificate-guide",
+    learnMoreHref: "/resources/freight-forwarding-explained-india",
 
     relatedEntities: [
       "Plant Quarantine",

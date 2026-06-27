@@ -26,7 +26,7 @@ export const importJourney: JourneyStep[] = [
     onsSupport:
       "ONS Logistics reviews documentation before customs filing to identify potential compliance issues early.",
 
-    learnMoreHref: "/resources/import-process",
+    learnMoreHref: "/resources/bill-of-lading-explained-international-shipping",
 
     documents: [
       { id: "invoice", name: "Commercial Invoice", required: true },
@@ -70,7 +70,7 @@ export const importJourney: JourneyStep[] = [
     onsSupport:
       "ONS Logistics prepares and reviews customs documentation before filing.",
 
-    learnMoreHref: "/resources/bill-of-entry",
+    learnMoreHref: "/resources/import-process-in-india-step-by-step",
 
     documents: [],
 
@@ -108,7 +108,7 @@ export const importJourney: JourneyStep[] = [
     onsSupport:
       "Our customs specialists assist with documentation and classification guidance.",
 
-    learnMoreHref: "/resources/hs-code-guide",
+    learnMoreHref: "/resources/hs-code-explained-indian-importers-exporters",
 
     entities: [
       "HS Code",
@@ -144,7 +144,7 @@ export const importJourney: JourneyStep[] = [
     onsSupport:
       "ONS Logistics helps businesses understand customs duty calculations and documentation requirements.",
 
-    learnMoreHref: "/resources/import-duty-guide",
+    learnMoreHref: "/resources/import-duties-in-india-explained",
 
     entities: [
       "Import Duty",
@@ -180,7 +180,7 @@ export const importJourney: JourneyStep[] = [
     onsSupport:
       "ONS Logistics coordinates customs clearance with freight forwarding and inland transportation.",
 
-    learnMoreHref: "/services/freight-forwarding",
+    learnMoreHref: "/services/customs-clearance-india",
 
     entities: [
       "Out of Charge",
@@ -218,7 +218,7 @@ export const exportJourney: JourneyStep[] = [
     onsSupport:
       "ONS Logistics reviews export documentation before customs filing.",
 
-    learnMoreHref: "/resources/export-process",
+    learnMoreHref: "/resources/export-process-in-india-step-by-step",
 
     entities: [
       "Commercial Invoice",
@@ -254,7 +254,7 @@ export const exportJourney: JourneyStep[] = [
     onsSupport:
       "ONS Logistics prepares and verifies Shipping Bills for export shipments.",
 
-    learnMoreHref: "/resources/shipping-bill-guide",
+    learnMoreHref: "/resources/what-is-a-shipping-bill-in-india",
 
     entities: [
       "Shipping Bill",
@@ -290,7 +290,7 @@ export const exportJourney: JourneyStep[] = [
     onsSupport:
       "ONS Logistics coordinates customs procedures throughout the export clearance process.",
 
-    learnMoreHref: "/resources/export-process",
+    learnMoreHref: "/resources/documents-required-for-export-from-india",
 
     entities: [
       "LEO",
@@ -326,7 +326,7 @@ export const exportJourney: JourneyStep[] = [
     onsSupport:
       "ONS Logistics coordinates freight forwarding together with export customs clearance.",
 
-    learnMoreHref: "/services/freight-forwarding",
+    learnMoreHref: "/services/container-stuffing-process-explained",
 
     entities: [
       "Freight Forwarding",

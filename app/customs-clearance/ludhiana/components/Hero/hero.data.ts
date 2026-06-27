@@ -117,6 +117,6 @@ export const heroData: HeroData = {
     },
   ],
 
-  // These will be added to HeroData interface
+  
 
 };

@@ -9,12 +9,12 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "Import Process Guide",
-        href: "/resources/import-process",
+        title: "How Customs Clearance Works in India (Step-by-Step Guide)",
+        href: "/resources/customs-clearance-india",
       },
       {
-        title: "Export Process Guide",
-        href: "/resources/export-process",
+        title: "How Long Does Customs Clearance Take in India? Timeline Explained",
+        href: "/resources/how-long-does-customs-clearance-take-in-india",
       },
     ],
   },
@@ -27,8 +27,8 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "Bill of Entry Guide",
-        href: "/resources/bill-of-entry-guide",
+        title: "Why ONS Logistics is a Trusted Customs Broker in Ludhiana",
+        href: "/resources/trusted-customs-broker-ludhiana",
       },
     ],
   },
@@ -41,8 +41,8 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "Documentation Guide",
-        href: "/resources/documentation",
+        title: "Documents Required for Export from India",
+        href: "/resources/documents-required-for-export-from-india",
       },
     ],
   },
@@ -55,8 +55,8 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "IEC Guide",
-        href: "/resources/iec-guide",
+        title: "What is an IEC Code and How to Get It in India",
+        href: "/resources/iec-code-india-how-to-get",
       },
     ],
   },
@@ -70,7 +70,7 @@ export const faqData: FAQItem[] = [
     relatedLinks: [
       {
         title: "HS Code Guide",
-        href: "/resources/hs-code-guide",
+        href: "/resources/hs-code-explained-indian-importers-exporters",
       },
     ],
   },
@@ -84,7 +84,7 @@ export const faqData: FAQItem[] = [
     relatedLinks: [
       {
         title: "ICEGATE Guide",
-        href: "/resources/icegate-guide",
+        href: "/resources/cha-custom-house-agent-explained-india",
       },
     ],
   },
@@ -97,8 +97,8 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "Bill of Entry Guide",
-        href: "/resources/bill-of-entry-guide",
+        title: "Import Process in India",
+        href: "/resources/import-process-in-india-step-by-step",
       },
     ],
   },
@@ -112,7 +112,7 @@ export const faqData: FAQItem[] = [
     relatedLinks: [
       {
         title: "Shipping Bill Guide",
-        href: "/resources/shipping-bill-guide",
+        href: "/resources/what-is-a-shipping-bill-in-india",
       },
     ],
   },
@@ -126,7 +126,7 @@ export const faqData: FAQItem[] = [
     relatedLinks: [
       {
         title: "Industry Expertise",
-        href: "#industries",
+        href: "/resources/automotive-export-india",
       },
     ],
   },
@@ -139,8 +139,8 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "Freight Forwarding",
-        href: "/services/freight-forwarding",
+        title: "Freight Forwarding in Ludhiana",
+        href: "/services/freight-forwarders-in-ludhiana",
       },
     ],
   },
@@ -153,8 +153,8 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "Import Process Guide",
-        href: "/resources/import-process",
+        title: "How Customs Clearance Works",
+        href: "/resources/customs-clearance-india",
       },
     ],
   },
@@ -167,8 +167,8 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "AD Code Guide",
-        href: "/resources/ad-code-guide",
+        title: "Export Process in India",
+        href: "/resources/export-process-in-india-step-by-step",
       },
     ],
   },
@@ -181,8 +181,8 @@ export const faqData: FAQItem[] = [
 
     relatedLinks: [
       {
-        title: "Certificate of Origin Guide",
-        href: "/resources/certificate-of-origin-guide",
+        title: "Import Process in India",
+        href: "/resources/import-process-in-india-step-by-step",
       },
     ],
   },
@@ -196,7 +196,7 @@ export const faqData: FAQItem[] = [
     relatedLinks: [
       {
         title: "Customs Clearance Process",
-        href: "#customs-process",
+        href: "customs-clearance-india",
       },
     ],
   },
