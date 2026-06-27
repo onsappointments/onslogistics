@@ -1,6 +1,8 @@
 "use client";
 
-import { FileText, CalendarCheck, ArrowRight } from "lucide-react";
+import { FileText, CalendarCheck, ArrowRight,  Navigation,
+  Share2,
+  Phone,} from "lucide-react";
 
 export default function ContactForm() {
   return (

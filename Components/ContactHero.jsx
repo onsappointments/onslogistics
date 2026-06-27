@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Phone, Mail, Clock, ArrowRight, CheckCircle, Truck, Shield, HeadphonesIcon, Star, HelpCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ArrowRight, CheckCircle, Truck, Shield, HeadphonesIcon, Star, HelpCircle, Navigation,
+  Share2,  CalendarCheck,  } from "lucide-react";
 
 export default function ContactHero() {
   const phoneNumbers = [
@@ -297,6 +298,47 @@ export default function ContactHero() {
               referrerPolicy="no-referrer-when-downgrade"
               title="ONS Logistics Office Location"
             />
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4 py-8">
+            <a
+              href="https://www.google.com/maps/dir/?api=1&destination=ONS+Logistics+(I)+Pvt.+Ltd.+Ludhiana"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition shadow-sm"
+            >
+              <Navigation className="w-4 h-4" />
+              Get Directions
+            </a>
+
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  "https://www.google.com/maps/dir/?api=1&destination=ONS+Logistics+(I)+Pvt.+Ltd.+Ludhiana"
+                );
+                alert("Location link copied!");
+              }}
+              className="inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition shadow-sm"
+            >
+              <Share2 className="w-4 h-4" />
+              Share Location
+            </button>
+
+            <a
+              href="tel:18008907365"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition shadow-sm"
+            >
+              <Phone className="w-4 h-4" />
+              Call Us
+            </a>
+
+            <a
+              href="/book-appointment"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition shadow-sm"
+            >
+              <CalendarCheck className="w-4 h-4" />
+              Book Appointment
+            </a>
           </div>
         </div>
       </div>
