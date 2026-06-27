@@ -31,7 +31,7 @@ export const challengesData: ChallengeItem[] = [
       "Shipping Bill",
     ],
 
-    learnMoreHref: "/resources/hs-code-guide",
+    learnMoreHref: "/resources/hs-code-explained-indian-importers-exporters",
   },
 
   {
@@ -63,7 +63,7 @@ export const challengesData: ChallengeItem[] = [
       "Documentation Guide",
     ],
 
-    learnMoreHref: "/resources/commercial-invoice-guide",
+    learnMoreHref: "/resources/commercial-invoice-vs-packing-list-explained",
   },
 
   {
@@ -95,7 +95,7 @@ export const challengesData: ChallengeItem[] = [
       "Bill of Entry",
     ],
 
-    learnMoreHref: "/resources/bill-of-entry-guide",
+    learnMoreHref: "/resources/goods-stuck-at-customs-india-what-happens",
   },
 
   {
@@ -127,7 +127,7 @@ export const challengesData: ChallengeItem[] = [
       "Assessment",
     ],
 
-    learnMoreHref: "/resources/import-duty-guide",
+    learnMoreHref: "/resources/import-duties-in-india-explained",
   },
 
   {
@@ -159,7 +159,7 @@ export const challengesData: ChallengeItem[] = [
       "Documentation",
     ],
 
-    learnMoreHref: "/services/freight-forwarding",
+    learnMoreHref: "/services/freight-forwarding-explained-india",
   },
 
   {
@@ -191,6 +191,6 @@ export const challengesData: ChallengeItem[] = [
       "Compliance",
     ],
 
-    learnMoreHref: "/resources/import-process",
+    learnMoreHref: "/resources/import-process-in-india-step-by-step",
   },
 ];

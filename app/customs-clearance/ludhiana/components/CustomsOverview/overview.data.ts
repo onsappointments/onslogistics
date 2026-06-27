@@ -22,7 +22,7 @@ export const overviewData: EntityItem[] = [
     commonMistake:
       "Many businesses wait until the shipment arrives before reviewing import documents, resulting in avoidable delays and additional costs.",
 
-    href: "/resources/import-process",
+    href: "/resources/import-process-in-india-step-by-step",
 
     tags: [
       "Bill of Entry",
@@ -43,10 +43,9 @@ export const overviewData: EntityItem[] = [
     ],
 
     relatedArticles: [
-      "/resources/bill-of-entry",
-      "/resources/hs-code-guide",
-      "/resources/import-duty-guide",
-      "/resources/icegate-guide",
+      "/resources/import-process-in-india-step-by-step",
+      "/resources/hs-code-explained-indian-importers-exporters",
+      "/resources/import-duties-in-india-explained",
     ],
 
     cta: {
@@ -76,7 +75,7 @@ export const overviewData: EntityItem[] = [
     commonMistake:
       "Incorrect product descriptions and invoice values frequently result in Shipping Bill amendments.",
 
-    href: "/resources/export-process",
+    href: "/resources/export-process-in-india-step-by-step",
 
     tags: [
       "Shipping Bill",
@@ -97,10 +96,10 @@ export const overviewData: EntityItem[] = [
     ],
 
     relatedArticles: [
-      "/resources/shipping-bill-guide",
-      "/resources/export-process",
-      "/resources/incoterms-guide",
-      "/resources/dgft-guide",
+      "/resources/what-is-a-shipping-bill-in-india",
+      "/resources/export-process-in-india-step-by-step",
+      "/resources/incoterms-explained-india-fob-cif-ddp",
+      "/resources/dangerous-goods-shipping-from-india-explained",
     ],
 
     cta: {
@@ -130,7 +129,7 @@ export const overviewData: EntityItem[] = [
     commonMistake:
       "Even small differences between the Commercial Invoice and Packing List can lead to queries or document amendments.",
 
-    href: "/resources/customs-documents",
+    href: "/resources/documents-required-for-export-from-india",
 
     tags: [
       "Commercial Invoice",
@@ -151,10 +150,9 @@ export const overviewData: EntityItem[] = [
     ],
 
     relatedArticles: [
-      "/resources/documents-required-for-export",
-      "/resources/bill-of-entry",
-      "/resources/shipping-bill-guide",
-      "/resources/ad-code-guide",
+      "/resources/documents-required-for-export-from-india",
+      "/resources/what-is-a-shipping-bill-in-india",
+      "/resources/hs-code-explained-indian-importers-exporters",
     ],
 
     cta: {
@@ -184,7 +182,7 @@ export const overviewData: EntityItem[] = [
     commonMistake:
       "Assuming every shipment follows the same compliance requirements can lead to avoidable customs objections.",
 
-    href: "/resources/customs-compliance",
+    href: "/resources/goods-stuck-at-customs-india-what-happens",
 
     tags: [
       "Compliance",
@@ -204,9 +202,9 @@ export const overviewData: EntityItem[] = [
     ],
 
     relatedArticles: [
-      "/resources/icegate-guide",
-      "/resources/hs-code-guide",
-      "/resources/dgft-guide",
+      "/resources/goods-stuck-at-customs-india-what-happens",
+      "/resources/hs-code-explained-indian-importers-exporters",
+      "/resources/dangerous-goods-shipping-from-india-explained",
     ],
 
     cta: {
@@ -236,7 +234,7 @@ export const overviewData: EntityItem[] = [
     commonMistake:
       "Estimating import cost without verifying the applicable HS Code often results in inaccurate budgeting.",
 
-    href: "/resources/import-duty-guide",
+    href: "/resources/import-duties-in-india-explained",
 
     tags: [
       "BCD",
@@ -256,9 +254,9 @@ export const overviewData: EntityItem[] = [
     ],
 
     relatedArticles: [
-      "/resources/import-duty-guide",
-      "/resources/hs-code-guide",
-      "/calculators/import-duty",
+      "/resources/import-duties-in-india-explained",
+      "/resources/hs-code-explained-indian-importers-exporters",
+      "/calculators/import-process-in-india-step-by-step",
     ],
 
     cta: {
@@ -288,7 +286,7 @@ export const overviewData: EntityItem[] = [
     commonMistake:
       "Treating freight forwarding and customs clearance as separate activities often creates unnecessary delays.",
 
-    href: "/services/freight-forwarding",
+    href: "/services/freight-forwarding-explained-india",
 
     tags: [
       "Freight Forwarding",
@@ -308,9 +306,9 @@ export const overviewData: EntityItem[] = [
     ],
 
     relatedArticles: [
-      "/services/freight-forwarding",
-      "/resources/container-shipping-guide",
-      "/resources/import-process",
+      "/services/freight-forwarding-explained-india",
+      "/resources/courier-vs-freight-forwarding-india",
+      "/resources/freight-forwarders-in-ludhiana",
     ],
 
     cta: {

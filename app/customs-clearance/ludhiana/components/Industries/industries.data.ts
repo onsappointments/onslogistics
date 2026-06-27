@@ -49,12 +49,12 @@ export const industriesData: IndustryItem[] = [
 
     relatedGuides: [
       {
-        title: "Export Process Guide",
-        href: "/resources/export-process",
+        title: "Exporting Textile Goods From Ludhiana",
+        href: "/resources/exporting-textile-goods-from-ludhiana",
       },
       {
         title: "HS Code Guide",
-        href: "/resources/hs-code-guide",
+        href: "/resources/hs-code-explained-indian-importers-exporters",
       },
     ],
   },
@@ -105,12 +105,12 @@ export const industriesData: IndustryItem[] = [
 
     relatedGuides: [
       {
-        title: "Shipping Bill Guide",
-        href: "/resources/shipping-bill-guide",
+        title: "Shipping Bicycle Parts From Punjab",
+        href: "/resources/shipping-for-bicycle-parts-exporters-punjab",
       },
       {
-        title: "Freight Forwarding",
-        href: "/services/freight-forwarding",
+        title: "India-UAE CEPA Benefits for Bicycle Parts Exporters",
+        href: "/services/india-uae-cepa-bicycle",
       },
     ],
   },
@@ -157,8 +157,8 @@ export const industriesData: IndustryItem[] = [
 
     relatedGuides: [
       {
-        title: "Commercial Invoice Guide",
-        href: "/resources/commercial-invoice-guide",
+        title: "How to Protect Metal Cargo from Corrosion During Sea Freight",
+        href: "/resources/corrosion-protection-metal-cargo",
       },
     ],
   },
@@ -204,8 +204,8 @@ export const industriesData: IndustryItem[] = [
 
     relatedGuides: [
       {
-        title: "Import Process Guide",
-        href: "/resources/import-process",
+        title: "Project Cargo 101: Moving Industrial Machinery from India",
+        href: "/resources/project-cargo-india-guide",
       },
     ],
   },
@@ -251,8 +251,8 @@ export const industriesData: IndustryItem[] = [
 
     relatedGuides: [
       {
-        title: "Bill of Entry Guide",
-        href: "/resources/bill-of-entry-guide",
+        title: "India's Automotive Export Boom: Opportunity for Component Makers",
+        href: "/resources//automotive-export-india",
       },
     ],
   },
@@ -298,8 +298,8 @@ export const industriesData: IndustryItem[] = [
 
     relatedGuides: [
       {
-        title: "Import Duty Guide",
-        href: "/resources/import-duty-guide",
+        title: "Marine Cargo Insurance for Machinery: What Exporters Must Know",
+        href: "/resources/marine-insurance-machinery",
       },
     ],
   },
