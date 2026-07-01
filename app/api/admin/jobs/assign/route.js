@@ -25,11 +25,11 @@ if (assignedUser?.email) {
 
   try {
 
-    // await sendClientEmail({
-    //   to: assignedUser.personalEmail,
-    //   subject: `Job Assigned - ${job.jobId}`,
-    //   html: jobAssignedTemplate(job)
-    // });
+     await sendClientEmail({
+       to: assignedUser.personalEmail,
+       subject: `Job Assigned - ${job.jobId}`,
+       html: jobAssignedTemplate(job)
+     });
 
   } catch (error) {
 
