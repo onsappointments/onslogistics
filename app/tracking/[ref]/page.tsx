@@ -1,6 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
 import Link from "next/link";
+import Quote from "@/models/Quote";
 import { PRE_CONTAINER_SENTINEL } from "@/models/Job";
 import { getCycleForShipment } from "@/lib/shipmentCycles";
 import {
