@@ -104,7 +104,7 @@ export async function POST(req) {
       status: event.status,
     });
 
-    await sendClientEmail({ to: recipientEmail, subject, html });
+    await sendClientEmail({ to: recipientEmail, subject, html , shipmentType, });
 
     // ── On a normal send (not resend), stamp the event ────────────────
     if (!isResend && container && matchedEventIndex !== undefined) {
