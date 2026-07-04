@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Job from "@/models/Job";
+import Quote from "@/models/Quote";
 
 /* ---------------- DETECT REF TYPE ---------------- */
 

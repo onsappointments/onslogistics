@@ -183,13 +183,13 @@ const IMPORT_ETA: Record<string, (d: string, remarks?: string) => string> = {
   planning_vessel: (d) =>
     `Your container is being planned for a vessel expected to sail around <strong>${d}</strong>. The final vessel name and voyage number will be confirmed once the carrier finalises the loading list.`,
   shipped_on_board: (d) =>
-    `Your container is expected to be loaded and shipped on board the vessel by <strong>${d}</strong>. The Bill of Lading will be issued once sailing is confirmed.`,
+    `Your container is expected to be loaded and shipped on board the vessel by <strong>${d}</strong>.`,
   vessel_arrived_pod: (d) =>
     `The vessel carrying your container is expected to arrive at the Indian Port of Discharge around <strong>${d}</strong>. Actual arrival may vary slightly depending on the vessel's schedule.`,
   container_railment_pod: (d) =>
     `Your container is expected to be moved by rail from the Port of Discharge around <strong>${d}</strong>, heading towards the destination Inland Container Depot.`,
   arrived_local_icd: (d) =>
-    `Your container is expected to arrive at the local Inland Container Depot (ICD) by <strong>${d}</strong>. Import customs clearance procedures will begin shortly after arrival.`,
+    `Your container is expected to arrive at the local Inland Container Depot (ICD) by <strong>${d}</strong>.`,
   bill_of_entry: (d) =>
     `The Bill of Entry for your shipment is expected to be filed with Indian Customs by <strong>${d}</strong>. This formally initiates the import clearance process.`,
   cargo_examination: (d) =>
@@ -215,7 +215,7 @@ const IMPORT_ACTUAL: Record<string, (d: string, remarks?: string) => string> = {
   planning_vessel: (d) =>
     `Your container has been confirmed on a vessel as of <strong>${d}</strong>. The vessel and voyage details are now finalised — your shipment is heading to India.`,
   shipped_on_board: (d) =>
-    `Your container was loaded and shipped on board the vessel on <strong>${d}</strong>. The Bill of Lading has been issued and your shipment is now on its way to India.`,
+    `Your container was loaded and shipped on board the vessel on <strong>${d}</strong>. Your shipment is now on its way to India.`,
   vessel_arrived_pod: (d) =>
     `The vessel carrying your container arrived at the Indian Port of Discharge on <strong>${d}</strong>. Discharge operations are underway and your container will be moved to the ICD shortly.`,
   container_railment_pod: (d) =>
