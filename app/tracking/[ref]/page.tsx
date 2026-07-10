@@ -28,7 +28,6 @@ async function findJobByRef(ref: string) {
       { jobId: trimmed },
     ],
   })
-    .populate("quoteId")
     .lean();
 }
 
