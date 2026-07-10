@@ -1593,10 +1593,7 @@ export default function TrackingAdminClient({
               event,
               emailType: emailOpts.emailType,
               recipientEmail: emailOpts.recipientEmail,
-              trackingUrl:
-                containerNumber !== PRE_CONTAINER_SENTINEL
-                  ? `${BASE_URL}/tracking/${containerNumber}`
-                  : `${BASE_URL}/tracking/job/${job.jobId}`,
+              trackingUrl: `${BASE_URL}/tracking/${job.jobId}`,
               fromCity: job.quoteId?.fromCity,
               toCity: job.quoteId?.toCity,
               isResend: false,
@@ -1683,10 +1680,7 @@ export default function TrackingAdminClient({
           event,
           emailType,
           recipientEmail,
-          trackingUrl:
-            containerNumber !== PRE_CONTAINER_SENTINEL
-              ? `${BASE_URL}/tracking/${containerNumber}`
-              : `${BASE_URL}/tracking/job/${job.jobId}`,
+          trackingUrl: `${BASE_URL}/tracking/${job.jobId}`,
           fromCity: job.quoteId?.fromCity,
           toCity: job.quoteId?.toCity,
           isResend: false,
@@ -1736,10 +1730,7 @@ export default function TrackingAdminClient({
           event,
           emailType,
           recipientEmail,
-          trackingUrl:
-            containerNumber !== PRE_CONTAINER_SENTINEL
-              ? `${BASE_URL}/tracking/${containerNumber}`
-              : `${BASE_URL}/tracking/job/${job.jobId}`,
+          trackingUrl: `${BASE_URL}/tracking/${job.jobId}`,
           fromCity: job.quoteId?.fromCity,
           toCity: job.quoteId?.toCity,
           isResend: true, // ← key flag — no DB mutation
