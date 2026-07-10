@@ -147,7 +147,13 @@ export default async function PublicTrackingPage({
 
   await connectDB();
 
+try {
   const job = await findJobByRef(ref);
+} catch (err) {
+  console.error("TRACKING ERROR");
+  console.error(err.stack);
+  throw err;
+}
 
   /* ── NOT FOUND ─────────────────────────────────────────────────── */
   if (!job) {
