@@ -16,6 +16,23 @@ export default function TechnicalQuotePage() {
   const [permission, setPermission] = useState(null);
   const [activeTab, setActiveTab] = useState("sale");
 
+  /* -------------------------------------------
+    QUOTE VALIDITY
+--------------------------------------------- */
+
+const [quoteValidity, setQuoteValidity] = useState({
+  type: "DATE",
+  etd: "",
+  handoverLocation: "",
+  validTill: "",
+});
+
+/* -------------------------------------------
+    SPECIAL REMARKS
+--------------------------------------------- */
+
+const [specialRemarks, setSpecialRemarks] = useState([""]);
+
   // ── Preview modal state ──
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -50,6 +67,20 @@ export default function TechnicalQuotePage() {
           }))
         );
         setStatus(data.technicalQuote.status);
+        setQuoteValidity(
+  data.technicalQuote.quoteValidity || {
+    type: "DATE",
+    etd: "",
+    handoverLocation: "",
+    validTill: "",
+  }
+);
+
+setSpecialRemarks(
+  data.technicalQuote.specialRemarks?.length
+    ? data.technicalQuote.specialRemarks
+    : [""]
+);
       } else {
         setCharges(
           heads.map((h) => ({
@@ -72,7 +103,18 @@ export default function TechnicalQuotePage() {
           }))
         );
         setStatus("draft");
-      }
+
+         // Add these defaults
+         setQuoteValidity({
+           type: "DATE",
+           etd: "",
+           handoverLocation: "",
+           validTill: "",
+         });
+
+         setSpecialRemarks([""]);
+         }
+
 
       const emptyPurchaseHeads = heads.map((h) => ({
         head: h,
@@ -162,7 +204,25 @@ export default function TechnicalQuotePage() {
     updated[index] = row;
     setCharges(updated);
   };
+  /* -------------------------------------------
+    SPECIAL REMARKS
+--------------------------------------------- */
 
+const updateRemark = (index, value) => {
+  const copy = [...specialRemarks];
+  copy[index] = value;
+  setSpecialRemarks(copy);
+};
+
+const addRemark = () => {
+  setSpecialRemarks([...specialRemarks, ""]);
+};
+
+const removeRemark = (index) => {
+  setSpecialRemarks(
+    specialRemarks.filter((_, i) => i !== index)
+  );
+};
   /* -------------------------------------------
       UPDATE PURCHASE LINE
   --------------------------------------------- */
@@ -205,10 +265,14 @@ export default function TechnicalQuotePage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        quoteId: id,
-        shipmentType: quote.shipmentType,
-        lineItems: charges,
-      }),
+          quoteId: id,
+          shipmentType: quote.shipmentType,
+          lineItems: charges,
+
+          quoteValidity,
+
+          specialRemarks,
+        }),
     });
 
     alert("Draft saved");
@@ -668,6 +732,190 @@ export default function TechnicalQuotePage() {
             <p className="font-bold border-t mt-2 pt-2">
               Grand Total: ₹{grandTotal.toFixed(2)}
             </p>
+            <div className="mt-8 bg-white border rounded-xl p-6">
+
+              <h2 className="text-lg font-semibold mb-5">
+             Quote Validity
+             </h2>
+
+             <div className="grid md:grid-cols-2 gap-5">
+
+             <div>
+
+             <label className="block text-sm mb-2">
+             Validity Based On
+            </label>
+
+             <select
+             className="border rounded w-full p-2"
+             value={quoteValidity.type}
+             onChange={(e)=>
+             setQuoteValidity({
+             type:e.target.value,
+             etd:"",
+             handoverLocation:"",
+             validTill:"",
+             })
+             }
+             >
+
+<option value="VESSEL">
+Vessel Departure (ETD)
+</option>
+
+<option value="HANDOVER">
+Cargo Handover
+</option>
+
+<option value="DATE">
+Specific Date
+</option>
+
+</select>
+
+</div>
+
+{quoteValidity.type==="VESSEL" && (
+
+<div>
+
+<label className="block text-sm mb-2">
+ETD
+</label>
+
+<input
+type="date"
+className="border rounded w-full p-2"
+value={quoteValidity.etd}
+onChange={(e)=>
+setQuoteValidity({
+...quoteValidity,
+etd:e.target.value,
+})
+}
+/>
+
+</div>
+
+)}
+
+{quoteValidity.type==="HANDOVER" && (
+
+<div>
+
+<label className="block text-sm mb-2">
+Handover Location
+</label>
+
+<input
+className="border rounded w-full p-2"
+placeholder="ICD Ludhiana"
+value={quoteValidity.handoverLocation}
+onChange={(e)=>
+setQuoteValidity({
+...quoteValidity,
+handoverLocation:e.target.value,
+})
+}
+/>
+
+</div>
+
+)}
+
+{quoteValidity.type==="DATE" && (
+
+<div>
+
+<label className="block text-sm mb-2">
+Valid Till
+</label>
+
+<input
+type="date"
+className="border rounded w-full p-2"
+value={quoteValidity.validTill}
+onChange={(e)=>
+setQuoteValidity({
+...quoteValidity,
+validTill:e.target.value,
+})
+             }
+             />
+
+            </div>
+
+             )}
+
+            </div>
+
+             </div>
+             <div className="mt-6 bg-white border rounded-xl p-6">
+
+<div className="flex justify-between items-center mb-5">
+
+<h2 className="text-lg font-semibold">
+Special Remarks
+</h2>
+
+<button
+type="button"
+onClick={addRemark}
+className="px-3 py-2 rounded bg-blue-600 text-white"
+>
++ Add Remark
+</button>
+
+</div>
+
+<div className="space-y-3">
+
+{specialRemarks.map((remark,index)=>(
+
+<div
+key={index}
+className="flex gap-3"
+>
+
+<input
+
+className="border rounded flex-1 p-2"
+
+value={remark}
+
+placeholder={`Remark ${index+1}`}
+
+onChange={(e)=>
+updateRemark(index,e.target.value)
+}
+
+/>
+
+{specialRemarks.length>1 && (
+
+<button
+
+type="button"
+
+onClick={()=>removeRemark(index)}
+
+className="text-red-600"
+
+>
+
+Delete
+
+</button>
+
+)}
+
+</div>
+
+))}
+
+</div>
+
+</div>
           </div>
 
           {/* Sale Buttons */}

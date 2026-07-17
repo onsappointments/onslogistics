@@ -113,6 +113,38 @@ const TechnicalQuoteSchema = new mongoose.Schema(
     type: String,
     default: "",
 },
+
+/* ---------------- QUOTE VALIDITY ---------------- */
+
+quoteValidity: {
+  type: {
+    type: String,
+    enum: ["VESSEL", "HANDOVER", "DATE"],
+    default: "DATE",
+  },
+
+  etd: {
+    type: Date,
+    default: null,
+  },
+
+  handoverLocation: {
+    type: String,
+    default: "",
+  },
+
+  validTill: {
+    type: Date,
+    default: null,
+  },
+},
+
+/* ---------------- SPECIAL REMARKS ---------------- */
+
+specialRemarks: {
+  type: [String],
+  default: [],
+},
   editRequestedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
