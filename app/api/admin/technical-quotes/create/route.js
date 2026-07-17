@@ -22,13 +22,31 @@ export async function POST(req) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { quoteId, shipmentType, lineItems = [] } = await req.json();
+    const {
+      quoteId,
+      shipmentType,
+      lineItems = [],
+      quoteValidity = {},
+      specialRemarks = [],
+    } = await req.json();
 
     /* ---------------- BASIC VALIDATION ---------------- */
 
     if (!quoteId || !shipmentType) {
       return Response.json(
         { error: "quoteId and shipmentType are required" },
+        { status: 400 }
+      );
+    }
+
+    /* ---------------- QUOTE VALIDITY VALIDATION ---------------- */
+
+    if (
+      quoteValidity?.type &&
+      !["VESSEL", "HANDOVER", "DATE"].includes(quoteValidity.type)
+    ) {
+      return Response.json(
+        { error: "Invalid quote validity type" },
         { status: 400 }
       );
     }
@@ -183,13 +201,23 @@ export async function POST(req) {
     /* ---------------- PREPARE UPDATE DATA ---------------- */
 
     const updateData = {
-      clientQuoteId: quoteId,
-      shipmentType,
-      lineItems: normalizedLineItems,
-      currencySummary,
-      grandTotalINR,
-      status: "draft",
-    };
+  clientQuoteId: quoteId,
+  shipmentType,
+
+  lineItems: normalizedLineItems,
+
+  currencySummary,
+
+  grandTotalINR,
+
+  quoteValidity,
+
+  specialRemarks: specialRemarks.filter(
+    (remark) => remark && remark.trim() !== ""
+  ),
+
+  status: "draft",
+};
 
     /* ---------------- APPLY ONE-TIME EDIT LOCK ---------------- */
 
