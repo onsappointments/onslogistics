@@ -89,22 +89,18 @@ const [specialRemarks, setSpecialRemarks] = useState([""]);
           }))
         );
         setStatus("draft");
-      }
 
-      setQuoteValidity(
-  data.technicalQuote.quoteValidity || {
-    type: "DATE",
-    etd: "",
-    handoverLocation: "",
-    validTill: "",
-  }
-);
+         // Add these defaults
+         setQuoteValidity({
+           type: "DATE",
+           etd: "",
+           handoverLocation: "",
+           validTill: "",
+         });
 
-setSpecialRemarks(
-  data.technicalQuote.specialRemarks?.length
-    ? data.technicalQuote.specialRemarks
-    : [""]
-);
+         setSpecialRemarks([""]);
+         }
+
 
       const emptyPurchaseHeads = heads.map((h) => ({
         head: h,
