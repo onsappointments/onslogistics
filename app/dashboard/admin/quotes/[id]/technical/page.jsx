@@ -67,6 +67,20 @@ const [specialRemarks, setSpecialRemarks] = useState([""]);
           }))
         );
         setStatus(data.technicalQuote.status);
+        setQuoteValidity(
+  data.technicalQuote.quoteValidity || {
+    type: "DATE",
+    etd: "",
+    handoverLocation: "",
+    validTill: "",
+  }
+);
+
+setSpecialRemarks(
+  data.technicalQuote.specialRemarks?.length
+    ? data.technicalQuote.specialRemarks
+    : [""]
+);
       } else {
         setCharges(
           heads.map((h) => ({
