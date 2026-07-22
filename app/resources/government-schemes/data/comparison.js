@@ -22,7 +22,7 @@ const comparison = [
   {
     id: "epcg",
     scheme: "EPCG",
-    href: "/resources/epcg-scheme-guide",
+    href: "/resources/epcg-scheme-india-complete-guide",
     bestFor: "Capital Goods",
     importDuty: 4,
     exportBenefit: 3,
@@ -32,7 +32,7 @@ const comparison = [
   {
     id: "advance-authorisation",
     scheme: "Advance Authorisation",
-    href: "/resources/advance-authorisation-guide",
+    href: "/resources/advance-authorisation-scheme-india-complete-guide",
     bestFor: "Export Manufacturers",
     importDuty: 5,
     exportBenefit: 5,
@@ -42,7 +42,7 @@ const comparison = [
   {
     id: "rodtep",
     scheme: "RoDTEP",
-    href: "/resources/rodtep-scheme-guide",
+    href: "/resources/rodtep-scheme-india-complete-guide",
     bestFor: "Exporters",
     importDuty: 0,
     exportBenefit: 5,
@@ -52,7 +52,7 @@ const comparison = [
   {
     id: "duty-drawback",
     scheme: "Duty Drawback",
-    href: "/resources/duty-drawback-guide",
+    href: "/resources/duty-drawback-scheme-india-complete-guide",
     bestFor: "Exporters",
     importDuty: 0,
     exportBenefit: 4,
