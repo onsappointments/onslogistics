@@ -10,6 +10,7 @@ import {
   CalculatorIcon,
   Box,
   ArrowUpRight,
+  Landmark ,
 } from "lucide-react";
 
 const learningItems = [
@@ -51,6 +52,15 @@ const learningItems = [
     icon: Brain,
     badge: "Micro Learning",
   },
+  {
+  num: "05",
+  title: "Government Schemes",
+  description:
+    "Explore CBIC and DGFT trade schemes including MOOWR, AEO, EPCG, RoDTEP, Duty Drawback, Advance Authorisation and other programmes that help importers, exporters and manufacturers reduce costs and improve compliance.",
+  href: "/resources/government-schemes",
+  icon: Landmark,
+  badge: "Trade Programs",
+},
 ];
 
 const BLUE = "#2563eb";
