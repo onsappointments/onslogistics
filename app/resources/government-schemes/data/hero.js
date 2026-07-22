@@ -20,27 +20,27 @@ const heroData = {
   popularSearches: [
     {
       label: "MOOWR",
-      href: "/resources/articles/what-is-moowr-scheme",
+      href: "/resources/moowr-scheme-complete-guide",
     },
     {
       label: "AEO",
-      href: "/resources/articles/authorised-economic-operator-aeo-guide",
+      href: "/resources/authorised-economic-operator-aeo-india-guide",
     },
     {
       label: "EPCG",
-      href: "/resources/articles/epcg-scheme-guide",
+      href: "/resources/epcg-scheme-india-complete-guide",
     },
     {
       label: "RoDTEP",
-      href: "/resources/articles/rodtep-scheme-guide",
+      href: "/resources/rodtep-scheme-india-complete-guide",
     },
     {
       label: "Duty Drawback",
-      href: "/resources/articles/duty-drawback-scheme-guide",
+      href: "/resources/duty-drawback-scheme-india-complete-guide",
     },
     {
-      label: "Section 65",
-      href: "/resources/articles/section-65-customs-act-guide",
+      label: "Bonded Warehousing",
+      href: "/resources/bonded-warehousing-india-complete-guide",
     },
   ],
 
@@ -73,7 +73,7 @@ const heroData = {
 
       footer: "Best for Manufacturers",
 
-      href: "/resources/articles/what-is-moowr-scheme",
+      href: "/resources/moowr-scheme-complete-guide",
     },
 
     {
@@ -92,7 +92,7 @@ const heroData = {
 
       footer: "CBIC Programme",
 
-      href: "/resources/articles/authorised-economic-operator-aeo-guide",
+      href: "/resources/authorised-economic-operator-aeo-india-guide",
     },
 
     {
@@ -111,7 +111,7 @@ const heroData = {
 
       footer: "DGFT Scheme",
 
-      href: "/resources/articles/epcg-scheme-guide",
+      href: "/resources/epcg-scheme-india-complete-guide",
     },
 
     {
@@ -130,7 +130,7 @@ const heroData = {
 
       footer: "For Exporters",
 
-      href: "/resources/articles/duty-drawback-scheme-guide",
+      href: "/resources/duty-drawback-scheme-india-complete-guide",
     },
   ],
 
