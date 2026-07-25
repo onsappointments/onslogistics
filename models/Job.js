@@ -100,6 +100,59 @@ const AuditLogSchema = new mongoose.Schema(
   },
   { _id: false }
 );
+const EmailEventSchema = new mongoose.Schema(
+  {
+    event: { type: String, required: true }, // delivered, opened, clicked, etc.
+    timestamp: { type: Date, default: Date.now },
+    payload: { type: mongoose.Schema.Types.Mixed, default: {} },
+  },
+  { _id: false }
+);
+const EmailLogSchema = new mongoose.Schema(
+  {
+    // ERP Information
+    recipient: { type: String, required: true },
+    subject: { type: String, required: true },
+    emailType: { type: String, required: true },
+
+    jobId: { type: String, required: true },
+    containerNumber: { type: String, default: null },
+    cycleStep: { type: String, default: null },
+
+    sentBy: { type: String, default: null },
+    sentAt: { type: Date, default: Date.now },
+
+    // Integration Information
+    provider: {
+      type: String,
+      default: "brevo",
+    },
+
+    messageId: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
+    currentStatus: {
+      type: String,
+      default: "sent",
+    },
+
+    deliveredAt: Date,
+    openedAt: Date,
+    clickedAt: Date,
+    bouncedAt: Date,
+
+    bounceReason: String,
+
+    rawEvents: {
+      type: [EmailEventSchema],
+      default: [],
+    },
+  },
+  { _id: false }
+);
 
 // ─────────────────────────────────────────────
 // Main Job schema
@@ -175,6 +228,11 @@ const JobSchema = new mongoose.Schema(
 
     // ── Audit ────────────────────────────────────────────────────
     auditLogs: { type: [AuditLogSchema], default: [] },
+
+    emailLogs: {
+     type: [EmailLogSchema],
+     default: [],
+     },
 
     // ── System ──────────────────────────────────────────────────
     status: {

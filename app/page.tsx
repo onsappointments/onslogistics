@@ -5,6 +5,7 @@ import AboutSection from "@/Components/home/AboutSection";
 import KnowledgeHubGateway from "@/Components/home/KnowledgeHubGateway";
 import CertificationsSection from "@/Components/home/CertificationsSection";
 import GlobalLogisticsMap from "@/Components/home/GlobalLogisticsMap";
+import KnowledgeHubGatewayV2 from "@/components/knowledgehub";
 
 export default function Home() {
   return (
@@ -17,6 +18,8 @@ export default function Home() {
       <GlobalLogisticsMap />
 
       <KnowledgeHubGateway />
+
+      <KnowledgeHubGatewayV2 />
 
       <CertificationsSection />
 

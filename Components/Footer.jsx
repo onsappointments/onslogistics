@@ -25,6 +25,7 @@ export default function Footer() {
     { name: "Flowchart", href: "/resources/flowchart" },
     { name: "FAQs", href: "/resources/faq" },
     { name: "Flashcards", href: "/resources/flashcards" },
+    { name: "Government Schemes", href: "/resources/government-schemes" },
     { name: "CBM Calculator", href: "/tools/cbm-calculator" },
     { name: "Import Duty Calculator", href: "/tools/import-duty-calculator" },
   ];
