@@ -130,7 +130,7 @@ const EmailLogSchema = new mongoose.Schema(
 
     messageId: {
       type: String,
-      required: true,
+      default: null ,
       index: true,
     },
 
