@@ -104,8 +104,47 @@ export async function POST(req) {
       status: event.status,
     });
 
-    await sendClientEmail({ to: recipientEmail, subject, html , shipmentType, });
+    const emailResponse = await sendClientEmail({
+        to: recipientEmail,
+        subject,
+        html,
+        shipmentType,
+      });
+    
+      job.emailLogs.push({
+  recipient: recipientEmail,
 
+  subject,
+
+  emailType,
+
+  jobId: job.jobId,
+
+  containerNumber:
+    containerNumber === PRE_CONTAINER_SENTINEL
+      ? null
+      : containerNumber,
+
+  cycleStep,
+
+  sentBy: session.user.id,
+
+  sentAt: new Date(),
+
+  provider: "brevo",
+
+  messageId: emailResponse.messageId,
+
+  currentStatus: "sent",
+
+  rawEvents: [
+    {
+      event: "sent",
+      timestamp: new Date(),
+      payload: {},
+    },
+  ],
+});
     // ── On a normal send (not resend), stamp the event ────────────────
     if (!isResend && container && matchedEventIndex !== undefined) {
       const now = new Date();
