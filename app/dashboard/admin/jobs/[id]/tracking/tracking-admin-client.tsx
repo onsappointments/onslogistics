@@ -32,7 +32,13 @@ export default function TrackingAdminClient({
   defaultEmail?: string;
 }) {
   const [containers, setContainers] = useState<any[]>(job.containers || []);
+  const [emailLogs, setEmailLogs] = useState<any[]>(job.emailLogs || []);
   const [saving, setSaving] = useState(false);
+
+  const updateTrackingState = (updatedJob: any) => {
+  setContainers(updatedJob.containers || []);
+  setEmailLogs(updatedJob.emailLogs || []);
+};
 
   // Edit flow
   const [editTarget, setEditTarget] = useState<{
@@ -97,7 +103,7 @@ export default function TrackingAdminClient({
     event,
     emailOpts,
     setSaving,
-    setContainers,
+    updateTrackingState,
     onSuccess
   );
 };
@@ -112,7 +118,7 @@ const handleEditEvent = (updated: any) => {
     updated,
     editTarget.containerNumber,
     setSaving,
-    setContainers,
+    updateTrackingState,
     setEditTarget,
     setEditEmailPrompt
   );
@@ -126,7 +132,7 @@ const handleDelete = (
     containerNumber,
     eventIndex,
     setSaving,
-    setContainers
+    updateTrackingState
   );
 };
 
@@ -155,7 +161,7 @@ const handleSendEditEmail = ({
     emailType,
     recipientEmail,
     setSaving,
-    setContainers,
+    updateTrackingState,
     setEditEmailPrompt,
   });
 };
@@ -174,7 +180,7 @@ const handleSendResendEmail = ({
     emailType,
     recipientEmail,
     setSaving,
-    setContainers,
+    updateTrackingState,
     setResendTarget,
   });
 };
@@ -268,7 +274,7 @@ const handleSendResendEmail = ({
       {/* ── Job-level events ───────────────────────────────────────── */}
       <PreContainerSection
         container={preContainerBucket}
-        emailLogs={job.emailLogs ?? []}
+        emailLogs={emailLogs}
         onEdit={(cn, i) => setEditTarget({ containerNumber: cn, eventIndex: i })}
         onDelete={handleDelete}
         onResend={handleResend}
@@ -302,7 +308,7 @@ const handleSendResendEmail = ({
           key={container.containerNumber}
           container={container}
           onEdit={(cn, i) => setEditTarget({ containerNumber: cn, eventIndex: i })}
-          emailLogs={job.emailLogs ?? []}
+          emailLogs={emailLogs}
           onDelete={handleDelete}
           onResend={handleResend}
         />
