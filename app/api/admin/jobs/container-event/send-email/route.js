@@ -112,7 +112,6 @@ export async function POST(req) {
       });
     
       job.emailLogs.push({
-  recipient: recipientEmail,
 
   subject,
 
@@ -127,13 +126,19 @@ export async function POST(req) {
 
   cycleStep,
 
+  eventId: dbEvent?._id || null,
+
+  recipients: emailResponse.recipients,
+
   sentBy: session.user.id,
 
   sentAt: new Date(),
 
   provider: "brevo",
 
-  messageId: emailResponse.messageId,
+  brevo: {
+    messageId: emailResponse.messageId,
+  },
 
   currentStatus: "sent",
 
@@ -141,10 +146,14 @@ export async function POST(req) {
     {
       event: "sent",
       timestamp: new Date(),
-      payload: {},
+      payload: {
+        messageId: emailResponse.messageId,
+      },
     },
   ],
+
 });
+
     // ── On a normal send (not resend), stamp the event ────────────────
     if (!isResend && container && matchedEventIndex !== undefined) {
       const now = new Date();
