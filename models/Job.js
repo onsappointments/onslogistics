@@ -111,13 +111,56 @@ const EmailEventSchema = new mongoose.Schema(
 const EmailLogSchema = new mongoose.Schema(
   {
     // ERP Information
-    recipient: { type: String, required: true },
+    recipients:[
+ {
+   email:String,
+
+   type:{
+      type:String,
+      enum:[
+        "to",
+        "cc"
+      ],
+      default:"to"
+   },
+
+   status:{
+      type:String,
+      default:"sent"
+   },
+
+   deliveredAt:Date,
+
+   openedAt:Date,
+
+   clickedAt:Date,
+
+   bouncedAt:Date,
+
+   bounceReason:String
+ }
+],
     subject: { type: String, required: true },
     emailType: { type: String, required: true },
 
     jobId: { type: String, required: true },
     containerNumber: { type: String, default: null },
     cycleStep: { type: String, default: null },
+
+    eventId :String ,
+
+    brevo:{
+      messageId: {
+        type: String,
+        index: true,
+      },
+
+   uuid:String,
+
+   sendingIp:String,
+
+   tags:[String]
+},
 
     sentBy: { type: String, default: null },
     sentAt: { type: Date, default: Date.now },
@@ -128,16 +171,21 @@ const EmailLogSchema = new mongoose.Schema(
       default: "brevo",
     },
 
-    messageId: {
-      type: String,
-      default: null ,
-      index: true,
-    },
-
     currentStatus: {
-      type: String,
-      default: "sent",
-    },
+  type: String,
+  enum: [
+    "queued",
+    "sent",
+    "delivered",
+    "opened",
+    "clicked",
+    "soft_bounced",
+    "hard_bounced",
+    "blocked",
+    "invalid",
+  ],
+  default: "queued",
+},
 
     deliveredAt: Date,
     openedAt: Date,
