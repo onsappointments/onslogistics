@@ -6,7 +6,7 @@ export async function saveEvent(
   event: any,
   emailOpts: any,
   setSaving: (v: boolean) => void,
-  setContainers: (containers: any[]) => void,
+  updateTrackingState: (job: any) => void,
   onSuccess: (warning?: string | null) => void
 ) {
   try {
@@ -30,7 +30,7 @@ export async function saveEvent(
       return;
     }
 
-    setContainers(data.job.containers);
+    updateTrackingState(data.job);
 
     if (emailOpts) {
       const emailRes = await fetch(
@@ -62,7 +62,7 @@ export async function saveEvent(
           }`
         );
       } else {
-        setContainers(emailData.job.containers);
+        updateTrackingState(emailData.job);
       }
     }
 
@@ -73,6 +73,7 @@ export async function saveEvent(
     setSaving(false);
   }
 }
+
 export async function editEvent(
   job: any,
   clientEmail: string,
@@ -80,7 +81,7 @@ export async function editEvent(
   updatedEvent: any,
   containerNumber: string,
   setSaving: (v: boolean) => void,
-  setContainers: (containers: any[]) => void,
+  updateTrackingState: (job: any) => void,
   setEditTarget: (v: any) => void,
   setEditEmailPrompt: (v: any) => void
 ) {
@@ -107,7 +108,7 @@ export async function editEvent(
       return;
     }
 
-    setContainers(data.job.containers);
+    updateTrackingState(data.job);
     setEditTarget(null);
 
     if (updatedEvent.eta || updatedEvent.actualDeparture) {
@@ -126,6 +127,7 @@ export async function editEvent(
     setSaving(false);
   }
 }
+
 export async function sendEditEmail({
   job,
   BASE_URL,
@@ -133,7 +135,7 @@ export async function sendEditEmail({
   emailType,
   recipientEmail,
   setSaving,
-  setContainers,
+  updateTrackingState,
   setEditEmailPrompt,
 }: {
   job: any;
@@ -142,7 +144,7 @@ export async function sendEditEmail({
   emailType: string;
   recipientEmail: string;
   setSaving: (v: boolean) => void;
-  setContainers: (containers: any[]) => void;
+  updateTrackingState: (job: any) => void;
   setEditEmailPrompt: (v: any) => void;
 }) {
   if (!editEmailPrompt) return;
@@ -175,7 +177,7 @@ export async function sendEditEmail({
       return;
     }
 
-    setContainers(data.job.containers);
+    updateTrackingState(data.job);
 
     const warning = editEmailPrompt.sequenceWarning;
     setEditEmailPrompt(null);
@@ -189,6 +191,7 @@ export async function sendEditEmail({
     setSaving(false);
   }
 }
+
 export function addContainerShell(
   containerNumber: string,
   sizeType: string,
@@ -212,6 +215,7 @@ export function addContainerShell(
 
   setShowAddContainer(false);
 }
+
 export function openResendModal(
   containers: any[],
   containerNumber: string,
@@ -239,7 +243,7 @@ export async function sendResendEmail({
   emailType,
   recipientEmail,
   setSaving,
-  setContainers,
+  updateTrackingState,
   setResendTarget,
 }: {
   job: any;
@@ -248,7 +252,7 @@ export async function sendResendEmail({
   emailType: string;
   recipientEmail: string;
   setSaving: (v: boolean) => void;
-  setContainers: (containers: any[]) => void;
+  updateTrackingState: (job: any) => void;
   setResendTarget: (v: any) => void;
 }) {
   if (!resendTarget) return;
@@ -286,7 +290,7 @@ export async function sendResendEmail({
       return;
     }
 
-    setContainers(data.job.containers);
+    updateTrackingState(data.job);
 
     setResendTarget(null);
   } catch {
@@ -295,12 +299,13 @@ export async function sendResendEmail({
     setSaving(false);
   }
 }
+
 export async function deleteEvent(
   job: any,
   containerNumber: string,
   eventIndex: number,
   setSaving: (v: boolean) => void,
-  setContainers: (containers: any[]) => void
+  updateTrackingState: (job: any) => void
 ) {
   if (!confirm("Delete this event? This cannot be undone.")) return;
 
@@ -326,7 +331,7 @@ export async function deleteEvent(
       return;
     }
 
-    setContainers(data.job.containers);
+    updateTrackingState(data.job);
   } catch {
     alert("Something went wrong");
   } finally {

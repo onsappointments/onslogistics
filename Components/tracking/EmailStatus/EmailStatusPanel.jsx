@@ -4,6 +4,25 @@ import RecipientRow from "./RecipientRow";
 import EmailTimeline from "./EmailTimeline";
 
 export default function EmailStatusPanel({ emailLog }) {
+
+  const recipients =
+    emailLog.recipients ??
+    (emailLog.recipient
+      ? [
+          {
+            email: emailLog.recipient,
+            type: "to",
+            status: emailLog.currentStatus,
+          },
+        ]
+      : []);
+
+  const rawEvents = emailLog.rawEvents ?? [];
+
+  const sentAt = emailLog.sentAt
+    ? new Date(emailLog.sentAt).toLocaleString()
+    : "Unknown";
+
   return (
     <div className="mt-3 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
@@ -28,7 +47,7 @@ export default function EmailStatusPanel({ emailLog }) {
           <div>
             <p className="text-gray-500">Sent At</p>
             <p className="font-medium text-gray-900">
-              {new Date(emailLog.sentAt).toLocaleString()}
+              {sentAt}
             </p>
           </div>
         </div>
@@ -39,13 +58,13 @@ export default function EmailStatusPanel({ emailLog }) {
         <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
           <SummaryCard
             title="Recipients"
-            value={emailLog.recipients.length}
+            value={recipients.length}
           />
 
           <SummaryCard
             title="Delivered"
             value={
-              emailLog.recipients.filter(
+              recipients.filter(
                 (r) =>
                   r.status === "delivered" ||
                   r.status === "opened" ||
@@ -57,7 +76,7 @@ export default function EmailStatusPanel({ emailLog }) {
           <SummaryCard
             title="Opened"
             value={
-              emailLog.recipients.filter(
+              recipients.filter(
                 (r) =>
                   r.status === "opened" ||
                   r.status === "clicked"
@@ -68,7 +87,7 @@ export default function EmailStatusPanel({ emailLog }) {
           <SummaryCard
             title="Bounced"
             value={
-              emailLog.recipients.filter((r) =>
+              recipients.filter((r) =>
                 ["soft_bounce", "hard_bounce"].includes(r.status)
               ).length
             }
@@ -83,7 +102,7 @@ export default function EmailStatusPanel({ emailLog }) {
         </h4>
 
         <div className="space-y-3">
-          {emailLog.recipients.map((recipient) => (
+          {recipients.map((recipient) => (
             <RecipientRow
               key={`${recipient.type}-${recipient.email}`}
               recipient={recipient}
@@ -94,7 +113,7 @@ export default function EmailStatusPanel({ emailLog }) {
 
       {/* Timeline */}
       <div className="px-5 pb-5">
-        <EmailTimeline events={emailLog.rawEvents} />
+        <EmailTimeline events={rawEvents} />
       </div>
     </div>
   );

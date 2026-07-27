@@ -44,11 +44,15 @@ export async function POST(req) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const job = await Job.findById(jobId);
+    const job = await Job.findById(jobId)
+       .populate("createdBy", "email fullName");
     if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
     const shipmentType =
       job.shipmentType === "export" ? "export" : "import";
+    
+    const salesPersonEmail =
+       job.createdBy?.email || null;
 
     // ── Resolve cycleStep from the stored event (preferred) or payload ──
     const container = job.containers.find(
@@ -106,6 +110,9 @@ export async function POST(req) {
 
     const emailResponse = await sendClientEmail({
         to: recipientEmail,
+        cc: salesPersonEmail
+          ? [salesPersonEmail]
+          : [],
         subject,
         html,
         shipmentType,
