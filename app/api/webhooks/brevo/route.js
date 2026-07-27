@@ -22,117 +22,128 @@ export async function POST(req) {
       return NextResponse.json({ success: true });
     }
 
-    // Find the job containing this email
-    const job = await Job.findOne({
-      "emailLogs.brevo.messageId": messageId,
-    });
-
-    if (!job) {
-      console.log("No matching email log found:", messageId);
-
-      // Always return 200 so Brevo doesn't keep retrying
+    // Ignore request event (already handled when email is sent)
+    if (event === "request") {
       return NextResponse.json({ success: true });
     }
 
-    // Find the exact email log
-    const emailLog = job.emailLogs.find(
+    const job = await Job.findOne(
+      {
+        "emailLogs.brevo.messageId": messageId,
+      },
+      {
+        emailLogs: 1,
+      }
+    );
+
+    if (!job) {
+      console.log("No email log found:", messageId);
+      return NextResponse.json({ success: true });
+    }
+
+    const emailLogIndex = job.emailLogs.findIndex(
       (log) => log.brevo?.messageId === messageId
     );
 
-    if (!emailLog) {
+    if (emailLogIndex === -1) {
       console.log("Email log not found:", messageId);
       return NextResponse.json({ success: true });
     }
 
-    // Find the recipient that generated this webhook
-    const recipient = emailLog.recipients.find(
+    const recipientIndex = job.emailLogs[emailLogIndex].recipients.findIndex(
       (r) => r.email.toLowerCase() === recipientEmail.toLowerCase()
     );
 
-    if (!recipient) {
+    if (recipientIndex === -1) {
       console.log("Recipient not found:", recipientEmail);
       return NextResponse.json({ success: true });
     }
 
     const now = new Date();
 
+    const update = {
+      $set: {},
+      $push: {},
+    };
+
+    const recipientPrefix = `emailLogs.${emailLogIndex}.recipients.${recipientIndex}`;
+    const emailPrefix = `emailLogs.${emailLogIndex}`;
+
     switch (event) {
       case "delivered":
-        recipient.status = "delivered";
-        recipient.deliveredAt = now;
-        emailLog.currentStatus = "delivered";
+        update.$set[`${recipientPrefix}.status`] = "delivered";
+        update.$set[`${recipientPrefix}.deliveredAt`] = now;
+        update.$set[`${emailPrefix}.currentStatus`] = "delivered";
         break;
 
       case "opened":
-        recipient.status = "opened";
-        recipient.openedAt = now;
-        emailLog.currentStatus = "opened";
+        update.$set[`${recipientPrefix}.status`] = "opened";
+        update.$set[`${recipientPrefix}.openedAt`] = now;
+        update.$set[`${emailPrefix}.currentStatus`] = "opened";
         break;
 
       case "click":
-        recipient.status = "clicked";
-        recipient.clickedAt = now;
-        emailLog.currentStatus = "clicked";
-        break;
-
-      case "hard_bounce":
-        recipient.status = "hard_bounce";
-        recipient.bouncedAt = now;
-        recipient.bounceReason =
-          payload.reason || payload["reject-reason"] || "";
-        emailLog.currentStatus = "hard_bounce";
+        update.$set[`${recipientPrefix}.status`] = "clicked";
+        update.$set[`${recipientPrefix}.clickedAt`] = now;
+        update.$set[`${emailPrefix}.currentStatus`] = "clicked";
         break;
 
       case "soft_bounce":
-        recipient.status = "soft_bounce";
-        recipient.bouncedAt = now;
-        recipient.bounceReason =
+        update.$set[`${recipientPrefix}.status`] = "soft_bounce";
+        update.$set[`${recipientPrefix}.bouncedAt`] = now;
+        update.$set[`${recipientPrefix}.bounceReason`] =
           payload.reason || payload["reject-reason"] || "";
-        emailLog.currentStatus = "soft_bounce";
+        update.$set[`${emailPrefix}.currentStatus`] = "soft_bounce";
+        break;
+
+      case "hard_bounce":
+        update.$set[`${recipientPrefix}.status`] = "hard_bounce";
+        update.$set[`${recipientPrefix}.bouncedAt`] = now;
+        update.$set[`${recipientPrefix}.bounceReason`] =
+          payload.reason || payload["reject-reason"] || "";
+        update.$set[`${emailPrefix}.currentStatus`] = "hard_bounce";
         break;
 
       case "blocked":
-        recipient.status = "blocked";
-        emailLog.currentStatus = "blocked";
+        update.$set[`${recipientPrefix}.status`] = "blocked";
+        update.$set[`${emailPrefix}.currentStatus`] = "blocked";
         break;
 
       case "invalid":
-        recipient.status = "invalid";
-        emailLog.currentStatus = "invalid";
-        break;
-
-      // Brevo fires this immediately after accepting the email.
-      // We already record "sent" when sendClientEmail() succeeds,
-      // so we intentionally ignore it.
-      case "request":
+        update.$set[`${recipientPrefix}.status`] = "invalid";
+        update.$set[`${emailPrefix}.currentStatus`] = "invalid";
         break;
 
       default:
-        console.log("Unhandled Brevo event:", event);
-        break;
+        console.log("Unhandled event:", event);
+        return NextResponse.json({ success: true });
     }
 
-    // Save Brevo metadata once
-    if (!emailLog.brevo.uuid && payload.uuid) {
-      emailLog.brevo.uuid = payload.uuid;
+    // Save metadata once
+    if (!job.emailLogs[emailLogIndex].brevo?.uuid && payload.uuid) {
+      update.$set[`${emailPrefix}.brevo.uuid`] = payload.uuid;
     }
 
-    if (!emailLog.brevo.sendingIp && payload["sending-ip"]) {
-      emailLog.brevo.sendingIp = payload["sending-ip"];
+    if (!job.emailLogs[emailLogIndex].brevo?.sendingIp && payload.sending_ip) {
+      update.$set[`${emailPrefix}.brevo.sendingIp`] = payload.sending_ip;
     }
 
-    // Keep complete history of webhook events
-    emailLog.rawEvents.push({
+    if (payload.tags?.length) {
+      update.$set[`${emailPrefix}.brevo.tags`] = payload.tags;
+    }
+
+    update.$push[`${emailPrefix}.rawEvents`] = {
       event,
       timestamp: now,
       payload,
-    });
+    };
 
-    await job.save();
+    await Job.updateOne(
+      { _id: job._id },
+      update
+    );
 
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Brevo webhook error:", error);
 
