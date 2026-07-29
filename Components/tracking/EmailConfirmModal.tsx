@@ -10,6 +10,7 @@ interface EmailConfirmModalProps {
   onConfirm: (opts: {
     emailType: string;
     recipientEmail: string;
+     additionalRecipients: string[];
   }) => void;
   onSkip: () => void;
   saving: boolean;
@@ -27,6 +28,8 @@ export default function EmailConfirmModal({
   const [recipientEmail, setRecipientEmail] = useState(
     defaultEmail || ""
   );
+  const [additionalRecipients, setAdditionalRecipients] = useState<string[]>([]);
+  const [newRecipient, setNewRecipient] = useState("");
 
   const options = [
     event.actualDeparture && {
@@ -47,6 +50,36 @@ export default function EmailConfirmModal({
   }[];
 
   const [selected, setSelected] = useState(options[0].key);
+
+  function addRecipient() {
+  const email = newRecipient.trim().toLowerCase();
+
+  if (!email) return;
+
+  // basic validation
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  if (email === recipientEmail.toLowerCase()) {
+    alert("This is already the primary recipient.");
+    return;
+  }
+
+  if (additionalRecipients.includes(email)) {
+    return;
+  }
+
+  setAdditionalRecipients((prev) => [...prev, email]);
+  setNewRecipient("");
+}
+
+function removeRecipient(email: string) {
+  setAdditionalRecipients((prev) =>
+    prev.filter((e) => e !== email)
+  );
+}
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
@@ -113,10 +146,67 @@ export default function EmailConfirmModal({
 
             {defaultEmail &&
               recipientEmail !== defaultEmail && (
+
+                
                 <p className="text-xs text-amber-500 mt-1">
                   ⚠ Default is {defaultEmail}
                 </p>
               )}
+
+              <div className="mt-4">
+  <Label>Additional recipients (optional)</Label>
+
+  <div className="flex gap-2">
+    <input
+      type="email"
+      className={INPUT_CLS}
+      placeholder="warehouse@company.com"
+      value={newRecipient}
+      onChange={(e) => setNewRecipient(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addRecipient();
+        }
+      }}
+    />
+
+    <button
+      type="button"
+      onClick={addRecipient}
+      className="px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
+    >
+      Add
+    </button>
+  </div>
+
+  {additionalRecipients.length > 0 && (
+    <div className="flex flex-wrap gap-2 mt-3">
+      {additionalRecipients.map((email) => (
+        <div
+          key={email}
+          className="flex items-center gap-2 rounded-full bg-blue-50 border border-blue-200 px-3 py-1"
+        >
+          <span className="text-xs text-blue-700">
+            {email}
+          </span>
+
+          <button
+            type="button"
+            onClick={() => removeRecipient(email)}
+            className="text-blue-500 hover:text-red-500"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+
+  <p className="text-xs text-gray-400 mt-2">
+    These recipients will receive this email only. They won't be saved to the customer.
+  </p>
+</div>
           </div>
 
           {!isResendOnly && (
@@ -173,6 +263,7 @@ export default function EmailConfirmModal({
               onConfirm({
                 emailType: selected,
                 recipientEmail,
+                additionalRecipients,
               })
             }
             className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"

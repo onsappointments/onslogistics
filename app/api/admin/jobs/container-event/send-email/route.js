@@ -34,6 +34,7 @@ export async function POST(req) {
       event,
       emailType,        // "eta" | "actual" | "single" | "status"
       recipientEmail,
+      additionalRecipients = [],
       trackingUrl,
       fromCity,
       toCity,
@@ -113,6 +114,8 @@ export async function POST(req) {
         cc: salesPersonEmail
           ? [salesPersonEmail]
           : [],
+
+        bcc: additionalRecipients,
         subject,
         html,
         shipmentType,
@@ -181,7 +184,7 @@ export async function POST(req) {
       performedBy: session.user.id,
       performedAt: new Date(),
       reference: { jobId: job.jobId, containerNumber },
-      metadata: { emailType, recipientEmail, shipmentType, isResend, cycleStep },
+      metadata: { emailType, recipientEmail,additionalRecipients, shipmentType, isResend, cycleStep },
     });
 
     await job.save();
