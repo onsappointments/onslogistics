@@ -176,7 +176,9 @@ const RequestQuoteForm = forwardRef(
             ? "export"
             : toIndia
               ? "import"
-              : "Not Set";
+              : "Cross Trade";
+
+      console.log(shipmentType) ;
 
       setForm((p) =>
         p.shipmentType === shipmentType ? p : { ...p, shipmentType },
