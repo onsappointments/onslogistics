@@ -46,11 +46,16 @@ export async function POST(req) {
     }
 
     const job = await Job.findById(jobId)
-       .populate("createdBy", "email fullName");
+       .populate("createdBy", "email fullName")
+       .populate("quoteId");
+
     if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
-    const shipmentType =
-      job.shipmentType === "export" ? "export" : "import";
+    const shipmentType = (
+     job.shipmentType ||
+     job.quoteId?.shipmentType ||
+     "import"
+   ).toLowerCase();
     
     const salesPersonEmail =
        job.createdBy?.email || null;

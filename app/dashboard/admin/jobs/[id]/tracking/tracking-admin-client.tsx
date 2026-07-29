@@ -54,8 +54,11 @@ export default function TrackingAdminClient({
   } | null>(null);
 
   const [showAddContainer, setShowAddContainer] = useState(false);
-
-  const shipmentType = job.shipmentType || "import";
+  const shipmentType =
+    job.shipmentType ||
+    job.quoteId?.shipmentType ||
+    "import";
+  console.log("Shipment Type:", job.shipmentType);
   const clientEmail = defaultEmail || job.quoteId?.email || "";
   const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 

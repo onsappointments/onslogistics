@@ -8,6 +8,11 @@ export const JOB_LEVEL_STEPS = new Set([
   "booking_docs_received",
   "cargo_received",
   "custom_clearance_origin",
+
+    "booking_confirmed",
+  "cargo_received_export",
+  "shipping_bill_filed",
+  "let_export_order",
 ]);
 
 export const INPUT_CLS =

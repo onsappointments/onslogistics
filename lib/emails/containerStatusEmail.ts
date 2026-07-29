@@ -29,11 +29,21 @@ const STEP_ICONS: Record<string, string> = {
   ooc_customs_cleared: "✅",
   cargo_dispatch: "🚛",
   // Export
-  booking_confirmed: "📋",
-  cargo_picked_up: "📦",
-  container_stuffed: "🏗️",
-  shipped_on_board_export: "🚢",
-  vessel_arrived_destination: "🛳️",
+booking_confirmed: "📋",
+cargo_received_export: "📦",
+shipping_bill_filed: "📄",
+let_export_order: "✅",
+container_allocated: "🚛",
+container_stuffed: "🏗️",
+gate_in_terminal: "🏢",
+vgm_submitted: "⚖️",
+vessel_planning: "🗓️",
+shipped_on_board_export: "🚢",
+vessel_departed: "🌊",
+transshipment: "🔄",
+vessel_arrived_destination: "🛳️",
+cargo_available_destination: "📦",
+delivered_to_consignee: "🎉",
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -128,32 +138,96 @@ const HEADER_LABELS: Record<string, { eta: string; actual: string; status: strin
     status: "Delivery in Progress",
   },
 
-  // ── Export ────────────────────────────────────────────────────────
-  booking_confirmed: {
-    eta: "Export Booking Expected",
-    actual: "Export Booking Confirmed",
-    status: "Export Booking Processing",
-  },
-  cargo_picked_up: {
-    eta: "Cargo Pickup Expected",
-    actual: "Cargo Picked Up",
-    status: "Cargo in Transit to Stuffing Point",
-  },
-  container_stuffed: {
-    eta: "Container Stuffing Expected",
-    actual: "Container Stuffed & Sealed",
-    status: "Container Stuffing Completed",
-  },
-  shipped_on_board_export: {
-    eta: "Expected Export Vessel Departure",
-    actual: "Shipped on Board",
-    status: "Export Shipment in Transit",
-  },
-  vessel_arrived_destination: {
-    eta: "Expected Arrival at Destination Port",
-    actual: "Vessel Arrived at Destination Port",
-    status: "Destination Port Processing",
-  },
+ // ── Export ────────────────────────────────────────────────────────
+booking_confirmed: {
+  eta: "Export Booking Confirmation Expected",
+  actual: "Export Booking Confirmed",
+  status: "Export Booking Processing",
+},
+
+cargo_received_export: {
+  eta: "Cargo Receipt Expected",
+  actual: "Cargo Received",
+  status: "Cargo Received at Origin",
+},
+
+shipping_bill_filed: {
+  eta: "Shipping Bill Filing Expected",
+  actual: "Shipping Bill Filed",
+  status: "Shipping Bill Processing",
+},
+
+let_export_order: {
+  eta: "Let Export Order Expected",
+  actual: "Let Export Order Granted",
+  status: "Export Customs Clearance Completed",
+},
+
+container_allocated: {
+  eta: "Container Allocation Expected",
+  actual: "Container Allocated",
+  status: "Container Allocation Completed",
+},
+
+container_stuffed: {
+  eta: "Container Stuffing Expected",
+  actual: "Container Stuffed & Sealed",
+  status: "Container Stuffing Completed",
+},
+
+gate_in_terminal: {
+  eta: "Port Terminal Gate-In Expected",
+  actual: "Container Gated In at Port Terminal",
+  status: "Container at Port Terminal",
+},
+
+vgm_submitted: {
+  eta: "Verified Gross Mass Submission Expected",
+  actual: "Verified Gross Mass Submitted",
+  status: "Verified Gross Mass Submitted",
+},
+
+vessel_planning: {
+  eta: "Vessel Planning Expected",
+  actual: "Vessel Planning Confirmed",
+  status: "Awaiting Vessel Loading",
+},
+
+shipped_on_board_export: {
+  eta: "Expected Vessel Loading & Departure",
+  actual: "Shipped on Board",
+  status: "Export Shipment in Transit",
+},
+
+vessel_departed: {
+  eta: "Expected Vessel Departure",
+  actual: "Vessel Departed",
+  status: "Ocean Transit in Progress",
+},
+
+transshipment: {
+  eta: "Expected Transshipment",
+  actual: "Transshipment Completed",
+  status: "Awaiting Connecting Vessel",
+},
+
+vessel_arrived_destination: {
+  eta: "Expected Arrival at Destination Port",
+  actual: "Vessel Arrived at Destination Port",
+  status: "Destination Port Operations",
+},
+
+cargo_available_destination: {
+  eta: "Cargo Availability Expected",
+  actual: "Cargo Available at Destination",
+  status: "Awaiting Customs Clearance & Delivery",
+},
+
+delivered_to_consignee: {
+  eta: "Expected Final Delivery",
+  actual: "Shipment Delivered",
+  status: "Delivered Successfully",
+},
 };
 
 function resolveHeaderTitle(
@@ -269,15 +343,49 @@ const IMPORT_STATUS: Record<string, string> = {
 ───────────────────────────────────────────────────────────────────── */
 const EXPORT_ETA: Record<string, (d: string) => string> = {
   booking_confirmed: (d) =>
-    `Your export booking is expected to be confirmed by <strong>${d}</strong>. Once finalised, we will share the booking reference and next steps.`,
-  cargo_picked_up: (d) =>
-    `We are expecting to pick up your cargo by <strong>${d}</strong> and bring it to the designated stuffing point.`,
+    `Your export booking is expected to be confirmed by <strong>${d}</strong>. Once the booking is finalized with the shipping line, we will share the booking reference and begin planning the export process.`,
+
+  cargo_received_export: (d) =>
+    `We expect to receive your cargo at the designated warehouse or stuffing location by <strong>${d}</strong>. After receipt, the cargo will undergo documentation verification and preparation for export customs clearance.`,
+
+  shipping_bill_filed: (d) =>
+    `Your Shipping Bill is expected to be filed with Indian Customs by <strong>${d}</strong>. This is the official export declaration required before customs assessment and export clearance can begin.`,
+
+  let_export_order: (d) =>
+    `Indian Customs is expected to grant the <strong>Let Export Order (LEO)</strong> by <strong>${d}</strong>. Once approved, your cargo will be legally authorized for export and can proceed for vessel loading.`,
+
+  container_allocated: (d) =>
+    `A shipping container is expected to be allocated for your cargo by <strong>${d}</strong>. Once assigned, we will share the container number and equipment details with you.`,
+
   container_stuffed: (d) =>
-    `Your cargo is expected to be stuffed and the container sealed by <strong>${d}</strong>. A container number will be assigned at this stage.`,
+    `Your cargo is expected to be stuffed into the allocated container and sealed by <strong>${d}</strong>. After stuffing is completed, the container will be prepared for transportation to the port terminal.`,
+
+  gate_in_terminal: (d) =>
+    `Your container is expected to enter the port terminal by <strong>${d}</strong>. Following gate-in, the terminal operator will prepare it for loading onto the scheduled vessel.`,
+
+  vgm_submitted: (d) =>
+    `The Verified Gross Mass (VGM) declaration is expected to be submitted by <strong>${d}</strong>. This mandatory SOLAS requirement confirms the certified weight of the container before it can be loaded onto the vessel.`,
+
+  vessel_planning: (d) =>
+    `Your container is expected to be planned onto the scheduled vessel by <strong>${d}</strong>. Once the shipping line confirms the loading plan, we will share the vessel name and voyage details.`,
+
   shipped_on_board_export: (d) =>
-    `Your container is expected to be loaded on board the export vessel and sail by <strong>${d}</strong>. The Bill of Lading will be issued once confirmed.`,
+    `Your container is expected to be loaded on board the vessel and depart from the Port of Loading by <strong>${d}</strong>. Once loading is confirmed, the Bill of Lading will be issued and your shipment will officially begin its ocean journey.`,
+
+  vessel_departed: (d) =>
+    `The vessel carrying your shipment is expected to depart from the Port of Loading on <strong>${d}</strong>. Your cargo will then begin its voyage toward the destination country.`,
+
+  transshipment: (d) =>
+    `Your shipment is expected to be transferred to a connecting vessel around <strong>${d}</strong> at the designated transshipment port. This is a normal part of many international shipping routes and does not indicate any issue with your shipment.`,
+
   vessel_arrived_destination: (d) =>
-    `The vessel carrying your export cargo is expected to arrive at the destination port around <strong>${d}</strong>. Delivery formalities at the destination will follow.`,
+    `The vessel carrying your shipment is expected to arrive at the destination port around <strong>${d}</strong>. Upon arrival, discharge operations will begin before local import procedures can commence.`,
+
+  cargo_available_destination: (d) =>
+    `Your cargo is expected to become available at the destination terminal by <strong>${d}</strong> following vessel discharge. The consignee or destination agent can then proceed with import customs clearance and delivery arrangements.`,
+
+  delivered_to_consignee: (d) =>
+    `Your shipment is expected to be delivered to the consignee by <strong>${d}</strong>. Once delivery has been completed successfully, the export shipment cycle will be concluded.`,
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -285,31 +393,98 @@ const EXPORT_ETA: Record<string, (d: string) => string> = {
 ───────────────────────────────────────────────────────────────────── */
 const EXPORT_ACTUAL: Record<string, (d: string) => string> = {
   booking_confirmed: (d) =>
-    `Your export booking was confirmed on <strong>${d}</strong>. Your shipment is now registered and we will keep you updated as it progresses.`,
-  cargo_picked_up: (d) =>
-    `Your cargo was picked up on <strong>${d}</strong> and is now at the stuffing location, ready to be loaded into the container.`,
-  container_stuffed: (d) =>
-    `Your cargo was stuffed and the container sealed on <strong>${d}</strong>. The container is now ready for port delivery and loading.`,
-  shipped_on_board_export: (d) =>
-    `Your container was loaded and shipped on board the vessel on <strong>${d}</strong>. Your export shipment is now in transit to the destination.`,
-  vessel_arrived_destination: (d) =>
-    `The vessel carrying your export cargo arrived at the destination port on <strong>${d}</strong>. Delivery arrangements at the destination are now underway.`,
-};
+    `Good news — your export booking was confirmed on <strong>${d}</strong>. Your shipment has now been registered with the shipping line, and our operations team has begun coordinating the export process.`,
 
+  cargo_received_export: (d) =>
+    `Your cargo was successfully received at our designated warehouse or stuffing location on <strong>${d}</strong>. Documentation verification and export customs preparation are now underway.`,
+
+  shipping_bill_filed: (d) =>
+    `Your Shipping Bill was successfully filed with Indian Customs on <strong>${d}</strong>. Customs assessment has now commenced, and we will continue to monitor the clearance process on your behalf.`,
+
+  let_export_order: (d) =>
+    `Great news — Indian Customs granted the <strong>Let Export Order (LEO)</strong> on <strong>${d}</strong>. Your cargo has successfully completed export customs clearance and is now authorized to leave India.`,
+
+  container_allocated: (d) =>
+    `A shipping container was allocated to your shipment on <strong>${d}</strong>. The assigned container is now scheduled for stuffing, and the container details have been recorded for shipment tracking.`,
+
+  container_stuffed: (d) =>
+    `Your cargo was successfully stuffed into the allocated container and sealed on <strong>${d}</strong>. The container is now fully prepared for transportation to the port terminal and vessel loading.`,
+
+  gate_in_terminal: (d) =>
+    `Your container successfully entered the port terminal on <strong>${d}</strong>. Terminal handling operations have begun, and the container is now awaiting loading onto the scheduled vessel.`,
+
+  vgm_submitted: (d) =>
+    `The Verified Gross Mass (VGM) declaration was successfully submitted on <strong>${d}</strong>. Your shipment now meets the mandatory weight verification requirements for vessel loading.`,
+
+  vessel_planning: (d) =>
+    `Your container was successfully planned onto the scheduled vessel on <strong>${d}</strong>. The vessel allocation has been confirmed, and your shipment is now awaiting final loading.`,
+
+  shipped_on_board_export: (d) =>
+    `Your container was successfully loaded on board the vessel on <strong>${d}</strong>. The Bill of Lading has been issued, and your shipment has officially commenced its ocean journey toward the destination country.`,
+
+  vessel_departed: (d) =>
+    `The vessel departed from the Port of Loading on <strong>${d}</strong>. Your shipment is now sailing toward the destination country according to the planned voyage schedule.`,
+
+  transshipment: (d) =>
+    `Your shipment successfully completed transshipment on <strong>${d}</strong> and has been transferred to the connecting vessel. It has resumed its journey toward the final destination.`,
+
+  vessel_arrived_destination: (d) =>
+    `The vessel carrying your shipment arrived at the destination port on <strong>${d}</strong>. Port discharge operations are now underway, after which your cargo will become available for import customs clearance and local delivery.`,
+
+  cargo_available_destination: (d) =>
+    `Your cargo became available at the destination terminal on <strong>${d}</strong> following vessel discharge. The consignee or destination agent may now proceed with import customs clearance and final delivery arrangements.`,
+
+  delivered_to_consignee: (d) =>
+    `Your shipment was successfully delivered to the consignee on <strong>${d}</strong>. Thank you for choosing ONS Logistics. We sincerely appreciate your trust and look forward to supporting your future logistics requirements.`,
+};
 /* ─────────────────────────────────────────────────────────────────────
    EXPORT — Status-only copy
 ───────────────────────────────────────────────────────────────────── */
 const EXPORT_STATUS: Record<string, string> = {
   booking_confirmed:
-    "Your export booking has been confirmed. Your shipment is registered and the process is now underway.",
-  cargo_picked_up:
-    "Your cargo has been picked up and brought to the designated stuffing location.",
+    "Your export booking has been confirmed with the shipping line. Your shipment is now officially registered, and our operations team has begun coordinating the export process.",
+
+  cargo_received_export:
+    "Your cargo has been received at the designated warehouse or stuffing location. Documentation verification and export customs preparations are currently in progress.",
+
+  shipping_bill_filed:
+    "The Shipping Bill for your shipment has been filed with Indian Customs. Customs assessment is currently in progress before export clearance can be granted.",
+
+  let_export_order:
+    "Indian Customs has granted the Let Export Order (LEO) for your shipment. Your cargo has successfully completed export customs clearance and is authorized for export.",
+
+  container_allocated:
+    "A shipping container has been allocated for your shipment. The assigned container is now being prepared for cargo stuffing and onward movement to the port terminal.",
+
   container_stuffed:
-    "Your cargo has been stuffed into the container and sealed. A container number has been assigned.",
+    "Your cargo has been successfully stuffed into the container and sealed. The container is now ready for transportation to the port terminal for vessel loading.",
+
+  gate_in_terminal:
+    "Your container has successfully entered the port terminal. Terminal handling operations are in progress, and the container is awaiting loading onto the scheduled vessel.",
+
+  vgm_submitted:
+    "The Verified Gross Mass (VGM) declaration has been submitted successfully. Your shipment now meets the mandatory weight verification requirements for vessel loading.",
+
+  vessel_planning:
+    "Your container has been allocated to the scheduled vessel. Final loading arrangements are being coordinated with the shipping line prior to departure.",
+
   shipped_on_board_export:
-    "Your container has been loaded on board the export vessel. Your shipment is now in transit to the destination.",
+    "Your container has been successfully loaded on board the vessel. The Bill of Lading has been issued, and your shipment is currently sailing toward the destination country.",
+
+  vessel_departed:
+    "The vessel carrying your shipment has departed from the Port of Loading. Your cargo is currently in ocean transit toward the destination country.",
+
+  transshipment:
+    "Your shipment is currently at the designated transshipment port and is awaiting transfer to the connecting vessel. This is a standard part of many international shipping routes.",
+
   vessel_arrived_destination:
-    "The vessel has arrived at the destination port. Delivery formalities are underway.",
+    "The vessel carrying your shipment has arrived at the destination port. Port discharge operations are currently underway before your cargo becomes available for import customs clearance.",
+
+  cargo_available_destination:
+    "Your cargo is now available at the destination terminal. The consignee or destination agent may proceed with import customs clearance and final delivery arrangements.",
+
+  delivered_to_consignee:
+    "Your shipment has been successfully delivered to the consignee. Thank you for choosing ONS Logistics. We appreciate the opportunity to handle your shipment and look forward to serving you again.",
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -359,6 +534,34 @@ function resolveBannerBody(p: BannerParams): string {
   if (msg) return msg;
   if (p.remarks) return p.remarks;
   return `Your shipment status has been updated to <strong>${p.status}</strong>.`;
+}
+
+export function resolveTrackingDescription({
+  shipmentType,
+  cycleStep,
+  eventType,
+  status,
+  eta,
+  actualDeparture,
+  remarks,
+}: {
+  shipmentType: "import" | "export";
+  cycleStep: string;
+  eventType: "eta" | "actual" | "status" | "single";
+  status: string;
+  eta?: string | Date | null;
+  actualDeparture?: string | Date | null;
+  remarks?: string;
+}) {
+  return resolveBannerBody({
+    shipmentType,
+    cycleStep,
+    emailType: eventType,
+    status,
+    eta: eta ? String(eta) : undefined,
+    actualDeparture: actualDeparture ? String(actualDeparture) : undefined,
+    remarks,
+  });
 }
 
 /* ─────────────────────────────────────────────────────────────────────

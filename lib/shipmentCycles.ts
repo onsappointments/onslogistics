@@ -142,54 +142,149 @@ export const IMPORT_CYCLE: CycleStep[] = [
 ];
 
 /* ─────────────────────────────────────────────────────────────────────
-   EXPORT CYCLE  (stub — to be built out later)
+   EXPORT CYCLE
+   "Pre-Shipment" → Booking through Customs Clearance
+   "In Transit"   → Ocean movement
+   "Destination"  → Arrival and Delivery
 ───────────────────────────────────────────────────────────────────── */
 export const EXPORT_CYCLE: CycleStep[] = [
-  // Placeholder — expand when export tracking is built
+  // ── Pre-Shipment ────────────────────────────────────────────────
   {
     key: "booking_confirmed",
     label: "Booking Confirmed",
     phase: "Pre-Shipment",
     requiresContainer: false,
     dateFields: "both",
+    hint: "Booking confirmed with the shipping line and shipment registered.",
   },
   {
-    key: "cargo_picked_up",
-    label: "Cargo Picked Up",
+    key: "cargo_received_export",
+    label: "Cargo Received",
     phase: "Pre-Shipment",
     requiresContainer: false,
     dateFields: "both",
+    hint: "Cargo received at the warehouse, CFS, or stuffing location.",
+  },
+  {
+    key: "shipping_bill_filed",
+    label: "Shipping Bill Filed",
+    phase: "Pre-Shipment",
+    requiresContainer: false,
+    dateFields: "both",
+    hint: "Shipping Bill filed with Indian Customs for export clearance.",
+  },
+  {
+    key: "let_export_order",
+    label: "Let Export Order (LEO)",
+    phase: "Pre-Shipment",
+    requiresContainer: false,
+    dateFields: "both",
+    hint: "Indian Customs granted the Let Export Order allowing export.",
+  },
+  {
+    key: "container_allocated",
+    label: "Container Allocated",
+    phase: "Pre-Shipment",
+    requiresContainer: true,
+    assignsContainer: true,
+    dateFields: "both",
+    hint: "Container number assigned for the shipment.",
   },
   {
     key: "container_stuffed",
     label: "Container Stuffed & Sealed",
     phase: "Pre-Shipment",
     requiresContainer: true,
-    assignsContainer: true,
     dateFields: "both",
+    hint: "Cargo stuffed into the container and sealed.",
+  },
+  {
+    key: "gate_in_terminal",
+    label: "Container Gate-In at Terminal",
+    phase: "Pre-Shipment",
+    requiresContainer: true,
+    dateFields: "both",
+    hint: "Container entered the port terminal and is awaiting loading.",
+  },
+  {
+    key: "vgm_submitted",
+    label: "Verified Gross Mass Submitted",
+    phase: "Pre-Shipment",
+    requiresContainer: true,
+    dateFields: "both",
+    hint: "Mandatory VGM declaration submitted to the shipping line.",
+  },
+  {
+    key: "vessel_planning",
+    label: "Vessel Planning Confirmed",
+    phase: "Pre-Shipment",
+    requiresContainer: true,
+    dateFields: "both",
+    hint: "Container allocated to the scheduled vessel and voyage.",
   },
   {
     key: "shipped_on_board_export",
     label: "Shipped on Board",
+    phase: "Pre-Shipment",
+    requiresContainer: true,
+    dateFields: "both",
+    hint: "Container loaded onto the vessel and Bill of Lading issued.",
+  },
+
+  // ── In Transit ─────────────────────────────────────────────────
+  {
+    key: "vessel_departed",
+    label: "Vessel Departed",
     phase: "In Transit",
     requiresContainer: true,
     dateFields: "both",
+    hint: "Vessel departed from the Port of Loading.",
   },
+  {
+    key: "transshipment",
+    label: "Transshipment",
+    phase: "In Transit",
+    requiresContainer: true,
+    dateFields: "both",
+    hint: "Container transferred to a connecting vessel, if applicable.",
+  },
+
+  // ── Destination ────────────────────────────────────────────────
   {
     key: "vessel_arrived_destination",
     label: "Vessel Arrived at Destination Port",
     phase: "Destination",
     requiresContainer: true,
     dateFields: "both",
+    hint: "Vessel arrived at the destination port.",
+  },
+  {
+    key: "cargo_available_destination",
+    label: "Cargo Available at Destination",
+    phase: "Destination",
+    requiresContainer: true,
+    dateFields: "both",
+    hint: "Cargo available after discharge for import clearance and delivery.",
+  },
+  {
+    key: "delivered_to_consignee",
+    label: "Delivered to Consignee",
+    phase: "Destination",
+    requiresContainer: true,
+    dateFields: "both",
+    hint: "Shipment delivered successfully to the consignee.",
   },
 ];
-
 /* ─────────────────────────────────────────────────────────────────────
    Accessors
 ───────────────────────────────────────────────────────────────────── */
 
 export function getCycleForShipment(shipmentType?: string): CycleStep[] {
-  return shipmentType === "export" ? EXPORT_CYCLE : IMPORT_CYCLE;
+  const type = (shipmentType || "").toLowerCase();
+
+  return type === "export"
+    ? EXPORT_CYCLE
+    : IMPORT_CYCLE;
 }
 
 export function getCycleStep(
