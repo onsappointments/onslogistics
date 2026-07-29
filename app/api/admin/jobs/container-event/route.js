@@ -136,15 +136,22 @@ export async function POST(req) {
     }
 
     const job = await Job.findById(jobId).populate("quoteId");
+    const shipmentType =
+     (
+       job.shipmentType ||
+       job.quoteId?.shipmentType ||
+       "import"
+     ).toLowerCase();
+
     if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
     // ── Validate cycle step belongs to this shipment type ────────────
-    const cycleStepDef = getCycleStep(job.shipmentType, event.cycleStep);
+    const cycleStepDef = getCycleStep(shipmentType, event.cycleStep);
     if (!cycleStepDef) {
       return NextResponse.json(
         {
           error: `Step "${event.cycleStep}" is not valid for a ${
-            job.shipmentType ?? "import"
+            shipmentType
           } shipment.`,
         },
         { status: 400 }
@@ -196,7 +203,7 @@ export async function POST(req) {
 
     // ── Sequence violation check (advisory — does not block save) ────
     const sequenceWarning = detectSequenceViolation(
-      job.shipmentType ?? "import",
+      shipmentType,
       container.events,
       event.cycleStep
     );
@@ -223,7 +230,7 @@ export async function POST(req) {
     job.auditLogs.push({
       entityType: "container",
       action: "container_status_added",
-      description: `[${job.shipmentType?.toUpperCase() ?? "IMPORT"}] "${
+      description: `[${shipmentType.toUpperCase()}] "${
         cycleStepDef.label
       }" (${incomingEventType}) added for container ${effectiveContainerNumber}`,
       performedBy: session.user.id,
@@ -233,7 +240,7 @@ export async function POST(req) {
         cycleStep: event.cycleStep,
         status: event.status,
         eventType: incomingEventType,
-        shipmentType: job.shipmentType,
+        shipmentType,
         location: event.location || null,
         remarks: event.remarks || null,
         eventDate: event.eventDate ? new Date(event.eventDate) : new Date(),
@@ -278,6 +285,12 @@ export async function PATCH(req) {
     }
 
     const job = await Job.findById(jobId).populate("quoteId");
+     const shipmentType =
+    (
+      job.shipmentType ||
+      job.quoteId?.shipmentType ||
+      "import"
+    ).toLowerCase();
     if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
     const container = job.containers.find(
@@ -304,7 +317,7 @@ export async function PATCH(req) {
 
     // ── Sequence violation check ──────────────────────────────────────
     const sequenceWarning = detectSequenceViolation(
-      job.shipmentType ?? "import",
+      shipmentType ,
       container.events,
       cycleStep,
       eventIndex
@@ -331,7 +344,7 @@ export async function PATCH(req) {
     job.auditLogs.push({
       entityType: "container",
       action: "container_status_edited",
-      description: `[${job.shipmentType?.toUpperCase() ?? "IMPORT"}] "${oldStatus}" → "${
+      description: `[${shipmentType.toUpperCase()}] "${oldStatus}" → "${
         event.status
       }" (${incomingEventType}) for container ${containerNumber}`,
       performedBy: session.user.id,
@@ -403,7 +416,7 @@ export async function DELETE(req) {
     job.auditLogs.push({
       entityType: "container",
       action: "container_status_deleted",
-      description: `[${job.shipmentType?.toUpperCase() ?? "IMPORT"}] "${removedStatus}" (${removedType}) deleted from container ${containerNumber}`,
+      description: `[${shipmentType.toUpperCase()}] "${removedStatus}" (${removedType}) deleted from container ${containerNumber}`,
       performedBy: session.user.id,
       performedAt: new Date(),
       reference: { jobId: job.jobId, containerNumber },

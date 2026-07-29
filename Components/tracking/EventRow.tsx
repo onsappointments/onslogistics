@@ -6,6 +6,7 @@ import {
 import { EmailLog } from "@/Components/tracking/lib/types";
 import { fmtDate } from "@/Components/tracking/lib/utils";
 import { resolveStepTitle } from "@/lib/trackingStatus";
+import { resolveTrackingDescription } from "@/lib/emails/containerStatusEmail";
 
 interface EventRowProps {
   event: any;
@@ -35,6 +36,21 @@ export default function EventRow({
 
   const etaSent = !!event.etaEmailSentAt;
   const actualSent = !!event.actualEmailSentAt;
+
+  const description = resolveTrackingDescription({
+  shipmentType: event.shipmentType ?? "import",
+  cycleStep: event.cycleStep ?? "",
+  eventType:
+    (event.eventType as
+      | "eta"
+      | "actual"
+      | "status"
+      | "single") ?? "status",
+  status: event.status ?? "",
+  eta: event.eta,
+  actualDeparture: event.actualDeparture,
+  remarks: event.remarks,
+});
 
   const displayLabel = resolveStepTitle(
     event.cycleStep ?? "",
@@ -184,6 +200,13 @@ export default function EventRow({
             {event.location}
           </span>
         )}
+
+        {description && (
+         <p
+          className="mt-2 text-sm leading-6 text-gray-600"
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
+      )}
 
         {(hasEta || hasActual) && (
           <div className="flex flex-wrap gap-2 mt-2">

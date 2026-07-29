@@ -55,7 +55,7 @@ const QuoteSchema = new mongoose.Schema(
 
     shipmentType: {
       type: String,
-      enum: ["import", "export", "courier" , "Not set"],
+      enum: ["import", "export", "courier" ,"Cross Trade" , "Not set"],
     },
 
         clientUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
