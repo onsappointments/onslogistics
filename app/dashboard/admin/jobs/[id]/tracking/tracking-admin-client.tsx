@@ -150,9 +150,11 @@ const handleResend = (
 const handleSendEditEmail = ({
   emailType,
   recipientEmail,
+  additionalRecipients,
 }: {
   emailType: string;
   recipientEmail: string;
+  additionalRecipients: string[];
 }) => {
   sendEditEmail({
     job,
@@ -160,6 +162,7 @@ const handleSendEditEmail = ({
     editEmailPrompt,
     emailType,
     recipientEmail,
+    additionalRecipients,
     setSaving,
     updateTrackingState,
     setEditEmailPrompt,
@@ -169,9 +172,11 @@ const handleSendEditEmail = ({
 const handleSendResendEmail = ({
   emailType,
   recipientEmail,
+  additionalRecipients,
 }: {
   emailType: string;
   recipientEmail: string;
+  additionalRecipients: string[];
 }) => {
   sendResendEmail({
     job,
@@ -179,6 +184,7 @@ const handleSendResendEmail = ({
     resendTarget,
     emailType,
     recipientEmail,
+    additionalRecipients ,
     setSaving,
     updateTrackingState,
     setResendTarget,

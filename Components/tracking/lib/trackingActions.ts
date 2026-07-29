@@ -45,6 +45,7 @@ export async function saveEvent(
             event,
             emailType: emailOpts.emailType,
             recipientEmail: emailOpts.recipientEmail,
+            additionalRecipients: emailOpts.additionalRecipients ?? [],
             trackingUrl: `${BASE_URL}/tracking/${job.jobId}`,
             fromCity: job.quoteId?.fromCity,
             toCity: job.quoteId?.toCity,
@@ -134,6 +135,7 @@ export async function sendEditEmail({
   editEmailPrompt,
   emailType,
   recipientEmail,
+  additionalRecipients,
   setSaving,
   updateTrackingState,
   setEditEmailPrompt,
@@ -143,6 +145,7 @@ export async function sendEditEmail({
   editEmailPrompt: any;
   emailType: string;
   recipientEmail: string;
+  additionalRecipients: string[];
   setSaving: (v: boolean) => void;
   updateTrackingState: (job: any) => void;
   setEditEmailPrompt: (v: any) => void;
@@ -163,6 +166,7 @@ export async function sendEditEmail({
         event,
         emailType,
         recipientEmail,
+        additionalRecipients,
         trackingUrl: `${BASE_URL}/tracking/${job.jobId}`,
         fromCity: job.quoteId?.fromCity,
         toCity: job.quoteId?.toCity,
@@ -242,6 +246,7 @@ export async function sendResendEmail({
   resendTarget,
   emailType,
   recipientEmail,
+  additionalRecipients,
   setSaving,
   updateTrackingState,
   setResendTarget,
@@ -251,6 +256,7 @@ export async function sendResendEmail({
   resendTarget: any;
   emailType: string;
   recipientEmail: string;
+  additionalRecipients: string[];
   setSaving: (v: boolean) => void;
   updateTrackingState: (job: any) => void;
   setResendTarget: (v: any) => void;
@@ -275,6 +281,7 @@ export async function sendResendEmail({
           event,
           emailType,
           recipientEmail,
+          additionalRecipients,
           trackingUrl: `${BASE_URL}/tracking/${job.jobId}`,
           fromCity: job.quoteId?.fromCity,
           toCity: job.quoteId?.toCity,

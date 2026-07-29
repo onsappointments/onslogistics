@@ -119,7 +119,8 @@ const EmailLogSchema = new mongoose.Schema(
       type:String,
       enum:[
         "to",
-        "cc"
+        "cc",
+        "bcc"
       ],
       default:"to"
    },
