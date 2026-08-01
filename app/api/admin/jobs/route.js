@@ -36,7 +36,7 @@ export async function GET(req) {
     },
     {
       $lookup: {
-        from: "quotes", // Replace with your actual Quote collection name
+        from: "quotes", 
         localField: "quoteId",
         foreignField: "_id",
         as: "quoteId"
@@ -55,18 +55,45 @@ export async function GET(req) {
   // Add sorting
   pipeline.push({ $sort: { createdAt: -1 } });
 
-  pipeline.push({
-    $project: {
-      company: 1,
-      jobId: 1,
-      status: 1,
-      createdAt: 1,
-      clientQuoteId: 1,
-      "quoteId.shipmentType": 1,
-      "quoteId.toCity": 1,
-      "quoteId.fromCity": 1,
-    }
-  });
+ pipeline.push({
+  $project: {
+    quoteId: {
+      shipmentType: "$quoteId.shipmentType",
+      fromCity: "$quoteId.fromCity",
+      toCity: "$quoteId.toCity",
+      company: "$quoteId.company",
+    },
+
+    company: 1,
+    customerName: 1,
+
+    jobId: 1,
+    jobNumber: 1,
+
+    bookingNumber: 1,
+    invoiceNumber: 1,
+
+    beNumber: 1,
+    sbNumber: 1,
+
+    mblNumber: 1,
+    hblNumber: 1,
+    awbNumber: 1,
+
+    referenceNumber: 1,
+
+    containerNumber: 1,
+    containers: 1,
+
+    status: 1,
+    createdAt: 1,
+
+    assignedTo: 1,
+    shipmentType: 1,
+    stage: 1,
+    currentStage: 1
+  }
+});
 
   const jobs = await Job.aggregate(pipeline);
 
