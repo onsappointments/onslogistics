@@ -3,8 +3,40 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function normalize(value = "") {
+  return String(value)
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[./\\-]/g, "");
+}
+
+function flattenJob(job) {
+  const values = [];
+
+  function walk(obj) {
+    if (obj == null) return;
+
+    if (
+      typeof obj === "string" ||
+      typeof obj === "number"
+    ) {
+      values.push(String(obj));
+      return;
+    }
+
+    if (Array.isArray(obj)) {
+      obj.forEach(walk);
+      return;
+    }
+
+    if (typeof obj === "object") {
+      Object.values(obj).forEach(walk);
+    }
+  }
+
+  walk(job);
+
+  return values.join(" ");
 }
 
 export default function ActiveJobsPage() {
@@ -30,6 +62,15 @@ export default function ActiveJobsPage() {
       }
 
       setJobs(Array.isArray(data.jobs) ? data.jobs : []);
+      console.table(
+       data.jobs.map(job => ({
+       jobId: job.jobId,
+       bookingNumber: job.bookingNumber,
+       beNumber: job.beNumber,
+       shipmentType: job.quoteId?.shipmentType,
+       company: job.company,
+      }))
+);
     } catch (e) {
       console.error(e);
       setErr("Failed to fetch active jobs");
@@ -38,6 +79,8 @@ export default function ActiveJobsPage() {
       setLoading(false);
     }
   };
+   
+ 
 
   useEffect(() => {
     fetchJobs();
@@ -45,20 +88,21 @@ export default function ActiveJobsPage() {
   }, [shipmentType]);
 
   // Client-side filtering — no extra API calls needed
-  const filteredJobs = useMemo(() => {
-    const q = search.trim();
-    if (!q) return jobs;
-    const re = new RegExp(escapeRegex(q), "i");
-    return jobs.filter(
-      (job) =>
-        re.test(job.beNumber || "") ||
-        re.test(job.mblNumber || "") ||
-        re.test(job.hblNumber || "") ||
-        re.test(job.awbNumber || "") ||
-        re.test(job.jobId || "") ||
-        re.test(job.company || ""),
-    );
-  }, [jobs, search]);
+const filteredJobs = useMemo(() => {
+
+  const q = normalize(search);
+
+  if (!q) return jobs;
+
+  return jobs.filter(job => {
+
+    const searchableText = normalize(flattenJob(job));
+
+    return searchableText.includes(q);
+
+  });
+
+}, [jobs, search]);
 
   return (
     <div className="max-w-7xl mx-auto p-10 space-y-8">
@@ -130,7 +174,7 @@ export default function ActiveJobsPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search BE / MBL / HBL / AWB…"
+                placeholder="Search Job ID, Company, BE, SB, MBL, HBL, AWB, Container..."
                 className="pl-9 pr-4 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition w-64"
               />
               {search && (
@@ -298,7 +342,7 @@ export default function ActiveJobsPage() {
             </p>
             <p className="text-sm text-gray-600 mt-1">
               {search
-                ? "Try searching with a different BE / MBL / HBL / AWB number."
+                ? "Try searching using Job ID, Company Name, BE, SB, MBL, HBL, AWB, Invoice, Booking or Container Number."
                 : shipmentType
                   ? `No ${shipmentType} jobs available.`
                   : "Looks like everything is completed or not started yet."}
