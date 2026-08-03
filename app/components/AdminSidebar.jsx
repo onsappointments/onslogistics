@@ -21,6 +21,7 @@ const ADMIN_MENU = [
   { name: "Assign Jobs", href: "/dashboard/admin/job-assignment", permission: "job:assign" },
   { name: "New Jobs", href: "/dashboard/admin/jobs/new", permission: "job:view_new" },
   { name: "Active Jobs", href: "/dashboard/admin/jobs/active", permission: "job:view_active" },
+  { name: "Completed Jobs", href: "/dashboard/admin/jobs/completed", permission: "job:view_active" },
   { name: "Couriers", href: "/dashboard/admin/reception/dispatch", permission: "couriers:view" },
   { name: "Audit Logs", href: "/dashboard/admin/audit", permission: "audit_logs:view" },
 
