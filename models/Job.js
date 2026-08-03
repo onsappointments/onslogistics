@@ -143,6 +143,15 @@ const EmailLogSchema = new mongoose.Schema(
 ],
     subject: { type: String, required: true },
     emailType: { type: String, required: true },
+    html: {
+      type: String,
+      default: "",
+    },
+
+    text: {
+      type: String,
+      default: "",
+    },
 
     jobId: { type: String, required: true },
     containerNumber: { type: String, default: null },

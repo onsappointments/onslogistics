@@ -132,6 +132,10 @@ export async function POST(req) {
 
   emailType,
 
+  html,
+
+  text: "",
+
   jobId: job.jobId,
 
   containerNumber:
