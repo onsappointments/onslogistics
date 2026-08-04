@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
+import CompanySelector from "@/components/common/CompanySelector";
+import CompanyHistoryPanel from "@/components/common/CompanyHistoryPanel";
 
 const RequestQuoteForm = forwardRef(
   ({ adminMode = false, setParentLoading }, ref) => {
@@ -58,6 +60,16 @@ const RequestQuoteForm = forwardRef(
 
     const resetForm = () => setForm(initialForm);
 
+    const [companyHistory, setCompanyHistory] = useState([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
+    const [showCreateCompany, setShowCreateCompany] = useState(false);
+
+const [newCompany, setNewCompany] = useState({
+  name: "",
+  gstin: "",
+  state: "",
+});
+
     useImperativeHandle(ref, () => ({
       handleSubmit,
       resetForm,
@@ -71,6 +83,7 @@ const RequestQuoteForm = forwardRef(
     const [fromCities, setFromCities] = useState([]);
     const [toCities, setToCities] = useState([]);
     const [countries, setCountries] = useState([]);
+    const [companies, setCompanies] = useState([]);
     const [fromIcdSuggestions, setFromIcdSuggestions] = useState([]);
     const [toIcdSuggestions, setToIcdSuggestions] = useState([]);
     const [gstinStatus, setGstinStatus] = useState("");
@@ -126,9 +139,42 @@ const RequestQuoteForm = forwardRef(
       }
     };
 
+    const fetchCompanies = async () => {
+  try {
+    const res = await fetch("/api/company-gst");
+    const data = await res.json();
+
+    if (data.success) {
+      setCompanies(data.companies);
+    }
+  } catch (err) {
+    console.error("Failed to load companies", err);
+  }
+};
+
     useEffect(() => {
       fetchCSC("countries").then(setCountries);
     }, []);
+    
+ useEffect(() => {
+  fetchCompanies();
+}, []);
+
+useEffect(() => {
+  console.log("Companies:", companies.length);
+}, [companies]);
+
+useEffect(() => {
+  console.log("Company History");
+
+  console.log(companyHistory);
+
+}, [companyHistory]);
+
+useEffect(() => {
+  console.log("showCreateCompany", showCreateCompany);
+}, [showCreateCompany]);
+
 
     useEffect(() => {
       if (!form.fromCountry) return;
@@ -264,7 +310,87 @@ const RequestQuoteForm = forwardRef(
       }
     };
 
+    const fetchCompanyHistory = async (company) => {
+  if (!company) return;
+
+  try {
+    setLoadingHistory(true);
+
+    const params = new URLSearchParams();
+
+    if (company.gstin) {
+      params.append("gstin", company.gstin);
+    } else {
+      params.append("company", company.name);
+    }
+
+    const res = await fetch(
+      `/api/admin/quotes/company-history?${params.toString()}`
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setCompanyHistory(data.quotes);
+    } else {
+      setCompanyHistory([]);
+    }
+  } catch (err) {
+    console.error("Failed to fetch company history", err);
+    setCompanyHistory([]);
+  } finally {
+    setLoadingHistory(false);
+  }
+};
+
+const handleCreateCompany = async () => {
+  try {
+    const res = await fetch("/api/admin/company-gst/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newCompany),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.error || "Failed to create company");
+      return;
+    }
+
+    // Refresh latest company master
+    await fetchCompanies();
+
+    // Select newly created company
+    setForm((prev) => ({
+      ...prev,
+      company: data.company.name,
+      gstin: data.company.gstin || "",
+    }));
+
+    // Clear history because this is a new company
+    setCompanyHistory([]);
+
+    // Close modal
+    setShowCreateCompany(false);
+
+    // Reset modal
+    setNewCompany({
+      name: "",
+      gstin: "",
+      state: "",
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("Server Error");
+  }
+};
+
     return (
+      <>
       <form
         onSubmit={(e) => e.preventDefault()}
         className="bg-white/80 backdrop-blur-xl shadow-xl rounded-3xl p-8 space-y-12 border border-[#e5e5e5]"
@@ -838,13 +964,95 @@ const RequestQuoteForm = forwardRef(
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Company <span className="text-red-500">*</span>
               </label>
-              <input
-                name="company"
+              <CompanySelector
+                companies={companies}
                 value={form.company}
-                onChange={handleChange}
-                placeholder="Enter company name"
-                className="input-box"
-              />
+                onCreateCompany={(company) => {
+                  console.log("Parent Received", company);
+                  setNewCompany({
+                    name: company.name || "",
+                    gstin: "",
+                    state: "",
+                    });
+
+                    setShowCreateCompany(true);
+                  }}
+                onSelect={(company) => {
+                  setForm((prev) => ({
+                     ...prev,
+                      company: company.name,
+                      gstin: company.gstin || "",
+                 }));
+
+                 fetchCompanyHistory(company);
+                 
+             }}
+          />
+          <CompanyHistoryPanel
+             quotes={companyHistory}
+             loading={loadingHistory}
+             onUseQuote={(quote) => {
+               setForm((prev) => ({
+                ...prev,
+
+                fromCountry: quote.fromCountry || "",
+                toCountry: quote.toCountry || "",
+
+               fromCity: quote.fromCity || "",
+                toCity: quote.toCity || "",
+
+                fromState: quote.fromState || "",
+                toState: quote.toState || "",
+
+                fromPostal: quote.fromPostal || "",
+                toPostal: quote.toPostal || "",
+
+                fromICD: quote.fromICD || "",
+                toICD: quote.toICD || "",
+
+                modeOfTransport: quote.modeOfTransport || "",
+
+                shipmentType: quote.shipmentType || "",
+
+               containerType: quote.containerType || "",
+
+               freightTerms: quote.freightTerms || "",
+
+               item: quote.item || "",
+
+               pieces: quote.pieces || "",
+
+               totalWeight: quote.totalWeight || "",
+
+               weightMeasure: quote.weightMeasure || "",
+
+               dimensions: quote.dimensions || "",
+
+               valueOfGoods: quote.valueOfGoods || "",
+
+                currency: quote.currency || "",
+
+               goodsPurpose: quote.goodsPurpose || "",
+
+                modeOfShipment: quote.modeOfShipment || "",
+
+               natureOfGoods: quote.natureOfGoods || "",
+
+               temperature: quote.temperature || "",
+
+               imoCode: quote.imoCode || "",
+
+               firstName: quote.firstName || "",
+               lastName: quote.lastName || "",
+
+               email: quote.email || "",
+
+               phoneCountryCode: quote.phoneCountryCode || "+91",
+
+               phone: quote.phone || "",
+                }));
+            }}
+         />
             </div>
 
             {/* GSTIN */}
@@ -1022,6 +1230,7 @@ const RequestQuoteForm = forwardRef(
                     className="input-box"
                   />
                 </div>
+                
               </>
             )}
 
@@ -1041,6 +1250,82 @@ const RequestQuoteForm = forwardRef(
           </div>
         </section>
       </form>
+      {showCreateCompany && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
+
+        <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+
+          <h2 className="text-xl font-semibold">
+            Create New Company
+          </h2>
+
+          <div className="mt-5 space-y-4">
+
+            <input
+              className="input-box"
+              placeholder="Company Name"
+              value={newCompany.name}
+              onChange={(e)=>
+                setNewCompany(prev=>({
+                  ...prev,
+                  name:e.target.value
+                }))
+              }
+            />
+
+            <input
+              className="input-box"
+              placeholder="GSTIN (Optional)"
+              value={newCompany.gstin}
+              onChange={(e)=>
+                setNewCompany(prev=>({
+                  ...prev,
+                  gstin:e.target.value.toUpperCase()
+                }))
+              }
+            />
+
+            <input
+              className="input-box"
+              placeholder="State (Optional)"
+              value={newCompany.state}
+              onChange={(e)=>
+                setNewCompany(prev=>({
+                  ...prev,
+                  state:e.target.value
+                }))
+              }
+            />
+
+          </div>
+
+          <div className="mt-6 flex justify-end gap-3">
+
+            <button
+              type="button"
+              className="rounded-lg border px-4 py-2"
+              onClick={()=>setShowCreateCompany(false)}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-white"
+              onClick={handleCreateCompany}
+            >
+              Save Company
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+    )}
+
+      </>
+      
     );
   },
 );
