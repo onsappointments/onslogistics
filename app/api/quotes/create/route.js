@@ -6,6 +6,7 @@ import User from "@/models/User";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { getNextQuoteNumber } from "@/lib/getNextQuoteNumber";
+import CompanyGST from "@/models/CompanyGST";
 
 const GSTIN_RE = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
@@ -49,42 +50,43 @@ export async function POST(req) {
     }
 
     // ── GSTIN RESOLUTION ─────────────────────────────────────────
-    const submittedGstin = data.gstin?.toUpperCase().trim();
+const submittedGstin = data.gstin?.toUpperCase().trim();
 
-    if (submittedGstin) {
-      // 1. Format check
-      if (!GSTIN_RE.test(submittedGstin)) {
-        return NextResponse.json(
-          { success: false, error: "Invalid GSTIN format." },
-          { status: 400 }
-        );
+if (submittedGstin) {
+  // Validate GSTIN format
+  if (!GSTIN_RE.test(submittedGstin)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Invalid GSTIN format.",
+      },
+      {
+        status: 400,
       }
+    );
+  }
 
-      // 2. Check Job collection first — this is where company names live
-      const existingJob = await Job.findOne({ gstin: submittedGstin })
-        .select("company").lean();
+  // Look up the Company Master
+  const companyMaster = await CompanyGST.findOne({
+    gstin: submittedGstin,
+  })
+    .select("name state")
+    .lean();
 
-      if (existingJob) {
-        // GSTIN found in Jobs — auto-correct company name
-        console.log(`ADMIN CREATE: GSTIN matched in Jobs. Correcting "${data.company}" → "${existingJob.company}"`);
-        data.company = existingJob.company;
-      } else {
-        // 3. Fallback — check User collection
-        const existingUser = await User.findOne({ gstin: submittedGstin, role: "client" })
-          .select("company").lean();
+  if (companyMaster) {
+    console.log(
+      `COMPANY MASTER: "${data.company}" → "${companyMaster.name}"`
+    );
 
-        if (existingUser) {
-          console.log(`ADMIN CREATE: GSTIN matched in Users. Correcting "${data.company}" → "${existingUser.company}"`);
-          data.company = existingUser.company;
-        }
-        // else: brand new GSTIN — use whatever company name was submitted
-      }
+    // Always use the official company name
+    data.company = companyMaster.name;
+  }
 
-      data.gstin = submittedGstin;
-    } else {
-      delete data.gstin;
-    }
-    // ── END GSTIN RESOLUTION ──────────────────────────────────────
+  data.gstin = submittedGstin;
+} else {
+  delete data.gstin;
+}
+// ── END GSTIN RESOLUTION ──────────────────────────────────────
 
     // ── LINK TO EXISTING USER ─────────────────────────────────────
     let clientUser = null;

@@ -124,6 +124,16 @@ leadVerifiedAt: { type: Date, default: null },
     bestTimeToEmail: String,
     message: String,
     
+    gstin: {
+     type: String,
+     trim: true,
+     uppercase: true,
+   },
+   company: {
+     type: String,
+     required: true,
+    },
+    
     status: {
       type: String,
       enum: [
