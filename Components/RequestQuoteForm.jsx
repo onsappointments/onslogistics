@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
-import CompanySelector from "@/components/common/CompanySelector";
-import CompanyHistoryPanel from "@/components/common/CompanyHistoryPanel";
+import CompanySelector from "@/Components/common/CompanySelector";
+import CompanyHistoryPanel from "@/Components/common/CompanyHistoryPanel";
 
 const RequestQuoteForm = forwardRef(
   ({ adminMode = false, setParentLoading }, ref) => {
