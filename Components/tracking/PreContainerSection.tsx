@@ -51,9 +51,12 @@ export default function PreContainerSection({
           const emailLog = emailLogs.find(
             (log) =>
               log.cycleStep === event.cycleStep &&
-              log.containerNumber === PRE_CONTAINER_SENTINEL &&
-              log.emailType === event.eventType
-          );
+              log.emailType === event.eventType &&
+              (
+                log.containerNumber == null ||
+                log.containerNumber === PRE_CONTAINER_SENTINEL
+              )
+         );
 
           return (
             <EventRow
