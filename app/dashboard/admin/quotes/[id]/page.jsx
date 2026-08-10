@@ -7,6 +7,7 @@ import TechnicalQuoteView from "./TechnicalQuoteView";
 import mongoose from "mongoose";
 import ShipmentTypeSelector from "./ShipmentTypeSelector";
 import {getCountryName , getStateName} from "@/lib/locationHelper";
+import ShipmentAssignmentSelector from "./ShipmentAssignmentSelector";
 
 export default async function QuoteDetails({ params }) {
   const { id } = await params;
@@ -39,7 +40,7 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
 
   return (
     <div className="p-10 max-w-5xl mx-auto">
-{quote.shipmentType === "Not set" && (
+{quote.shipmentType === "Cross Trade" && (
   <div className="mb-6 p-5 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-sm">
     <div className="flex items-center gap-3">
       <svg
@@ -65,7 +66,10 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
           Please update the quote to continue.
         </p>
       </div>
-      <ShipmentTypeSelector id={quote._id.toString()} current={quote.shipmentType}/>
+
+      <ShipmentAssignmentSelector
+        id={quote._id.toString()}
+      />
     </div>
   </div>
 )}
