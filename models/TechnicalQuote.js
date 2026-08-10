@@ -56,9 +56,14 @@ const TechnicalQuoteSchema = new mongoose.Schema(
      
     shipmentType: {
       type: String,
-      enum: ["import", "export" , "courier"],
+      enum: ["import", "export" , "courier", "Cross Trade"],
       required: true,
       immutable: true,
+    },
+    originalShipmentType: {
+     type: String,
+     enum: ["Cross Trade", null],
+     default: null,
     },
 
     jobMeta: {

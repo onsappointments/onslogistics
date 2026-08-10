@@ -97,10 +97,6 @@ leadVerifiedAt: { type: Date, default: null },
     lastName: {
       type: String,
     },
-    company: {
-      type: String,
-      required: true,
-    },
     email: {
       type: String,
       required: true,
