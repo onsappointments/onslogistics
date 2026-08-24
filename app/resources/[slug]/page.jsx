@@ -12,6 +12,7 @@ import TableOfContents from "@/Components/resources/TableOfContents";
 import CTASection from "@/Components/resources/CTASection";
 import { extractFAQs } from "@/lib/faqExtractor";
 import RelatedFAQs from "@/Components/resources/RelatedFAQs";
+import ResourceComments from "@/Components/resources/ResourceComments";
 
 // 🔹 Static generation (SEO boost)
 export async function generateStaticParams() {
@@ -236,6 +237,11 @@ export default async function ArticlePage({ params }) {
         </div>
 
         <RelatedFAQs faqs={faqs} />
+
+        <ResourceComments
+          articleSlug={article.slug}
+          articleTitle={article.title}
+        />
 
         {/* RELATED */}
         <RelatedArticles articles={related} />
