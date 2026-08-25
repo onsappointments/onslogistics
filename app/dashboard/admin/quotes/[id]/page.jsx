@@ -91,6 +91,13 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
            </p>
           )}
        </div>
+        {/* Edit Client Quote */}
+    <Link
+      href={`/dashboard/admin/quotes/${quote._id}/edit`}
+      className="rounded-lg px-6 py-3 bg-gray-800 text-white font-medium hover:bg-gray-900 transition"
+    >
+      Edit Quote
+    </Link>
 
 
         {/* ✅ FIX 2: show button only when editable */}
