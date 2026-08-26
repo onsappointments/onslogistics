@@ -54,11 +54,15 @@ const RequestQuoteForm = forwardRef(
     };
 
     const [form, setForm] = useState(initialForm);
+    const [selectedTechnicalQuote, setSelectedTechnicalQuote] = useState(null);
 
     const handleChange = (e) =>
       setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-    const resetForm = () => setForm(initialForm);
+    const resetForm = () => {
+      setForm(initialForm);
+      setSelectedTechnicalQuote(null);
+    };
 
     const [companyHistory, setCompanyHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
@@ -294,7 +298,7 @@ useEffect(() => {
 
           resetForm();
 
-          return { skipOtp: true, quoteId: data.quoteId };
+          return { skipOtp: true, quoteId: data.quoteId , technicalQuote: selectedTechnicalQuote, shipmentType: form.shipmentType,};
         }
 
         // ===== CLIENT FLOW =====
@@ -992,7 +996,10 @@ const handleCreateCompany = async () => {
              quotes={companyHistory}
              loading={loadingHistory}
              onUseQuote={(quote) => {
-               setForm((prev) => ({
+              // Load the previous technical quote as a template
+              setSelectedTechnicalQuote(quote.technicalQuote || null);
+
+              setForm((prev) => ({
                 ...prev,
 
                 fromCountry: quote.fromCountry || "",

@@ -1,4 +1,4 @@
-import { Response } from "next/server";
+import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import Quote from "@/models/Quote";
@@ -19,7 +19,7 @@ export async function POST(req) {
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const {
@@ -33,7 +33,7 @@ export async function POST(req) {
     /* ---------------- BASIC VALIDATION ---------------- */
 
     if (!quoteId || !shipmentType) {
-      return Response.json(
+      return NextResponse.json(
         { error: "quoteId and shipmentType are required" },
         { status: 400 }
       );
@@ -45,7 +45,7 @@ export async function POST(req) {
       quoteValidity?.type &&
       !["VESSEL", "HANDOVER", "DATE"].includes(quoteValidity.type)
     ) {
-      return Response.json(
+      return NextResponse.json(
         { error: "Invalid quote validity type" },
         { status: 400 }
       );
@@ -53,7 +53,7 @@ export async function POST(req) {
 
     const quote = await Quote.findById(quoteId);
     if (!quote) {
-      return Response.json({ error: "Quote not found" }, { status: 404 });
+      return NextResponse.json({ error: "Quote not found" }, { status: 404 });
     }
 
     /* ---------------- PERMISSION CHECK ---------------- */
@@ -86,7 +86,7 @@ export async function POST(req) {
           existingTechQuote.editUsed === false;
 
         if (!hasOneTimeAccess) {
-          return Response.json(
+          return NextResponse.json(
             {
               error: "You don't have permission to edit this quote. Request edit access.",
               needsApproval: true,
@@ -111,7 +111,7 @@ export async function POST(req) {
     );
 
     if (invalidHead) {
-      return Response.json(
+      return NextResponse.json(
         {
           error: "Invalid expenditure head",
           invalidHead: invalidHead.head,
@@ -270,7 +270,7 @@ export async function POST(req) {
       });
     }
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       technicalQuote: techQuote,
       message: updateData.editUsed
@@ -280,7 +280,7 @@ export async function POST(req) {
     });
   } catch (error) {
     console.error("TECH QUOTE SAVE ERROR:", error);
-    return Response.json(
+    return NextResponse.json(
       { error: "Failed to save technical quote", details: error.message },
       { status: 500 }
     );

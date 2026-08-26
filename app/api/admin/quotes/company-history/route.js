@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import connectDB from "@/lib/mongodb";
 import Quote from "@/models/Quote";
 import { authOptions } from "@/lib/authOptions";
+import TechnicalQuote from "@/models/TechnicalQuote";
 
 export async function GET(req) {
   try {
@@ -50,10 +51,38 @@ export async function GET(req) {
       .limit(100)
       .lean();
 
+    // --------------------------------------------------
+// LOAD TECHNICAL QUOTES FOR THESE QUOTATIONS
+// --------------------------------------------------
+
+const quoteIds = quotes.map((quote) => quote._id);
+
+const technicalQuotes = quoteIds.length
+  ? await TechnicalQuote.find({
+      clientQuoteId: { $in: quoteIds },
+    }).lean()
+  : [];
+
+// Create a quick lookup:
+// Quote ID → Technical Quote
+const technicalQuoteMap = new Map(
+  technicalQuotes.map((technicalQuote) => [
+    technicalQuote.clientQuoteId.toString(),
+    technicalQuote,
+  ])
+);
+
+// Attach the matching technical quote to each quotation
+const quotesWithTechnical = quotes.map((quote) => ({
+  ...quote,
+  technicalQuote:
+    technicalQuoteMap.get(quote._id.toString()) || null,
+}));
+
     return NextResponse.json({
       success: true,
-      count: quotes.length,
-      quotes,
+      count: quotesWithTechnical.length,
+      quotes: quotesWithTechnical,
     });
 
   } catch (error) {

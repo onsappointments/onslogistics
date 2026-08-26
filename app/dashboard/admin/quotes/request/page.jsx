@@ -21,9 +21,85 @@ export default function AdminRequestQuotePage() {
       const result = await formRef.current.handleSubmit(showStatus);
       
       if (result && result.skipOtp) {
-       
-        console.log("Admin quote created successfully, ID:", result.quoteId);
+  console.log(
+    "Admin quote created successfully, ID:",
+    result.quoteId
+  );
+
+  // --------------------------------------------------
+  // COPY PREVIOUS TECHNICAL QUOTE
+  // --------------------------------------------------
+
+  if (result.technicalQuote) {
+    try {
+      const technicalRes = await fetch(
+        "/api/admin/technical-quotes/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            quoteId: result.quoteId,
+
+            shipmentType:
+              result.shipmentType,
+
+            lineItems:
+              result.technicalQuote.lineItems || [],
+
+            quoteValidity:
+              result.technicalQuote.quoteValidity || {
+                type: "DATE",
+                etd: "",
+                handoverLocation: "",
+                validTill: "",
+              },
+
+            specialRemarks:
+              result.technicalQuote.specialRemarks || [],
+          }),
+        }
+      );
+
+      const technicalData = await technicalRes.json();
+
+      if (!technicalRes.ok) {
+        console.error(
+          "Failed to copy technical quote:",
+          technicalData
+        );
+
+        showStatus(
+          "warning",
+          "Quote Created",
+          "Client quote was created, but the previous technical quote could not be copied."
+        );
+
+        return;
       }
+
+      console.log(
+        "Technical quote copied successfully:",
+        technicalData.technicalQuote
+      );
+
+    } catch (technicalError) {
+      console.error(
+        "Technical quote copy error:",
+        technicalError
+      );
+
+      showStatus(
+        "warning",
+        "Quote Created",
+        "Client quote was created, but the previous technical quote could not be copied."
+      );
+
+      return;
+    }
+  }
+}
     }
   };
 
