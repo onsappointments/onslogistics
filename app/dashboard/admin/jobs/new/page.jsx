@@ -26,6 +26,7 @@ export default function NewJobsPage() {
               <th className="p-4 text-left">Company</th>
               <th className="p-4">Route</th>
               <th className="p-4">Job ID</th>
+              <th className="p-4">Booking Number</th>
               <th className="p-4">Status</th>
               <th className="p-4">Action</th>
             </tr>
@@ -34,7 +35,7 @@ export default function NewJobsPage() {
           <tbody>
             {jobs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
+                <td colSpan={6} className="p-6 text-center text-gray-500">
                   No new jobs found
                 </td>
               </tr>
@@ -46,13 +47,17 @@ export default function NewJobsPage() {
                   </td>
 
                   <td className="p-4">
-                    {job.clientQuoteId?.fromCity &&
-                    job.clientQuoteId?.toCity
-                      ? `${job.clientQuoteId.fromCity} → ${job.clientQuoteId.toCity}`
+                    {job.quoteId?.fromCity &&
+                    job.quoteId?.toCity
+                      ? `${job.quoteId.fromCity} → ${job.quoteId.toCity}`
                       : "—"}
                   </td>
 
                   <td className="p-4 font-semibold">{job.jobId}</td>
+
+                  <td className="p-4 font-medium">
+                   {job.bookingNumber || "—"}
+                  </td>
 
                   <td className="p-4">
                     <StatusBadge status={job.status} />
