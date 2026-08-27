@@ -5,7 +5,7 @@ import { generateTechnicalQuotePdf } from "@/lib/GenerateTechnicalQuotePdf";
 
 export async function POST(req) {
     try {
-        const { quoteId } = await req.json();
+        const { quoteId ,  breakdownMode = "detailed", } = await req.json();
 
         if (!quoteId) {
             return NextResponse.json({ error: "quoteId required" }, { status: 400 });
@@ -47,6 +47,7 @@ export async function POST(req) {
         const pdfBuffer = await generateTechnicalQuotePdf({
             clientQuote,
             technicalQuote,
+             breakdownMode,
         });
 
         return new NextResponse(pdfBuffer, {
