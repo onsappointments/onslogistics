@@ -2,7 +2,7 @@
  * containerStatusEmail.ts
  *
  * Builds the transactional HTML email sent to clients whenever a
- * container event is recorded in ONS Logistics.
+ * container event is recorded in ONS Logistics India Pvt Ltd.
  *
  * All copy is shipment-type aware — import and export messages
  * are distinct and use the right directional language throughout.
@@ -303,7 +303,7 @@ const IMPORT_ACTUAL: Record<string, (d: string, remarks?: string) => string> = {
   ooc_customs_cleared: (d) =>
     `Customs clearance (Out of Charge) was granted on <strong>${d}</strong>. Your cargo is now fully cleared and delivery arrangements are being made.`,
   cargo_dispatch: (d) =>
-    `Your cargo was dispatched from the ICD on <strong>${d}</strong> and is now on its way to the final destination. Thank you for choosing ONS Logistics — we look forward to serving you again.`,
+    `Your cargo was dispatched from the ICD on <strong>${d}</strong> and is now on its way to the final destination. Thank you for choosing ONS Logistics India Pvt Ltd— we look forward to serving you again.`,
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -311,7 +311,7 @@ const IMPORT_ACTUAL: Record<string, (d: string, remarks?: string) => string> = {
 ───────────────────────────────────────────────────────────────────── */
 const IMPORT_STATUS: Record<string, string> = {
   booking_docs_received:
-    "The booking documents for your shipment have been received and are being processed. Your shipment is now officially registered with ONS Logistics.",
+    "The booking documents for your shipment have been received and are being processed. Your shipment is now officially registered with ONS Logistics. India Pvt Ltd",
   cargo_received:
     "Your cargo has been received at the origin warehouse and is being readied for customs clearance and container stuffing.",
   custom_clearance_origin:
@@ -335,7 +335,7 @@ const IMPORT_STATUS: Record<string, string> = {
   ooc_customs_cleared:
     "Customs clearance (Out of Charge) has been granted for your shipment. Your cargo is fully cleared and dispatch arrangements are being made.",
   cargo_dispatch:
-    "Your cargo has been dispatched from the ICD and is on its way to the final destination. Thank you for choosing ONS Logistics.",
+    "Your cargo has been dispatched from the ICD and is on its way to the final destination. Thank you for choosing ONS Logistics. India Pvt Ltd ",
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -435,7 +435,7 @@ const EXPORT_ACTUAL: Record<string, (d: string) => string> = {
     `Your cargo became available at the destination terminal on <strong>${d}</strong> following vessel discharge. The consignee or destination agent may now proceed with import customs clearance and final delivery arrangements.`,
 
   delivered_to_consignee: (d) =>
-    `Your shipment was successfully delivered to the consignee on <strong>${d}</strong>. Thank you for choosing ONS Logistics. We sincerely appreciate your trust and look forward to supporting your future logistics requirements.`,
+    `Your shipment was successfully delivered to the consignee on <strong>${d}</strong>. Thank you for choosing ONS Logistics India Pvt Ltd. We sincerely appreciate your trust and look forward to supporting your future logistics requirements.`,
 };
 /* ─────────────────────────────────────────────────────────────────────
    EXPORT — Status-only copy
@@ -484,7 +484,7 @@ const EXPORT_STATUS: Record<string, string> = {
     "Your cargo is now available at the destination terminal. The consignee or destination agent may proceed with import customs clearance and final delivery arrangements.",
 
   delivered_to_consignee:
-    "Your shipment has been successfully delivered to the consignee. Thank you for choosing ONS Logistics. We appreciate the opportunity to handle your shipment and look forward to serving you again.",
+    "Your shipment has been successfully delivered to the consignee. Thank you for choosing ONS Logistics India Pvt Ltd. We appreciate the opportunity to handle your shipment and look forward to serving you again.",
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -697,7 +697,7 @@ export function buildStatusEmailHtml(p: StatusEmailParams): string {
             Your Shipment Has Been Delivered! 🎉
           </p>
           <p style="margin:6px 0 0;font-size:13px;color:#166534;font-family:Helvetica,Arial,sans-serif;">
-            Thank you for choosing ONS Logistics. We hope to serve you again soon.
+            Thank you for choosing ONS Logistics India Pvt Ltd. We hope to serve you again soon.
           </p>
         </td>
       </tr>
@@ -835,7 +835,7 @@ export function buildStatusEmailHtml(p: StatusEmailParams): string {
             <td style="background:${headerGradient};padding:30px 36px 26px;">
               <p style="margin:0;color:rgba(255,255,255,0.65);font-size:11px;font-weight:bold;
                          text-transform:uppercase;letter-spacing:2px;font-family:Helvetica,Arial,sans-serif;">
-                ONS Logistics India
+                ONS Logistics India Pvt Ltd
               </p>
               <p style="margin:4px 0 0;color:rgba(255,255,255,0.6);font-size:12px;font-family:Helvetica,Arial,sans-serif;">
                 ${phaseLabel}
@@ -884,7 +884,7 @@ export function buildStatusEmailHtml(p: StatusEmailParams): string {
               ${trackingCta}
 
               <p style="margin:28px 0 0;font-size:13px;color:#6b7280;line-height:1.7;font-family:Helvetica,Arial,sans-serif;">
-                Have questions about your shipment? Please reach out to your dedicated ONS Logistics coordinator and we will be happy to assist.
+                Have questions about your shipment? Please reach out to your dedicated ONS Logistics  coordinator and we will be happy to assist.
               </p>
 
             </td>
@@ -895,7 +895,7 @@ export function buildStatusEmailHtml(p: StatusEmailParams): string {
             <td align="center" bgcolor="#f8fafc"
                 style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 36px;border-radius:0 0 16px 16px;">
               <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.8;font-family:Helvetica,Arial,sans-serif;">
-                &copy; ${new Date().getFullYear()} ONS Logistics &nbsp;&middot;&nbsp; Automated notification — please do not reply directly to this email.
+                &copy; ${new Date().getFullYear()} ONS Logistics India Pvt Ltd &nbsp;&middot;&nbsp; Automated notification — please do not reply directly to this email.
                 ${
                   trackingUrl
                     ? `<br/><a href="${trackingUrl}" style="color:#3b82f6;text-decoration:none;font-family:Helvetica,Arial,sans-serif;">View live shipment tracking</a>`
