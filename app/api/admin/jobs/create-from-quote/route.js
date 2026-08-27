@@ -18,7 +18,7 @@ export async function POST(req) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { technicalQuoteId } = await req.json();
+  const { technicalQuoteId,  bookingNumber, } = await req.json();
 
   const technicalQuote = await TechnicalQuote.findById(technicalQuoteId).populate(
     "clientQuoteId"
@@ -102,6 +102,8 @@ export async function POST(req) {
     jobId,
     quoteId: quote._id,
     technicalQuoteId: technicalQuote._id,
+    bookingNumber:
+     bookingNumber?.toString().trim() || null,
 
     assignedTo: null,
     assignedToName: null,
