@@ -38,6 +38,8 @@ const [specialRemarks, setSpecialRemarks] = useState([""]);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
+  const [pdfBreakdownMode, setPdfBreakdownMode] = useState("detailed");
+
   /* -------------------------------------------
       LOAD QUOTE + TECHNICAL QUOTE + PURCHASE SHEET
   --------------------------------------------- */
@@ -299,44 +301,65 @@ const removeRemark = (index) => {
       Calls the preview endpoint, creates a blob URL,
       and opens the modal.
   --------------------------------------------- */
-  const openPreview = async () => {
-    if (isFinalLocked) {
-      alert("You don't have permission to finalize this quote.");
-      return;
-    }
+  const generatePreview = async (mode = pdfBreakdownMode) => {
+  setPreviewLoading(true);
 
-    const invalid = charges.some((c) => c.type === "CUSTOM" && !c.head?.trim());
-    if (invalid) {
-      alert("Custom head cannot be empty");
-      return;
-    }
-
-    setPreviewLoading(true);
-    setShowPreview(true);
-
-    try {
-      const res = await fetch("/api/admin/technical-quotes/preview-pdf", {
+  try {
+    const res = await fetch(
+      "/api/admin/technical-quotes/preview-pdf",
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quoteId: id }),
-      });
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          quoteId: id,
+          breakdownMode: mode,
+        }),
+      }
+    );
 
-      if (!res.ok) throw new Error("Failed to generate preview");
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-
-      // Revoke any old object URL to free memory
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(url);
-    } catch (err) {
-      console.error(err);
-      alert("Could not load PDF preview. Please try again.");
-      setShowPreview(false);
-    } finally {
-      setPreviewLoading(false);
+    if (!res.ok) {
+      throw new Error("Failed to generate preview");
     }
-  };
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setPreviewUrl(url);
+  } catch (err) {
+    console.error(err);
+    setPreviewUrl(null);
+    alert("Could not load PDF preview. Please try again.");
+  } finally {
+    setPreviewLoading(false);
+  }
+};
+
+const openPreview = async () => {
+  if (isFinalLocked) {
+    alert("You don't have permission to finalize this quote.");
+    return;
+  }
+
+  const invalid = charges.some(
+    (c) => c.type === "CUSTOM" && !c.head?.trim()
+  );
+
+  if (invalid) {
+    alert("Custom head cannot be empty");
+    return;
+  }
+
+  setShowPreview(true);
+  setPreviewUrl(null);
+
+  await generatePreview(pdfBreakdownMode);
+};
 
   const closePreview = () => {
     setShowPreview(false);
@@ -347,17 +370,43 @@ const removeRemark = (index) => {
       FINALIZE & SEND  (called from inside modal)
   --------------------------------------------- */
   const confirmAndSend = async () => {
-    setShowPreview(false);
+  setShowPreview(false);
 
-    await fetch("/api/admin/technical-quotes/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quoteId: id }),
-    });
+  try {
+    const res = await fetch(
+      "/api/admin/technical-quotes/send",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          quoteId: id,
+          breakdownMode: pdfBreakdownMode,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error || "Failed to send quotation"
+      );
+    }
 
     alert("Quote sent to client successfully!");
+
     router.push(`/dashboard/admin/quotes/${id}`);
-  };
+  } catch (error) {
+    console.error("SEND QUOTE ERROR:", error);
+
+    alert(
+      error.message ||
+        "Failed to send quotation."
+    );
+  }
+};
 
   /* -------------------------------------------
       TOTALS — SALE
@@ -426,6 +475,41 @@ const removeRemark = (index) => {
                 &times;
               </button>
             </div>
+            {/* PDF FORMAT SELECTION */}
+            <div className="px-6 py-4 border-b bg-white">
+             <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800">
+                    Client PDF Breakdown
+                  </h3>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Choose how the technical quotation will be shown to the client.
+                  </p>
+                </div>
+
+                <select
+                  value={pdfBreakdownMode}
+                  onChange={async (e) => {
+                    const mode = e.target.value;
+
+                   setPdfBreakdownMode(mode);
+                   setPreviewUrl(null);
+
+                   await generatePreview(mode);
+                 }}
+                  className="border rounded-lg px-3 py-2 text-sm bg-white"
+                >
+                  <option value="detailed">
+                    Detailed Breakdown
+                  </option>
+
+                  <option value="summary">
+                    2-Head Summary
+                  </option>
+                </select>
+              </div>
+           </div>
 
             {/* PDF iframe */}
             <div className="flex-1 overflow-hidden bg-gray-100 rounded-b-none">

@@ -34,7 +34,7 @@ export async function POST(req) {
 
     // ── REQUIRED FIELDS ──────────────────────────────────────────
     const requiredFields = [
-      "fromCountry", "toCountry", "fromCity", "toCity",
+      "fromCountry", "toCountry",
       "item", "modeOfTransport", "company", "email",
     ];
 

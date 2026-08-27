@@ -12,11 +12,9 @@ const QuoteSchema = new mongoose.Schema(
     },
     fromCity: {
       type: String,
-      required: true,
     },
     toCity: {
       type: String,
-      required: true,
     },
     fromLocationType: {
       type: String,

@@ -17,7 +17,7 @@ export async function POST(req) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { quoteId } = await req.json();
+    const { quoteId ,  breakdownMode = "detailed", } = await req.json();
     if (!quoteId) {
       return Response.json({ error: "quoteId required" }, { status: 400 });
     }
@@ -75,6 +75,7 @@ export async function POST(req) {
     const pdfBuffer = await generateTechnicalQuotePdf({
       clientQuote,
       technicalQuote,
+      breakdownMode,
     });
 
     /* ---------------- UPDATE STATUS ---------------- */

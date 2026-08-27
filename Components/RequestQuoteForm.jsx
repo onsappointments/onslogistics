@@ -245,8 +245,6 @@ useEffect(() => {
         "company",
         "fromCountry",
         "toCountry",
-        "fromCity",
-        "toCity",
         "modeOfTransport",
         "modeOfShipment",
       ];
@@ -506,7 +504,7 @@ const handleCreateCompany = async () => {
             {/* From City */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                From City <span className="text-red-500">*</span>
+                From City 
               </label>
               <select
                 name="fromCity"
@@ -527,7 +525,7 @@ const handleCreateCompany = async () => {
             {/* To City */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                To City <span className="text-red-500">*</span>
+                To City 
               </label>
               <select
                 name="toCity"
