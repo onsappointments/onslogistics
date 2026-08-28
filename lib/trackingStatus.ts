@@ -29,6 +29,9 @@ export const STEP_ICONS: Record<string, string> = {
     cargo_examination: "🔍",
     ooc_customs_cleared: "✅",
     cargo_dispatch: "🚛",
+    forwarding: "🚚",
+    reached_destination: "📍",
+    delivered_to_consignee: "🤝",
     // Export
     booking_confirmed: "📋",
     cargo_picked_up: "📦",
@@ -112,6 +115,25 @@ export const STEP_LABELS: Record<
         actual: "Cargo Dispatched",
         status: "Delivery in Progress",
     },
+
+    forwarding: {
+    eta: "Forwarding Expected",
+    actual: "Forwarding",
+    status: "Forwarding in Progress",
+},
+
+reached_destination: {
+    eta: "Expected Arrival at Destination",
+    actual: "Reached Destination",
+    status: "Destination Reached",
+},
+
+delivered_to_consignee: {
+    eta: "Expected Delivery",
+    actual: "Delivered to Consignee",
+    status: "Delivery Completed",
+},
+    
 
     // ── Export ──────────────────────────────────────────────────────
     booking_confirmed: {

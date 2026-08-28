@@ -26,6 +26,10 @@ export default async function JobTrackingAdminPage({ params }) {
 
   const plainJob = JSON.parse(JSON.stringify(job));
   const quote    = plainJob.quoteId;
+  const shipmentType =
+  plainJob.shipmentType ||
+  quote?.shipmentType ||
+  "import";
 
   return (
     <div className="p-10 max-w-6xl mx-auto">

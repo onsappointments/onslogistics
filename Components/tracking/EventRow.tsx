@@ -200,7 +200,63 @@ export default function EventRow({
             {event.location}
           </span>
         )}
+         {/* Structured operational information */}
+{(
+  event.vesselName ||
+  event.voyage ||
+  event.trainNumber ||
+  event.wagonNumber ||
+  event.sealNumber
+) && (
+  <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2 text-xs text-gray-500">
 
+    {event.vesselName && (
+      <span>
+        <span className="font-medium text-gray-600">
+          Vessel:
+        </span>{" "}
+        {event.vesselName}
+      </span>
+    )}
+
+    {event.voyage && (
+      <span>
+        <span className="font-medium text-gray-600">
+          Voyage:
+        </span>{" "}
+        {event.voyage}
+      </span>
+    )}
+
+    {event.trainNumber && (
+      <span>
+        <span className="font-medium text-gray-600">
+          Train:
+        </span>{" "}
+        {event.trainNumber}
+      </span>
+    )}
+
+    {event.wagonNumber && (
+      <span>
+        <span className="font-medium text-gray-600">
+          Wagon:
+        </span>{" "}
+        {event.wagonNumber}
+      </span>
+    )}
+
+    {event.sealNumber && (
+      <span>
+        <span className="font-medium text-gray-600">
+          Seal:
+        </span>{" "}
+        {event.sealNumber}
+      </span>
+    )}
+
+  </div>
+)}
         {description && (
          <p
           className="mt-2 text-sm leading-6 text-gray-600"

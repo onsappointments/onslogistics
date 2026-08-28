@@ -28,6 +28,9 @@ const STEP_ICONS: Record<string, string> = {
   cargo_examination: "🔍",
   ooc_customs_cleared: "✅",
   cargo_dispatch: "🚛",
+  forwarding: "🚚",
+  reached_destination: "📍",
+  delivered_to_consignee: "🎉",
   // Export
 booking_confirmed: "📋",
 cargo_received_export: "📦",
@@ -43,7 +46,6 @@ vessel_departed: "🌊",
 transshipment: "🔄",
 vessel_arrived_destination: "🛳️",
 cargo_available_destination: "📦",
-delivered_to_consignee: "🎉",
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -137,6 +139,23 @@ const HEADER_LABELS: Record<string, { eta: string; actual: string; status: strin
     actual: "Cargo Dispatched",
     status: "Delivery in Progress",
   },
+  forwarding: {
+  eta: "Forwarding Expected",
+  actual: "Forwarding Started",
+  status: "Forwarding in Progress",
+},
+
+reached_destination: {
+  eta: "Expected Arrival at Destination",
+  actual: "Reached Destination",
+  status: "Destination Reached",
+},
+
+delivered_to_consignee: {
+  eta: "Expected Final Delivery",
+  actual: "Delivered to Consignee",
+  status: "Delivered Successfully",
+},
 
  // ── Export ────────────────────────────────────────────────────────
 booking_confirmed: {
@@ -223,11 +242,7 @@ cargo_available_destination: {
   status: "Awaiting Customs Clearance & Delivery",
 },
 
-delivered_to_consignee: {
-  eta: "Expected Final Delivery",
-  actual: "Shipment Delivered",
-  status: "Delivered Successfully",
-},
+
 };
 
 function resolveHeaderTitle(
@@ -272,6 +287,14 @@ const IMPORT_ETA: Record<string, (d: string, remarks?: string) => string> = {
     `We expect customs clearance (Out of Charge) to be granted by <strong>${d}</strong>. Once issued, your cargo will be free to move and dispatch arrangements will begin immediately.`,
   cargo_dispatch: (d) =>
     `Your cargo is expected to be dispatched from the ICD and delivered to the final destination by <strong>${d}</strong>. We will notify you as soon as it is on its way.`,
+  forwarding: (d) =>
+  `Your shipment is expected to be forwarded towards the final destination by <strong>${d}</strong>. We will keep you updated as the shipment progresses.`,
+
+reached_destination: (d) =>
+  `Your shipment is expected to reach the destination by <strong>${d}</strong>. We will notify you once arrival has been confirmed.`,
+
+delivered_to_consignee: (d) =>
+  `Your shipment is expected to be delivered to the consignee by <strong>${d}</strong>. We will confirm once delivery has been completed.`,
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -304,6 +327,14 @@ const IMPORT_ACTUAL: Record<string, (d: string, remarks?: string) => string> = {
     `Customs clearance (Out of Charge) was granted on <strong>${d}</strong>. Your cargo is now fully cleared and delivery arrangements are being made.`,
   cargo_dispatch: (d) =>
     `Your cargo was dispatched from the ICD on <strong>${d}</strong> and is now on its way to the final destination. Thank you for choosing ONS Logistics India Pvt Ltd— we look forward to serving you again.`,
+  forwarding: (d) =>
+  `Your shipment has been forwarded towards the final destination as of <strong>${d}</strong>. It is now progressing through the final delivery stage.`,
+
+reached_destination: (d) =>
+  `Your shipment reached the destination on <strong>${d}</strong>. The shipment is now at the destination and the final delivery process can proceed.`,
+
+delivered_to_consignee: (d) =>
+  `Your shipment was successfully delivered to the consignee on <strong>${d}</strong>. Thank you for choosing ONS Logistics India Pvt Ltd. We look forward to serving you again.`,
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -336,6 +367,14 @@ const IMPORT_STATUS: Record<string, string> = {
     "Customs clearance (Out of Charge) has been granted for your shipment. Your cargo is fully cleared and dispatch arrangements are being made.",
   cargo_dispatch:
     "Your cargo has been dispatched from the ICD and is on its way to the final destination. Thank you for choosing ONS Logistics. India Pvt Ltd ",
+    forwarding:
+  "Your shipment is currently being forwarded towards the final destination. We will continue to keep you updated on its progress.",
+
+reached_destination:
+  "Your shipment has reached the destination. The final delivery process is now underway.",
+
+delivered_to_consignee:
+  "Your shipment has been successfully delivered to the consignee. Thank you for choosing ONS Logistics India Pvt Ltd.",
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -370,7 +409,7 @@ const EXPORT_ETA: Record<string, (d: string) => string> = {
     `Your container is expected to be planned onto the scheduled vessel by <strong>${d}</strong>. Once the shipping line confirms the loading plan, we will share the vessel name and voyage details.`,
 
   shipped_on_board_export: (d) =>
-    `Your container is expected to be loaded on board the vessel and depart from the Port of Loading by <strong>${d}</strong>. Once loading is confirmed, the Bill of Lading will be issued and your shipment will officially begin its ocean journey.`,
+    `Your container is expected to be loaded on board the vessel and depart from the Port of Loading by <strong>${d}</strong>. Once loading is confirmed,  your shipment will officially begin its ocean journey.`,
 
   vessel_departed: (d) =>
     `The vessel carrying your shipment is expected to depart from the Port of Loading on <strong>${d}</strong>. Your cargo will then begin its voyage toward the destination country.`,
@@ -420,7 +459,7 @@ const EXPORT_ACTUAL: Record<string, (d: string) => string> = {
     `Your container was successfully planned onto the scheduled vessel on <strong>${d}</strong>. The vessel allocation has been confirmed, and your shipment is now awaiting final loading.`,
 
   shipped_on_board_export: (d) =>
-    `Your container was successfully loaded on board the vessel on <strong>${d}</strong>. The Bill of Lading has been issued, and your shipment has officially commenced its ocean journey toward the destination country.`,
+    `Your container was successfully loaded on board the vessel on <strong>${d}</strong>.  Your shipment has officially commenced its ocean journey toward the destination country.`,
 
   vessel_departed: (d) =>
     `The vessel departed from the Port of Loading on <strong>${d}</strong>. Your shipment is now sailing toward the destination country according to the planned voyage schedule.`,

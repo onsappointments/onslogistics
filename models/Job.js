@@ -22,26 +22,10 @@ const StageSchema = new mongoose.Schema({
 
 const ContainerEventSchema = new mongoose.Schema(
   {
-    /**
-     * cycleStep — the stable key from IMPORT_CYCLE / EXPORT_CYCLE
-     * (e.g. "booking_docs_received", "vessel_arrived_pod")
-     * Required going forward; legacy events may not have it.
-     */
     cycleStep: { type: String, default: null },
 
-    /**
-     * status — human-readable label shown in UI and emails.
-     * For cycle-driven events this mirrors the cycle step label.
-     */
     status: { type: String, required: true },
 
-    /**
-     * eventType:
-     *   "single"  — a plain dated event (no ETA/actual split)
-     *   "eta"     — ETA date recorded
-     *   "actual"  — Actual date recorded
-     *   "status"  — legacy fallback
-     */
     eventType: { type: String, default: "status" },
 
     location: { type: String, default: "" },
@@ -51,6 +35,15 @@ const ContainerEventSchema = new mongoose.Schema(
     eventDate: { type: Date, default: null },
     eta: { type: Date, default: null },
     actualDeparture: { type: Date, default: null },
+
+    // ── Structured operational information ─────────────────────
+    vesselName: { type: String, default: null },
+    voyage: { type: String, default: null },
+
+    trainNumber: { type: String, default: null },
+    wagonNumber: { type: String, default: null },
+
+    sealNumber: { type: String, default: null },
 
     // Email sent timestamps
     etaEmailSentAt: { type: Date, default: null },

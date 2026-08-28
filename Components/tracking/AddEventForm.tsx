@@ -50,6 +50,14 @@ export default function AddEventForm({
     newSizeType: "",
     location: "",
     remarks: "",
+
+    vesselName: "",
+    voyage: "",
+
+    trainNumber: "",
+    wagonNumber: "",
+
+    sealNumber: "",
   };
 
   const [fields, setFields] = useState(blank);
@@ -62,6 +70,10 @@ export default function AddEventForm({
   }
 
   const selectedStepDef = steps.find((s) => s.key === fields.cycleStepKey) || null;
+  const stepFields = selectedStepDef?.fields || [];
+
+  const hasField = (field: string) =>
+    stepFields.includes(field as any);
 
   const isJobLevel = selectedStepDef
     ? JOB_LEVEL_STEPS.has(selectedStepDef.key) || !selectedStepDef.requiresContainer
@@ -82,6 +94,14 @@ export default function AddEventForm({
       dateMode: defaultDateMode,
       eta: "",
       actualDeparture: "",
+
+       vesselName: "",
+        voyage: "",
+
+      trainNumber: "",
+      wagonNumber: "",
+
+     sealNumber: "",
     }));
     setSequenceWarning(null);
   }
@@ -117,17 +137,43 @@ export default function AddEventForm({
     }
 
     const event = {
-      cycleStep: fields.cycleStepKey,
-      status: selectedStepDef.label,
-      eta:
-        fields.dateMode === "eta" || fields.dateMode === "single"
-          ? toDateValue(fields.eta)
-          : null,
-      actualDeparture:
-        fields.dateMode === "actual" ? toDateValue(fields.actualDeparture) : null,
-      location: fields.location,
-      remarks: fields.remarks,
-    };
+  cycleStep: fields.cycleStepKey,
+
+  status: selectedStepDef.label,
+
+  eta:
+    fields.dateMode === "eta" || fields.dateMode === "single"
+      ? toDateValue(fields.eta)
+      : null,
+
+  actualDeparture:
+    fields.dateMode === "actual"
+      ? toDateValue(fields.actualDeparture)
+      : null,
+
+  location: fields.location,
+  remarks: fields.remarks,
+
+  vesselName: hasField("vesselName")
+    ? fields.vesselName.trim()
+    : null,
+
+  voyage: hasField("voyage")
+    ? fields.voyage.trim()
+    : null,
+
+  trainNumber: hasField("trainNumber")
+    ? fields.trainNumber.trim()
+    : null,
+
+  wagonNumber: hasField("wagonNumber")
+    ? fields.wagonNumber.trim()
+    : null,
+
+  sealNumber: hasField("sealNumber")
+    ? fields.sealNumber.trim()
+    : null,
+};
 
     setPending({
       event,
@@ -407,30 +453,108 @@ export default function AddEventForm({
               />
             )}
 
+            {/* Vessel information */}
+{(hasField("vesselName") || hasField("voyage")) && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    {hasField("vesselName") && (
+      <div>
+        <Label>Vessel Name</Label>
+        <input
+          className={INPUT_CLS}
+          placeholder="e.g. MSC Anna"
+          value={fields.vesselName}
+          onChange={(e) => set("vesselName", e.target.value)}
+        />
+      </div>
+    )}
+
+    {hasField("voyage") && (
+      <div>
+        <Label>Voyage</Label>
+        <input
+          className={INPUT_CLS}
+          placeholder="e.g. 123W"
+          value={fields.voyage}
+          onChange={(e) => set("voyage", e.target.value)}
+        />
+      </div>
+    )}
+  </div>
+)}
+
+{/* Rail information */}
+{(hasField("trainNumber") || hasField("wagonNumber")) && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    {hasField("trainNumber") && (
+      <div>
+        <Label>Train Number</Label>
+        <input
+          className={INPUT_CLS}
+          placeholder="e.g. 12901"
+          value={fields.trainNumber}
+          onChange={(e) => set("trainNumber", e.target.value)}
+        />
+      </div>
+    )}
+
+    {hasField("wagonNumber") && (
+      <div>
+        <Label>Wagon Number</Label>
+        <input
+          className={INPUT_CLS}
+          placeholder="e.g. WGN-123"
+          value={fields.wagonNumber}
+          onChange={(e) => set("wagonNumber", e.target.value)}
+        />
+      </div>
+    )}
+  </div>
+)}
+
+{/* Container seal */}
+{hasField("sealNumber") && (
+  <div>
+    <Label>Seal Number</Label>
+    <input
+      className={INPUT_CLS}
+      placeholder="e.g. MS123456"
+      value={fields.sealNumber}
+      onChange={(e) => set("sealNumber", e.target.value.toUpperCase())}
+    />
+  </div>
+)}
+
             {/* Location + Remarks */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <Label>Location</Label>
-                <input
-                  className={INPUT_CLS}
-                  placeholder="e.g. Nhava Sheva, IN"
-                  value={fields.location}
-                  onChange={(e) => set("location", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label>
-                  Remarks{" "}
-                  <span className="text-gray-300 font-normal">(optional)</span>
-                </Label>
-                <input
-                  className={INPUT_CLS}
-                  placeholder="Visible to client in email"
-                  value={fields.remarks}
-                  onChange={(e) => set("remarks", e.target.value)}
-                />
-              </div>
-            </div>
+{(hasField("location") || hasField("remarks")) && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    {hasField("location") && (
+      <div>
+        <Label>Location</Label>
+        <input
+          className={INPUT_CLS}
+          placeholder="e.g. Nhava Sheva, IN"
+          value={fields.location}
+          onChange={(e) => set("location", e.target.value)}
+        />
+      </div>
+    )}
+
+    {hasField("remarks") && (
+      <div>
+        <Label>
+          Remarks{" "}
+          <span className="text-gray-300 font-normal">(optional)</span>
+        </Label>
+        <input
+          className={INPUT_CLS}
+          placeholder="Visible to client in email"
+          value={fields.remarks}
+          onChange={(e) => set("remarks", e.target.value)}
+        />
+      </div>
+    )}
+  </div>
+)}
           </>
         )}
 

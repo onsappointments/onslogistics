@@ -25,6 +25,7 @@ const RequestQuoteForm = forwardRef(
       freightTerms: "",
       containerType: "",
       modeOfShipment: "",
+      serviceScope: "",
       goodsPurpose: "",
       valueOfGoods: "",
       currency: "INR",
@@ -247,6 +248,8 @@ useEffect(() => {
         "toCountry",
         "modeOfTransport",
         "modeOfShipment",
+        "serviceScope",
+
       ];
 
       for (const field of required) {
@@ -791,6 +794,28 @@ const handleCreateCompany = async () => {
                 <option>Road</option>
               </select>
             </div>
+             {/* Service Scope */}
+             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+               Service Scope <span className="text-red-500">*</span>
+               </label>
+
+               <select
+                 name="serviceScope"
+                 value={form.serviceScope}
+                  onChange={handleChange}
+                 className="input-box"
+               >
+                  <option value="">Select Service Scope</option>
+                 <option value="CUSTOMS">Customs</option>
+                 <option value="FREIGHT_FORWARDING">
+                   Freight Forwarding
+               </option>
+                 <option value="CUSTOMS_AND_FREIGHT_FORWARDING">
+                     Customs & Freight Forwarding
+                 </option>
+               </select>
+             </div>
 
             {/* Freight Terms */}
             <div>
@@ -1040,6 +1065,8 @@ const handleCreateCompany = async () => {
                goodsPurpose: quote.goodsPurpose || "",
 
                 modeOfShipment: quote.modeOfShipment || "",
+
+                serviceScope: quote.serviceScope || "",
 
                natureOfGoods: quote.natureOfGoods || "",
 

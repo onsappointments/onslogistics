@@ -220,6 +220,7 @@ const handleSendResendEmail = ({
       {editTarget && editEventData && (
         <EditEventModal
           event={editEventData}
+          shipmentType={shipmentType}
           loading={saving}
           onClose={() => setEditTarget(null)}
           onSave={handleEditEvent}
