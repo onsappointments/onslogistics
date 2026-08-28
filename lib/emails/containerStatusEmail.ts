@@ -46,7 +46,6 @@ vessel_departed: "🌊",
 transshipment: "🔄",
 vessel_arrived_destination: "🛳️",
 cargo_available_destination: "📦",
-delivered_to_consignee: "🎉",
 };
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -243,11 +242,7 @@ cargo_available_destination: {
   status: "Awaiting Customs Clearance & Delivery",
 },
 
-delivered_to_consignee: {
-  eta: "Expected Final Delivery",
-  actual: "Shipment Delivered",
-  status: "Delivered Successfully",
-},
+
 };
 
 function resolveHeaderTitle(
