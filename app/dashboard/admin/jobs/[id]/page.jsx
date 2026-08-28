@@ -225,8 +225,37 @@ export default async function JobDetails({ params }) {
           <Group title="Customs & References">
             <Field label="BE Number" value={plainJob.beNumber} />
             <Field label="BE Date" value={formatDate(plainJob.beDate)} />
-            <Field label="SB Number" value={plainJob.sbNumber} />
-            <Field label="SB Date" value={formatDate(plainJob.sbDate)} />
+            <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+    Shipping Bills
+  </p>
+
+  <div className="mt-2 space-y-2">
+    {plainJob.shippingBills?.length ? (
+      plainJob.shippingBills.map((sb, index) => (
+        <div
+          key={index}
+          className="flex items-center justify-between gap-4 text-sm"
+        >
+          <span className="font-semibold text-gray-900">
+            {sb.number || "—"}
+          </span>
+
+          <span className="text-gray-600">
+            {sb.date
+              ? formatDate(sb.date)
+              : "—"}
+          </span>
+        </div>
+      ))
+    ) : (
+      <span className="text-sm text-gray-500">
+        —
+      </span>
+    )}
+  </div>
+</div>
+            
             <Field label="Assessable Value" value={plainJob.assessableValue} />
             <Field label="Reference Number" value={plainJob.referenceNumber} />
           </Group>

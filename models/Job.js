@@ -56,6 +56,20 @@ const ContainerEventSchema = new mongoose.Schema(
   },
   { _id: false }
 );
+const ShippingBillSchema = new mongoose.Schema(
+  {
+    number: {
+      type: String,
+      default: null,
+    },
+
+    date: {
+      type: Date,
+      default: null,
+    },
+  },
+  { _id: false }
+);
 
 /**
  * PRE_CONTAINER_SENTINEL
@@ -260,6 +274,10 @@ const JobSchema = new mongoose.Schema(
     beDate: { type: Date, default: null },
     sbNumber: { type: String, default: null },
     sbDate: { type: Date, default: null },
+    shippingBills: {
+     type: [ShippingBillSchema],
+     default: [],
+    },
     assessableValue: { type: String, default: null },
     referenceNumber: { type: String, default: null },
     gigamNumber: { type: String, default: null },

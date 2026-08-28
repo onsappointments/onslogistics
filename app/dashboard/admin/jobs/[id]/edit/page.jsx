@@ -4,6 +4,7 @@ import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { updateJob } from "./actions";
+import ShippingBillsEditor from "../ShippingBillsEditor";
 
 export default async function EditJobPage({ params }) {
   const { id } = await params;
@@ -127,8 +128,9 @@ export default async function EditJobPage({ params }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FieldInput label="BE Number" name="beNumber" defaultValue={job.beNumber || ""} />
             <FieldInput label="BE Date" name="beDate" type="date" defaultValue={fmtDate(job.beDate)} />
-            <FieldInput label="SB Number" name="sbNumber" defaultValue={job.sbNumber || ""} />
-            <FieldInput label="SB Date" name="sbDate" type="date" defaultValue={fmtDate(job.sbDate)} />
+            <ShippingBillsEditor
+                          initialBills={job.shippingBills || []}
+                        />
             <FieldInput label="Assessable Value" name="assessableValue" defaultValue={job.assessableValue || ""} />
             <FieldInput label="Reference Number" name="referenceNumber" defaultValue={job.referenceNumber || ""} />
             <FieldInput label="GIGAM Number" name="gigamNumber" defaultValue={job.gigamNumber || ""} />
