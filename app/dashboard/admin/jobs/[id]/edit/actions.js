@@ -49,6 +49,40 @@ export async function updateJob(formData) {
   //   throw new Error("Edit not allowed");
   // }
 
+  const shippingBillsRaw =
+  formData.get("shippingBills");
+
+let shippingBills = [];
+
+if (shippingBillsRaw) {
+  try {
+    const parsed =
+      JSON.parse(shippingBillsRaw);
+
+    if (Array.isArray(parsed)) {
+      shippingBills = parsed
+        .map((bill) => ({
+          number:
+            typeof bill.number === "string"
+              ? bill.number.trim()
+              : "",
+
+          date: bill.date
+            ? new Date(bill.date)
+            : null,
+        }))
+        .filter(
+          (bill) =>
+            bill.number ||
+            bill.date
+        );
+    }
+  } catch {
+    throw new Error(
+      "Invalid shipping bill data"
+    );
+  }
+}
   /* ---------------- UPDATE PAYLOAD ---------------- */
 
   const update = {
@@ -66,6 +100,7 @@ export async function updateJob(formData) {
     awbNumber: formData.get("awbNumber") || null,
     awbDate: formData.get("awbDate") || null,
 
+
     portOfLoading: formData.get("portOfLoading") || null,
     portOfDischarge: formData.get("portOfDischarge") || null,
     clearanceAt: formData.get("clearanceAt") || null,
@@ -79,8 +114,7 @@ export async function updateJob(formData) {
 
     beNumber: formData.get("beNumber") || null,
     beDate: formData.get("beDate") || null,
-    sbNumber : formData.get("sbNumber") || null,
-     sbDate: formData.get("sbDate") || null,
+    shippingBills,
     assessableValue: formData.get("assessableValue") || null,
     referenceNumber: formData.get("referenceNumber") || null,
     gigamNumber: formData.get("gigamNumber") || null,
