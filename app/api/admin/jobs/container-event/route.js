@@ -136,14 +136,16 @@ export async function POST(req) {
     }
 
     const job = await Job.findById(jobId).populate("quoteId");
-    const shipmentType =
+   
+
+    if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+    
+     const shipmentType =
      (
        job.shipmentType ||
        job.quoteId?.shipmentType ||
        "import"
      ).toLowerCase();
-
-    if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
     // ── Validate cycle step belongs to this shipment type ────────────
     const cycleStepDef = getCycleStep(shipmentType, event.cycleStep);
@@ -210,16 +212,36 @@ export async function POST(req) {
 
     // ── Push event ───────────────────────────────────────────────────
     container.events.push({
-      cycleStep: event.cycleStep,
-      status: event.status,
-      eventType: incomingEventType,
-      location: event.location || "",
-      remarks: event.remarks || "",
-      eventDate: event.eventDate ? new Date(event.eventDate) : new Date(),
-      eta: event.eta ? new Date(event.eta) : null,
-      actualDeparture: event.actualDeparture ? new Date(event.actualDeparture) : null,
-      createdAt: new Date(),
-    });
+  cycleStep: event.cycleStep,
+  status: event.status,
+  eventType: incomingEventType,
+
+  location: event.location || "",
+  remarks: event.remarks || "",
+
+  eventDate: event.eventDate
+    ? new Date(event.eventDate)
+    : new Date(),
+
+  eta: event.eta
+    ? new Date(event.eta)
+    : null,
+
+  actualDeparture: event.actualDeparture
+    ? new Date(event.actualDeparture)
+    : null,
+
+  // ── Structured operational information ───────────────────────
+  vesselName: event.vesselName?.trim() || null,
+  voyage: event.voyage?.trim() || null,
+
+  trainNumber: event.trainNumber?.trim() || null,
+  wagonNumber: event.wagonNumber?.trim() || null,
+
+  sealNumber: event.sealNumber?.trim() || null,
+
+  createdAt: new Date(),
+});
 
     // ── Update job-level container fields if this step assigns one ───
     if (cycleStepDef.assignsContainer && containerNumber) {
@@ -237,17 +259,36 @@ export async function POST(req) {
       performedAt: new Date(),
       reference: { jobId: job.jobId, containerNumber: effectiveContainerNumber },
       metadata: {
-        cycleStep: event.cycleStep,
-        status: event.status,
-        eventType: incomingEventType,
-        shipmentType,
-        location: event.location || null,
-        remarks: event.remarks || null,
-        eventDate: event.eventDate ? new Date(event.eventDate) : new Date(),
-        eta: event.eta ? new Date(event.eta) : null,
-        actualDeparture: event.actualDeparture ? new Date(event.actualDeparture) : null,
-        sequenceViolation: !!sequenceWarning,
-      },
+  cycleStep: event.cycleStep,
+  status: event.status,
+  eventType: incomingEventType,
+  shipmentType,
+
+  location: event.location || null,
+  remarks: event.remarks || null,
+
+  eventDate: event.eventDate
+    ? new Date(event.eventDate)
+    : new Date(),
+
+  eta: event.eta
+    ? new Date(event.eta)
+    : null,
+
+  actualDeparture: event.actualDeparture
+    ? new Date(event.actualDeparture)
+    : null,
+
+  vesselName: event.vesselName?.trim() || null,
+  voyage: event.voyage?.trim() || null,
+
+  trainNumber: event.trainNumber?.trim() || null,
+  wagonNumber: event.wagonNumber?.trim() || null,
+
+  sealNumber: event.sealNumber?.trim() || null,
+
+  sequenceViolation: !!sequenceWarning,
+},
     });
 
     await job.save();
@@ -285,13 +326,15 @@ export async function PATCH(req) {
     }
 
     const job = await Job.findById(jobId).populate("quoteId");
-     const shipmentType =
+     
+    if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+
+    const shipmentType =
     (
       job.shipmentType ||
       job.quoteId?.shipmentType ||
       "import"
     ).toLowerCase();
-    if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
     const container = job.containers.find(
       (c) => c.containerNumber === containerNumber
@@ -305,6 +348,20 @@ export async function PATCH(req) {
 
     const incomingEventType = deriveEventType(event);
     const cycleStep = event.cycleStep ?? container.events[eventIndex].cycleStep;
+
+     const cycleStepDef = getCycleStep(
+  shipmentType,
+  cycleStep
+);
+
+if (!cycleStepDef) {
+  return NextResponse.json(
+    {
+      error: `Step "${cycleStep}" is not valid for a ${shipmentType} shipment.`,
+    },
+    { status: 400 }
+  );
+}
 
     if (isDuplicateEvent(container.events, cycleStep, incomingEventType, eventIndex)) {
       return NextResponse.json(
@@ -326,20 +383,57 @@ export async function PATCH(req) {
     const oldStatus = container.events[eventIndex].status;
 
     container.events[eventIndex] = {
-      ...(container.events[eventIndex].toObject?.() ?? container.events[eventIndex]),
-      cycleStep,
-      status: event.status,
-      eventType: incomingEventType,
-      location: event.location || "",
-      remarks: event.remarks || "",
-      eventDate: event.eventDate
-        ? new Date(event.eventDate)
-        : container.events[eventIndex].eventDate,
-      eta: event.eta ? new Date(event.eta) : null,
-      actualDeparture: event.actualDeparture ? new Date(event.actualDeparture) : null,
-      updatedAt: new Date(),
-      updatedBy: session.user.id,
-    };
+  ...(container.events[eventIndex].toObject?.() ?? container.events[eventIndex]),
+
+  cycleStep,
+  status: event.status,
+  eventType: incomingEventType,
+
+  location: event.location || "",
+  remarks: event.remarks || "",
+
+  eventDate: event.eventDate
+    ? new Date(event.eventDate)
+    : container.events[eventIndex].eventDate,
+
+  eta: event.eta
+    ? new Date(event.eta)
+    : null,
+
+  actualDeparture: event.actualDeparture
+    ? new Date(event.actualDeparture)
+    : null,
+
+  // Structured operational information
+   // Structured operational information
+vesselName:
+  event.vesselName !== undefined
+    ? event.vesselName?.trim() || null
+    : container.events[eventIndex].vesselName ?? null,
+
+voyage:
+  event.voyage !== undefined
+    ? event.voyage?.trim() || null
+    : container.events[eventIndex].voyage ?? null,
+
+trainNumber:
+  event.trainNumber !== undefined
+    ? event.trainNumber?.trim() || null
+    : container.events[eventIndex].trainNumber ?? null,
+
+wagonNumber:
+  event.wagonNumber !== undefined
+    ? event.wagonNumber?.trim() || null
+    : container.events[eventIndex].wagonNumber ?? null,
+
+sealNumber:
+  event.sealNumber !== undefined
+    ? event.sealNumber?.trim() || null
+    : container.events[eventIndex].sealNumber ?? null,
+
+  updatedAt: new Date(),
+  updatedBy: session.user.id,
+};
 
     job.auditLogs.push({
       entityType: "container",
