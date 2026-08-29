@@ -318,7 +318,7 @@ const IMPORT_ACTUAL: Record<string, (d: string, remarks?: string) => string> = {
   container_railment_pod: (d) =>
     `Your container was dispatched by rail from the Port of Discharge on <strong>${d}</strong> and is now in transit to the destination Inland Container Depot.`,
   arrived_local_icd: (d) =>
-    `Your container arrived at the local Inland Container Depot (ICD) on <strong>${d}</strong>. Import customs clearance procedures have been initiated.`,
+    `Your container arrived at the local Inland Container Depot (ICD) on <strong>${d}</strong>.`,
   bill_of_entry: (d) =>
     `The Bill of Entry for your shipment was filed with Indian Customs on <strong>${d}</strong>. Assessment is in progress and we will keep you updated on the clearance status.`,
   cargo_examination: (d) =>
