@@ -8,6 +8,7 @@ import CompleteJobButton from "@/Components/CompleteJobButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import mongoose from "mongoose";
+import { getCycleStep } from "@/lib/shipmentCycles";
 
 export default async function JobDetails({ params }) {
   const { id } = await params;
@@ -50,9 +51,50 @@ export default async function JobDetails({ params }) {
   }
 
   const plainJob = JSON.parse(JSON.stringify(job));
+  const latestTrackingEvent =
+  plainJob.containers
+    ?.flatMap((container) =>
+      (container.events || []).map((event) => ({
+        ...event,
+        containerNumber:
+          container.containerNumber,
+      }))
+    )
+    .filter((event) => event.cycleStep)
+    .sort((a, b) => {
+      const aTime = new Date(
+        a.updatedAt ||
+          a.createdAt ||
+          a.eventDate ||
+          0
+      ).getTime();
+
+      const bTime = new Date(
+        b.updatedAt ||
+          b.createdAt ||
+          b.eventDate ||
+          0
+      ).getTime();
+
+      return bTime - aTime;
+    })[0] || null;
   const session = await getServerSession(authOptions);
   const isSuperAdmin = session?.user?.adminType === "super_admin";
   const isCompleted = plainJob.status === "completed";
+
+  const shipmentType =
+  (
+    plainJob.shipmentType ||
+    plainJob.quoteId?.shipmentType ||
+    "import"
+  ).toLowerCase();
+
+const latestCycleStep = latestTrackingEvent
+  ? getCycleStep(
+      shipmentType,
+      latestTrackingEvent.cycleStep
+    )
+  : null;
 
   const statusPill = (s) => {
     const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border capitalize";
@@ -96,11 +138,14 @@ export default async function JobDetails({ params }) {
                   {plainJob.company}
                 </span>
               )}
-              {plainJob.stage && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border bg-indigo-50 text-indigo-700 border-indigo-200">
-                  Stage: {plainJob.stage}
-                </span>
-              )}
+              {latestTrackingEvent && (
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border bg-indigo-50 text-indigo-700 border-indigo-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+
+                {latestTrackingEvent.status ||
+                  latestTrackingEvent.cycleStep}
+              </span>
+            )}
               {isCompleted && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border bg-green-50 text-green-700 border-green-200">
                   <IconCheckCircle className="w-3 h-3" /> Read-only
@@ -172,6 +217,168 @@ export default async function JobDetails({ params }) {
           </div>
         </div>
       </section>
+      {/* Latest Tracking Update */}
+{latestTrackingEvent && (
+  <section className="bg-white rounded-2xl shadow-sm border border-indigo-100 overflow-hidden">
+    <div className="px-8 py-6 border-b border-indigo-50">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Latest Tracking Update
+          </h2>
+
+          <p className="text-sm text-gray-600 mt-1">
+            Most recently updated operational event for this job.
+          </p>
+        </div>
+
+        <Link
+          href={`/dashboard/admin/jobs/${plainJob._id}/tracking`}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition"
+        >
+          <IconTruck />
+          View Full Tracking
+        </Link>
+      </div>
+    </div>
+
+    <div className="p-8">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+          <span className="w-3 h-3 rounded-full bg-indigo-600" />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">
+                {latestCycleStep?.label ||
+                  latestTrackingEvent.status ||
+                  "Tracking Update"}
+              </h3>
+
+              {latestTrackingEvent.status && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Status:{" "}
+                  <span className="font-semibold text-gray-800">
+                    {latestTrackingEvent.status}
+                  </span>
+                </p>
+              )}
+            </div>
+
+            <div className="text-sm font-semibold text-gray-700">
+              {formatDate(
+                latestTrackingEvent.eventDate
+              )}
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {latestTrackingEvent.containerNumber && (
+              <Field
+                label="Container"
+                value={
+                  latestTrackingEvent.containerNumber ===
+                  "PRE_CONTAINER"
+                    ? "Job Level"
+                    : latestTrackingEvent.containerNumber
+                }
+              />
+            )}
+
+            {latestTrackingEvent.location && (
+              <Field
+                label="Location"
+                value={latestTrackingEvent.location}
+              />
+            )}
+
+            {latestTrackingEvent.vesselName && (
+              <Field
+                label="Vessel"
+                value={latestTrackingEvent.vesselName}
+              />
+            )}
+
+            {latestTrackingEvent.voyage && (
+              <Field
+                label="Voyage"
+                value={latestTrackingEvent.voyage}
+              />
+            )}
+
+            {latestTrackingEvent.eta && (
+              <Field
+                label="ETA"
+                value={formatDate(
+                  latestTrackingEvent.eta
+                )}
+              />
+            )}
+
+            {latestTrackingEvent.actualDeparture && (
+              <Field
+                label="Actual Departure"
+                value={formatDate(
+                  latestTrackingEvent.actualDeparture
+                )}
+              />
+            )}
+
+            {latestTrackingEvent.trainNumber && (
+              <Field
+                label="Train Number"
+                value={latestTrackingEvent.trainNumber}
+              />
+            )}
+
+            {latestTrackingEvent.wagonNumber && (
+              <Field
+                label="Wagon Number"
+                value={latestTrackingEvent.wagonNumber}
+              />
+            )}
+
+            {latestTrackingEvent.sealNumber && (
+              <Field
+                label="Seal Number"
+                value={latestTrackingEvent.sealNumber}
+              />
+            )}
+          </div>
+
+          {latestTrackingEvent.remarks && (
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Remarks
+              </p>
+
+              <p className="text-sm text-gray-800 mt-1">
+                {latestTrackingEvent.remarks}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-4 text-xs text-gray-500">
+            Last updated{" "}
+            {latestTrackingEvent.updatedAt
+              ? formatDate(
+                  latestTrackingEvent.updatedAt
+                )
+              : latestTrackingEvent.createdAt
+              ? formatDate(
+                  latestTrackingEvent.createdAt
+                )
+              : formatDate(
+                  latestTrackingEvent.eventDate
+                )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
 
       {/* Details */}
       <section className={`backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.06)] border overflow-hidden ${isCompleted ? "bg-green-50/30 border-green-100/60" : "bg-white/70 border-white/40"}`}>
