@@ -380,9 +380,23 @@ function normalizeReportRow({
     quote?.modeOfTransport
   ),
 
-  fclLcl: clean(
-    shipmentDetails.fclLcl
+    modeOfTransport: clean(
+    quote?.modeOfTransport
   ),
+
+  fclLcl: (() => {
+    const mode = String(
+      quote?.modeOfShipment || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    if (mode === "container") return "FCL";
+    if (mode === "lcl") return "LCL";
+    if (mode === "break bulk") return "Break Bulk";
+
+    return null;
+  })(),
 
   carrier: clean(
     job.shippingLine
