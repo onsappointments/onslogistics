@@ -99,7 +99,36 @@ function getMilestoneDate(event) {
       event.eta
   );
 }
+function getLatestOperationalValue(
+  events = [],
+  field
+) {
+  const matches = events.filter(
+    (event) => event?.[field]
+  );
 
+  if (!matches.length) {
+    return null;
+  }
+
+  return [...matches].sort((a, b) => {
+    const aTime = new Date(
+      a.updatedAt ||
+        a.createdAt ||
+        a.eventDate ||
+        0
+    ).getTime();
+
+    const bTime = new Date(
+      b.updatedAt ||
+        b.createdAt ||
+        b.eventDate ||
+        0
+    ).getTime();
+
+    return bTime - aTime;
+  })[0];
+}
 /**
  * Normalize a single container into report data.
  */
@@ -120,6 +149,18 @@ function normalizeContainer(container, shipmentType) {
     shipmentType === "export"
       ? "container_stuffed"
       : "stuffing_container_allocated"
+  );
+
+  const latestVesselEvent =
+  getLatestOperationalValue(
+    events,
+    "vesselName"
+  );
+
+const latestVoyageEvent =
+  getLatestOperationalValue(
+    events,
+    "voyage"
   );
 
   const shippedOnBoard = getLatestEvent(
@@ -173,10 +214,12 @@ function normalizeContainer(container, shipmentType) {
     ),
 
     vesselName: clean(
-      vesselPlanning?.vesselName
+      latestVesselEvent?.vesselName ||
+        vesselPlanning?.vesselName
     ),
 
     voyage: clean(
+      latestVoyageEvent?.voyage ||
       vesselPlanning?.voyage
     ),
 
@@ -327,24 +370,24 @@ function normalizeReportRow({
       ),
     },
 
-    shipment: {
-      modeOfShipment: clean(
-        shipmentDetails.modeOfShipment ||
-          quote?.modeOfShipment
-      ),
+   shipment: {
+  modeOfShipment: clean(
+    shipmentDetails.modeOfShipment ||
+      quote?.modeOfShipment
+  ),
 
-      modeOfTransport: clean(
-        quote?.modeOfTransport
-      ),
+  modeOfTransport: clean(
+    quote?.modeOfTransport
+  ),
 
-      fclLcl: clean(
-        shipmentDetails.fclLcl
-      ),
+  fclLcl: clean(
+    shipmentDetails.fclLcl
+  ),
 
-      carrier: clean(
-        shipmentDetails.carrier
-      ),
-    },
+  carrier: clean(
+    job.shippingLine
+  ),
+},
 
     booking: {
       number: clean(

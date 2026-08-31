@@ -257,7 +257,10 @@ const JobSchema = new mongoose.Schema(
     portOfLoading: { type: String, default: null },
     portOfDischarge: { type: String, default: null },
     clearanceAt: { type: String, default: null },
-
+    shippingLine: {
+     type: String,
+     default: null,
+    },
     // ── Parties ─────────────────────────────────────────────────
     consignee: { type: String, default: null },
     shipper: { type: String, default: null },

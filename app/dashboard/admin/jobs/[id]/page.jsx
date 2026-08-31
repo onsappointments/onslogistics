@@ -423,6 +423,7 @@ const latestCycleStep = latestTrackingEvent
             <Field label="Port of Discharge" value={plainJob.portOfDischarge} />
             <Field label="Consignee"         value={plainJob.consignee} />
             <Field label="Shipper"           value={plainJob.shipper} />
+            <Field label="Shipping Line"           value={plainJob.shippingLine} />
           </Group>
           <Group title="Cargo">
             <Field label="Packages" value={plainJob.pkgs} />

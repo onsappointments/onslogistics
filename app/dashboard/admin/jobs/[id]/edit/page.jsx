@@ -100,6 +100,7 @@ export default async function EditJobPage({ params }) {
             <FieldInput label="Port of Loading" name="portOfLoading" defaultValue={job.portOfLoading || ""} />
             <FieldInput label="Port of Discharge" name="portOfDischarge" defaultValue={job.portOfDischarge || ""} />
             <FieldInput label="Clearance At" name="clearanceAt" defaultValue={job.clearanceAt || ""} />
+            <FieldInput label="Shipping Line" name="shippingLine" defaultValue={job.shippingLine || ""} />
           </div>
         </section>
 
