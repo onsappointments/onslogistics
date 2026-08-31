@@ -285,7 +285,7 @@ function normalizeReportRow({
     },
 
     salesPerson: clean(
-      jobMeta.salesPerson
+      quote?.assignedToName
     ),
 
     accountsPerson: clean(
@@ -404,14 +404,28 @@ function normalizeReportRow({
       },
 
       shippingBill: {
-        number: clean(
-          job.sbNumber
-        ),
-
-        date: toISOString(
-          job.sbDate
-        ),
-      },
+  bills:
+    Array.isArray(job.shippingBills) &&
+    job.shippingBills.length > 0
+      ? job.shippingBills
+          .map((bill) => ({
+            number: clean(bill?.number),
+            date: toISOString(bill?.date),
+          }))
+          .filter(
+            (bill) =>
+              bill.number ||
+              bill.date
+          )
+      : job.sbNumber || job.sbDate
+      ? [
+          {
+            number: clean(job.sbNumber),
+            date: toISOString(job.sbDate),
+          },
+        ]
+      : [],
+},
 
       assessableValue: clean(
         job.assessableValue
@@ -591,6 +605,7 @@ if (month) {
       "shipmentType",
       "serviceScope",
       "company",
+      "assignedToName" ,
     ].join(" "),
   })
   .populate({
