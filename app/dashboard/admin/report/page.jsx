@@ -36,6 +36,18 @@ function formatDate(value) {
   });
 }
 
+function shippingBillValues(bills = []) {
+  if (!Array.isArray(bills) || !bills.length) {
+    return null;
+  }
+
+  return bills.filter(
+    (bill) =>
+      bill?.number ||
+      bill?.date
+  );
+}
+
 function serviceLabel(serviceScope) {
   if (!serviceScope) return "—";
 
@@ -117,6 +129,25 @@ function StatusBadge({ status }) {
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       {display(status)}
     </span>
+  );
+
+}
+function ShippingBillCell({ bills }) {
+  const validBills =
+    shippingBillValues(bills);
+
+  if (!validBills) {
+    return <span>/</span>;
+  }
+
+  return (
+    <div className="space-y-1">
+      {validBills.map((bill, index) => (
+        <div key={index}>
+          {display(bill.number)}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -350,7 +381,11 @@ function ExportRow({ row , onTrack}) {
       </Cell>
 
       <Cell mono>
-        {display(row.customs?.shippingBill?.number)}
+         <ShippingBillCell
+           bills={
+            row.customs?.shippingBill?.bills
+          }
+         />
       </Cell>
 
       <Cell>
