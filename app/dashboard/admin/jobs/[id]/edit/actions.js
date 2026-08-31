@@ -104,6 +104,7 @@ if (shippingBillsRaw) {
     portOfLoading: formData.get("portOfLoading") || null,
     portOfDischarge: formData.get("portOfDischarge") || null,
     clearanceAt: formData.get("clearanceAt") || null,
+    shippingLine: formData.get("shippingLine") || null,
 
     consignee: formData.get("consignee") || null,
     shipper: formData.get("shipper") || null,
