@@ -97,7 +97,7 @@ export async function POST(req) {
     /* ---------------- EMAIL SUBJECT ---------------- */
     const emailSubject = isResend
       ? "Updated Quotation – Please Review"
-      : "Quotation from ONS Logistics";
+      : "Quotation from ONS Logistics India Pvt Ltd";
 
     /* ---------------- EMAIL BODY ---------------- */
     const emailHtml = `
@@ -119,7 +119,7 @@ export async function POST(req) {
           </a>
         </div>
 
-        <p>Regards,<br/><strong>ONS Logistics Team</strong></p>
+        <p>Regards,<br/><strong>ONS Logistics India Pvt Ltd Team</strong></p>
       </div>
     `;
 
