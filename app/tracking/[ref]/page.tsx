@@ -165,7 +165,7 @@ export default async function PublicTrackingPage({
               <span className="text-white text-xs">⚓</span>
             </div>
             <span className="text-gray-900 font-semibold text-sm tracking-wide">
-              ONS Logistics
+              ONS Logistics India Pvt Ltd
             </span>
           </div>
           <Link href="/tracking" className="text-xs text-[#1a56db] font-medium hover:underline">
@@ -254,7 +254,7 @@ export default async function PublicTrackingPage({
             <span className="text-white text-xs">⚓</span>
           </div>
           <span className="text-gray-900 font-semibold text-sm tracking-wide">
-            ONS Logistics
+            ONS Logistics India Pvt Ltd 
           </span>
         </div>
         <Link href="/tracking" className="text-xs text-[#1a56db] font-medium hover:underline transition-colors">
@@ -405,7 +405,7 @@ export default async function PublicTrackingPage({
         {/* ── FOOTER ────────────────────────────────────────────── */}
         <div className="text-center pt-2 pb-8">
           <p className="text-gray-400 text-xs">
-            © {new Date().getFullYear()} ONS Logistics · Automated tracking system
+            © {new Date().getFullYear()} ONS Logistics India Pvt Ltd· Automated tracking system
           </p>
           <Link
             href="/tracking"

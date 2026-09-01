@@ -33,7 +33,7 @@ export default function TrackingLandingPage() {
         <div className="absolute inset-0">
           <Image
             src="/track-shipment.webp"
-            alt="Track your shipment with ONS Logistics"
+            alt="Track your shipment with ONS Logistics India Pvt Ltd"
             fill
             priority
             className="object-cover"
