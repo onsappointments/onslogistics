@@ -162,8 +162,10 @@ const [newCompany, setNewCompany] = useState({
     }, []);
     
  useEffect(() => {
-  fetchCompanies();
-}, []);
+  if (adminMode) {
+    fetchCompanies();
+  }
+}, [adminMode]);
 
 useEffect(() => {
   console.log("Companies:", companies.length);
@@ -987,105 +989,145 @@ const handleCreateCompany = async () => {
             </div>
 
             {/* Company */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company <span className="text-red-500">*</span>
-              </label>
-              <CompanySelector
-                companies={companies}
-                value={form.company}
-                onCreateCompany={(company) => {
-                  console.log("Parent Received", company);
-                  setNewCompany({
-                    name: company.name || "",
-                    gstin: "",
-                    state: "",
-                    });
+           {/* Company */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Company <span className="text-red-500">*</span>
+  </label>
 
-                    setShowCreateCompany(true);
-                  }}
-                onSelect={(company) => {
-                  setForm((prev) => ({
-                     ...prev,
-                      company: company.name,
-                      gstin: company.gstin || "",
-                 }));
+  {adminMode ? (
+    <>
+      <CompanySelector
+        companies={companies}
+        value={form.company}
+        onCreateCompany={(company) => {
+          console.log("Parent Received", company);
 
-                 fetchCompanyHistory(company);
-                 
-             }}
-          />
-          <CompanyHistoryPanel
-             quotes={companyHistory}
-             loading={loadingHistory}
-             onUseQuote={(quote) => {
-              // Load the previous technical quote as a template
-              setSelectedTechnicalQuote(quote.technicalQuote || null);
+          setNewCompany({
+            name: company.name || "",
+            gstin: "",
+            state: "",
+          });
 
-              setForm((prev) => ({
-                ...prev,
+          setShowCreateCompany(true);
+        }}
+        onSelect={(company) => {
+          setForm((prev) => ({
+            ...prev,
+            company: company.name,
+            gstin: company.gstin || "",
+          }));
 
-                fromCountry: quote.fromCountry || "",
-                toCountry: quote.toCountry || "",
+          fetchCompanyHistory(company);
+        }}
+      />
 
-               fromCity: quote.fromCity || "",
-                toCity: quote.toCity || "",
+      <CompanyHistoryPanel
+        quotes={companyHistory}
+        loading={loadingHistory}
+        onUseQuote={(quote) => {
+          // Load the previous technical quote as a template
+          setSelectedTechnicalQuote(
+            quote.technicalQuote || null
+          );
 
-                fromState: quote.fromState || "",
-                toState: quote.toState || "",
+          setForm((prev) => ({
+            ...prev,
 
-                fromPostal: quote.fromPostal || "",
-                toPostal: quote.toPostal || "",
+            fromCountry: quote.fromCountry || "",
+            toCountry: quote.toCountry || "",
 
-                fromICD: quote.fromICD || "",
-                toICD: quote.toICD || "",
+            fromCity: quote.fromCity || "",
+            toCity: quote.toCity || "",
 
-                modeOfTransport: quote.modeOfTransport || "",
+            fromState: quote.fromState || "",
+            toState: quote.toState || "",
 
-                shipmentType: quote.shipmentType || "",
+            fromPostal: quote.fromPostal || "",
+            toPostal: quote.toPostal || "",
 
-               containerType: quote.containerType || "",
+            fromICD: quote.fromICD || "",
+            toICD: quote.toICD || "",
 
-               freightTerms: quote.freightTerms || "",
+            modeOfTransport:
+              quote.modeOfTransport || "",
 
-               item: quote.item || "",
+            shipmentType:
+              quote.shipmentType || "",
 
-               pieces: quote.pieces || "",
+            containerType:
+              quote.containerType || "",
 
-               totalWeight: quote.totalWeight || "",
+            freightTerms:
+              quote.freightTerms || "",
 
-               weightMeasure: quote.weightMeasure || "",
+            item: quote.item || "",
 
-               dimensions: quote.dimensions || "",
+            pieces:
+              quote.pieces || "",
 
-               valueOfGoods: quote.valueOfGoods || "",
+            totalWeight:
+              quote.totalWeight || "",
 
-                currency: quote.currency || "",
+            weightMeasure:
+              quote.weightMeasure || "",
 
-               goodsPurpose: quote.goodsPurpose || "",
+            dimensions:
+              quote.dimensions || "",
 
-                modeOfShipment: quote.modeOfShipment || "",
+            valueOfGoods:
+              quote.valueOfGoods || "",
 
-                serviceScope: quote.serviceScope || "",
+            currency:
+              quote.currency || "",
 
-               natureOfGoods: quote.natureOfGoods || "",
+            goodsPurpose:
+              quote.goodsPurpose || "",
 
-               temperature: quote.temperature || "",
+            modeOfShipment:
+              quote.modeOfShipment || "",
 
-               imoCode: quote.imoCode || "",
+            serviceScope:
+              quote.serviceScope || "",
 
-               firstName: quote.firstName || "",
-               lastName: quote.lastName || "",
+            natureOfGoods:
+              quote.natureOfGoods || "",
 
-               email: quote.email || "",
+            temperature:
+              quote.temperature || "",
 
-               phoneCountryCode: quote.phoneCountryCode || "+91",
+            imoCode:
+              quote.imoCode || "",
 
-               phone: quote.phone || "",
-                }));
-            }}
-         />
-            </div>
+            firstName:
+              quote.firstName || "",
+
+            lastName:
+              quote.lastName || "",
+
+            email:
+              quote.email || "",
+
+            phoneCountryCode:
+              quote.phoneCountryCode || "+91",
+
+            phone:
+              quote.phone || "",
+          }));
+        }}
+      />
+    </>
+  ) : (
+    <input
+      type="text"
+      name="company"
+      value={form.company}
+      onChange={handleChange}
+      placeholder="Enter your company name"
+      className="input-box"
+    />
+  )}
+</div>
 
             {/* GSTIN */}
             <div>
@@ -1282,7 +1324,7 @@ const handleCreateCompany = async () => {
           </div>
         </section>
       </form>
-      {showCreateCompany && (
+      {adminMode && showCreateCompany && (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
 
         <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
