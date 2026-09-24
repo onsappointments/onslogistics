@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import TechnicalQuote from "@/models/TechnicalQuote";
 import Quote from "@/models/Quote";
-import CompanyGST from "@/models/CompanyGST";
 import User from "@/models/User";
 import { logAudit } from "@/lib/audit";
 import { getServerSession } from "next-auth";
@@ -12,58 +11,6 @@ import {
   IMPORT_HEADS,
   EXPORT_HEADS,
 } from "@/constants/expenditureHeads";
-
-function getDefaultGst(head, companyState, companyGstin) {
-  const state = String(companyState || "").trim();
-  const gstin = String(companyGstin || "").trim();
-
-  const isOceanFreight = head === "OCEAN_FREIGHT";
-
-  // 1. CompanyGST.state has priority
-  if (state) {
-    const isPunjab = state.toLowerCase() === "punjab";
-
-    if (isPunjab) {
-      return {
-        igstPercent: 0,
-        cgstPercent: isOceanFreight ? 2.5 : 9,
-        sgstPercent: isOceanFreight ? 2.5 : 9,
-      };
-    }
-
-    return {
-      igstPercent: isOceanFreight ? 5 : 18,
-      cgstPercent: 0,
-      sgstPercent: 0,
-    };
-  }
-
-  // 2. State is empty -> fallback to GSTIN
-  if (gstin) {
-    const isPunjab = gstin.substring(0, 2) === "03";
-
-    if (isPunjab) {
-      return {
-        igstPercent: 0,
-        cgstPercent: isOceanFreight ? 2.5 : 9,
-        sgstPercent: isOceanFreight ? 2.5 : 9,
-      };
-    }
-
-    return {
-      igstPercent: isOceanFreight ? 5 : 18,
-      cgstPercent: 0,
-      sgstPercent: 0,
-    };
-  }
-
-  // 3. No state and no GSTIN -> all GST rates remain 0
-  return {
-    igstPercent: 0,
-    cgstPercent: 0,
-    sgstPercent: 0,
-  };
-}
 
 export async function POST(req) {
   try {
@@ -108,18 +55,8 @@ export async function POST(req) {
     if (!quote) {
       return NextResponse.json({ error: "Quote not found" }, { status: 404 });
     }
-    let companyGST = null;
+   
 
-if (quote.gstin) {
-  companyGST = await CompanyGST.findOne({
-    gstin: quote.gstin,
-  })
-    .select("name gstin state")
-    .lean();
-}
-
-const companyState = companyGST?.state?.trim() || "";
-const companyGstin = companyGST?.gstin || quote.gstin || "";
 
     /* ---------------- PERMISSION CHECK ---------------- */
 
@@ -198,15 +135,9 @@ const companyGstin = companyGST?.gstin || quote.gstin || "";
 
       const baseAmount = rate * quantity * exchangeRate;
 
-      const gst = getDefaultGst(
-        item.head,
-        companyState,
-        companyGstin
-      );
-
-      const igstPercent = gst.igstPercent;
-      const cgstPercent = gst.cgstPercent;
-      const sgstPercent = gst.sgstPercent;
+      const igstPercent = Number(item.igstPercent || 0);
+      const cgstPercent = Number(item.cgstPercent || 0);
+      const sgstPercent = Number(item.sgstPercent || 0);
 
       const igstAmount = baseAmount * (igstPercent / 100);
       const cgstAmount = baseAmount * (cgstPercent / 100);
