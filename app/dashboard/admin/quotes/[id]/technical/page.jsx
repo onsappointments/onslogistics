@@ -16,6 +16,58 @@ export default function TechnicalQuotePage() {
   const [permission, setPermission] = useState(null);
   const [activeTab, setActiveTab] = useState("sale");
 
+  const getDefaultGst = (head, companyState, companyGstin) => {
+  const state = String(companyState || "").trim();
+  const gstin = String(companyGstin || "").trim();
+
+  const isOceanFreight = head === "OCEAN_FREIGHT";
+
+  // 1. CompanyGST.state has priority
+  if (state) {
+    const isPunjab = state.toLowerCase() === "punjab";
+
+    if (isPunjab) {
+      return {
+        igstPercent: 0,
+        cgstPercent: isOceanFreight ? 2.5 : 9,
+        sgstPercent: isOceanFreight ? 2.5 : 9,
+      };
+    }
+
+    return {
+      igstPercent: isOceanFreight ? 5 : 18,
+      cgstPercent: 0,
+      sgstPercent: 0,
+    };
+  }
+
+  // 2. If state is empty, fallback to GSTIN
+  if (gstin) {
+    const isPunjab = gstin.substring(0, 2) === "03";
+
+    if (isPunjab) {
+      return {
+        igstPercent: 0,
+        cgstPercent: isOceanFreight ? 2.5 : 9,
+        sgstPercent: isOceanFreight ? 2.5 : 9,
+      };
+    }
+
+    return {
+      igstPercent: isOceanFreight ? 5 : 18,
+      cgstPercent: 0,
+      sgstPercent: 0,
+    };
+  }
+
+  // 3. No state and no GSTIN -> no GST default
+  return {
+    igstPercent: 0,
+    cgstPercent: 0,
+    sgstPercent: 0,
+  };
+};
+
   /* -------------------------------------------
     QUOTE VALIDITY
 --------------------------------------------- */
@@ -84,26 +136,45 @@ setSpecialRemarks(
     : [""]
 );
       } else {
-        setCharges(
-          heads.map((h) => ({
-            head: h,
-            type: "PREDEFINED",
-            remarks: "",
-            "HSN/SAC": "",
-            quantity: 0,
-            rate: 0,
-            currency: "INR",
-            exchangeRate: 1,
-            igstPercent: 0,
-            igstAmount: 0,
-            cgstPercent: 0,
-            cgstAmount: 0,
-            sgstPercent: 0,
-            sgstAmount: 0,
-            baseAmount: 0,
-            totalAmount: 0,
-          }))
-        );
+        const companyState = data?.companyGST?.state || "";
+
+const companyGstin =
+  data?.companyGST?.gstin ||
+  q?.gstin ||
+  "";
+
+setCharges(
+  heads.map((h) => {
+    const gst = getDefaultGst(
+      h,
+      companyState,
+      companyGstin
+    );
+
+    return {
+      head: h,
+      type: "PREDEFINED",
+      remarks: "",
+      "HSN/SAC": "",
+      quantity: 0,
+      rate: 0,
+      currency: "INR",
+      exchangeRate: 1,
+
+      igstPercent: gst.igstPercent,
+      igstAmount: 0,
+
+      cgstPercent: gst.cgstPercent,
+      cgstAmount: 0,
+
+      sgstPercent: gst.sgstPercent,
+      sgstAmount: 0,
+
+      baseAmount: 0,
+      totalAmount: 0,
+    };
+  })
+);
         setStatus("draft");
 
          // Add these defaults

@@ -43,6 +43,7 @@ export async function GET(req) {
       status: "pending",
       _id: { $nin: blockedQuoteIds },
     })
+      .select("_id firstName lastName company email createdAt status")
       .sort({ createdAt: -1 })
       .lean();
 
@@ -59,6 +60,7 @@ export async function GET(req) {
       { source: "CLIENT", assignedTo: null }
     ]
   })
+    .select("_id firstName lastName company email createdAt status")
     .sort({ createdAt: -1 })
     .lean();
 
