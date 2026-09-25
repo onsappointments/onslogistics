@@ -38,6 +38,8 @@ shipping_bill_filed: "📄",
 let_export_order: "✅",
 container_allocated: "🚛",
 container_stuffed: "🏗️",
+handed_over_line_terminal: "🤝",
+railment_after_stuffed_sealed: "🚂",
 gate_in_terminal: "🏢",
 vgm_submitted: "⚖️",
 vessel_planning: "🗓️",
@@ -192,6 +194,17 @@ container_stuffed: {
   eta: "Container Stuffing Expected",
   actual: "Container Stuffed & Sealed",
   status: "Container Stuffing Completed",
+},
+handed_over_line_terminal: {
+  eta: "Handed Over to Line/Terminal Expected",
+  actual: "Handed Over to Line/Terminal",
+  status: "Handed Over to Line/Terminal",
+},
+
+railment_after_stuffed_sealed: {
+  eta: "Railment After Stuffed & Sealed Expected",
+  actual: "Railment After Stuffed & Sealed",
+  status: "Container Railed After Stuffing & Sealing",
 },
 
 gate_in_terminal: {
@@ -398,6 +411,11 @@ const EXPORT_ETA: Record<string, (d: string) => string> = {
 
   container_stuffed: (d) =>
     `Your cargo is expected to be stuffed into the allocated container and sealed by <strong>${d}</strong>. After stuffing is completed, the container will be prepared for transportation to the port terminal.`,
+  handed_over_line_terminal: (d) =>
+  `The stuffed and sealed container is expected to be handed over to the shipping line or port terminal by <strong>${d}</strong>. We will update you once the handover has been confirmed.`,
+
+railment_after_stuffed_sealed: (d) =>
+  `The stuffed and sealed container is expected to be moved by rail towards the port terminal by <strong>${d}</strong>. We will keep you updated once the rail movement is confirmed.`,
 
   gate_in_terminal: (d) =>
     `Your container is expected to enter the port terminal by <strong>${d}</strong>. Following gate-in, the terminal operator will prepare it for loading onto the scheduled vessel.`,
@@ -448,6 +466,12 @@ const EXPORT_ACTUAL: Record<string, (d: string) => string> = {
 
   container_stuffed: (d) =>
     `Your cargo was successfully stuffed into the allocated container and sealed on <strong>${d}</strong>. The container is now fully prepared for transportation to the port terminal and vessel loading.`,
+  
+  handed_over_line_terminal: (d) =>
+  `Your stuffed and sealed container was successfully handed over to the shipping line or port terminal on <strong>${d}</strong>. The container is now under terminal or line handling for the next stage of the export process.`,
+
+railment_after_stuffed_sealed: (d) =>
+  `Your stuffed and sealed container was moved by rail towards the port terminal on <strong>${d}</strong>. The container is now in rail transit towards the terminal.`,
 
   gate_in_terminal: (d) =>
     `Your container successfully entered the port terminal on <strong>${d}</strong>. Terminal handling operations have begun, and the container is now awaiting loading onto the scheduled vessel.`,
@@ -497,6 +521,11 @@ const EXPORT_STATUS: Record<string, string> = {
 
   container_stuffed:
     "Your cargo has been successfully stuffed into the container and sealed. The container is now ready for transportation to the port terminal for vessel loading.",
+  handed_over_line_terminal:
+   "Your stuffed and sealed container has been handed over to the shipping line or port terminal. Terminal or line handling is now in progress.",
+
+  railment_after_stuffed_sealed:
+   "Your stuffed and sealed container has been moved by rail towards the port terminal and is currently in rail transit.",
 
   gate_in_terminal:
     "Your container has successfully entered the port terminal. Terminal handling operations are in progress, and the container is awaiting loading onto the scheduled vessel.",

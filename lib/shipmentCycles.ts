@@ -288,6 +288,25 @@ export const EXPORT_CYCLE: CycleStep[] = [
     fields: ["sealNumber", "location", "remarks"],
     hint: "Cargo stuffed into the container and sealed.",
   },
+  {
+  key: "handed_over_line_terminal",
+  label: "Handed Over to Line/Terminal",
+  phase: "Pre-Shipment",
+  requiresContainer: true,
+  dateFields: "both",
+  fields: ["location", "remarks"],
+  hint: "Stuffed and sealed container handed over to the shipping line or terminal.",
+},
+
+{
+  key: "railment_after_stuffed_sealed",
+  label: "Railment After Stuffed & Sealed",
+  phase: "Pre-Shipment",
+  requiresContainer: true,
+  dateFields: "both",
+  fields: ["trainNumber", "wagonNumber", "location", "remarks"],
+  hint: "Stuffed and sealed container moved by rail towards the port terminal.",
+},
 
   {
     key: "gate_in_terminal",
