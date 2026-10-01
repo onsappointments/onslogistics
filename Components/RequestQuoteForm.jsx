@@ -869,6 +869,8 @@ const handleCreateCompany = async () => {
                 <option>Container</option>
                 <option>Break Bulk</option>
                 <option>LCL</option>
+                <option>Air Cargo</option>
+                <option>Courier Cargo</option>
               </select>
             </div>
 
