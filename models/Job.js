@@ -235,7 +235,7 @@ const JobSchema = new mongoose.Schema(
     // ── Shipment type (drives which cycle is used) ──────────────
     shipmentType: {
       type: String,
-      enum: ["import", "export", null],
+      enum: ["import", "export","courier",  null],
       default: null,
     },
     commodity: { type: String, default: null },
