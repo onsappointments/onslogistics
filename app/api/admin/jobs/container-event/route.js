@@ -147,12 +147,18 @@ function parseShipmentDate(value) {
       `${year}-${month}-${day}T00:00:00+05:30`
     );
 
-    if (
-      date.getUTCFullYear() !== Number(year) &&
-      date.toISOString().slice(0, 10) !== trimmed
-    ) {
-      throw new Error("Invalid shipment date");
-    }
+    const yearNum = Number(year);
+const monthNum = Number(month);
+const dayNum = Number(day);
+
+const daysInMonth =
+  monthNum >= 1 && monthNum <= 12
+    ? new Date(Date.UTC(yearNum, monthNum, 0)).getUTCDate()
+    : 0;
+
+if (dayNum < 1 || dayNum > daysInMonth) {
+  throw new Error("Invalid shipment date");
+}
 
     return date;
   }
@@ -165,15 +171,31 @@ function parseShipmentDate(value) {
   if (dateTimeMatch) {
     const [, year, month, day, hour, minute] = dateTimeMatch;
 
-    const date = new Date(
-      `${year}-${month}-${day}T${hour}:${minute}:00+05:30`
-    );
+    const yearNum = Number(year);
+const monthNum = Number(month);
+const dayNum = Number(day);
+const hourNum = Number(hour);
+const minuteNum = Number(minute);
 
-    if (Number.isNaN(date.getTime())) {
-      throw new Error("Invalid shipment date");
-    }
+const daysInMonth =
+  monthNum >= 1 && monthNum <= 12
+    ? new Date(Date.UTC(yearNum, monthNum, 0)).getUTCDate()
+    : 0;
 
-    return date;
+if (
+  dayNum < 1 ||
+  dayNum > daysInMonth ||
+  hourNum < 0 ||
+  hourNum > 23 ||
+  minuteNum < 0 ||
+  minuteNum > 59
+) {
+  throw new Error("Invalid shipment date");
+}
+
+return new Date(
+  `${year}-${month}-${day}T${hour}:${minute}:00+05:30`
+);
   }
 
   throw new Error("Unsupported shipment date format");
@@ -327,16 +349,12 @@ actualDeparture: parseShipmentDate(event.actualDeparture),
   remarks: event.remarks || null,
 
   eventDate: event.eventDate
-    ? new Date(event.eventDate)
-    : new Date(),
+  ? parseShipmentDate(event.eventDate)
+  : new Date(),
 
-  eta: event.eta
-    ? new Date(event.eta)
-    : null,
+eta: parseShipmentDate(event.eta),
 
-  actualDeparture: event.actualDeparture
-    ? new Date(event.actualDeparture)
-    : null,
+actualDeparture: parseShipmentDate(event.actualDeparture),
 
   vesselName: event.vesselName?.trim() || null,
   voyage: event.voyage?.trim() || null,
