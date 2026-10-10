@@ -114,6 +114,93 @@ function detectSequenceViolation(
   return null;
 }
 
+/**
+ * Parse shipment dates received from the UI.
+ *
+ * Date/time input values are interpreted as IST.
+ * MongoDB continues storing timestamps as UTC.
+ */
+function parseShipmentDate(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  if (typeof value !== "string") {
+    throw new Error("Invalid shipment date value");
+  }
+
+  const trimmed = value.trim();
+
+  // Date-only values represent midnight IST.
+  const dateOnlyMatch = trimmed.match(
+    /^(\d{4})-(\d{2})-(\d{2})$/
+  );
+
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+
+    const date = new Date(
+      `${year}-${month}-${day}T00:00:00+05:30`
+    );
+
+    const yearNum = Number(year);
+const monthNum = Number(month);
+const dayNum = Number(day);
+
+const daysInMonth =
+  monthNum >= 1 && monthNum <= 12
+    ? new Date(Date.UTC(yearNum, monthNum, 0)).getUTCDate()
+    : 0;
+
+if (dayNum < 1 || dayNum > daysInMonth) {
+  throw new Error("Invalid shipment date");
+}
+
+    return date;
+  }
+
+  // Date/time values from HTML inputs have no timezone suffix.
+  const dateTimeMatch = trimmed.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/
+  );
+
+  if (dateTimeMatch) {
+    const [, year, month, day, hour, minute] = dateTimeMatch;
+
+    const yearNum = Number(year);
+const monthNum = Number(month);
+const dayNum = Number(day);
+const hourNum = Number(hour);
+const minuteNum = Number(minute);
+
+const daysInMonth =
+  monthNum >= 1 && monthNum <= 12
+    ? new Date(Date.UTC(yearNum, monthNum, 0)).getUTCDate()
+    : 0;
+
+if (
+  dayNum < 1 ||
+  dayNum > daysInMonth ||
+  hourNum < 0 ||
+  hourNum > 23 ||
+  minuteNum < 0 ||
+  minuteNum > 59
+) {
+  throw new Error("Invalid shipment date");
+}
+
+return new Date(
+  `${year}-${month}-${day}T${hour}:${minute}:00+05:30`
+);
+  }
+
+  throw new Error("Unsupported shipment date format");
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // POST — add new event
 // ─────────────────────────────────────────────────────────────────────────────
@@ -219,17 +306,11 @@ export async function POST(req) {
   location: event.location || "",
   remarks: event.remarks || "",
 
-  eventDate: event.eventDate
-    ? new Date(event.eventDate)
-    : new Date(),
-
-  eta: event.eta
-    ? new Date(event.eta)
-    : null,
-
-  actualDeparture: event.actualDeparture
-    ? new Date(event.actualDeparture)
-    : null,
+ eventDate: event.eventDate
+  ? parseShipmentDate(event.eventDate)
+  : new Date(),
+eta: parseShipmentDate(event.eta),
+actualDeparture: parseShipmentDate(event.actualDeparture),
 
   // ── Structured operational information ───────────────────────
   vesselName: event.vesselName?.trim() || null,
@@ -268,16 +349,12 @@ export async function POST(req) {
   remarks: event.remarks || null,
 
   eventDate: event.eventDate
-    ? new Date(event.eventDate)
-    : new Date(),
+  ? parseShipmentDate(event.eventDate)
+  : new Date(),
 
-  eta: event.eta
-    ? new Date(event.eta)
-    : null,
+eta: parseShipmentDate(event.eta),
 
-  actualDeparture: event.actualDeparture
-    ? new Date(event.actualDeparture)
-    : null,
+actualDeparture: parseShipmentDate(event.actualDeparture),
 
   vesselName: event.vesselName?.trim() || null,
   voyage: event.voyage?.trim() || null,
@@ -392,17 +469,12 @@ if (!cycleStepDef) {
   location: event.location || "",
   remarks: event.remarks || "",
 
-  eventDate: event.eventDate
-    ? new Date(event.eventDate)
+  eventDate:
+  event.eventDate !== undefined
+    ? parseShipmentDate(event.eventDate)
     : container.events[eventIndex].eventDate,
-
-  eta: event.eta
-    ? new Date(event.eta)
-    : null,
-
-  actualDeparture: event.actualDeparture
-    ? new Date(event.actualDeparture)
-    : null,
+eta: parseShipmentDate(event.eta),
+actualDeparture: parseShipmentDate(event.actualDeparture),
 
   // Structured operational information
    // Structured operational information
