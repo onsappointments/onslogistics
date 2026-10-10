@@ -4,7 +4,10 @@ import { getCycleStep } from "@/lib/shipmentCycles";
 import DateFields from "@/Components/tracking/DateFields";
 import Label from "@/Components/tracking/Label";
 import { INPUT_CLS } from "@/Components/tracking/lib/constants";
-import { toDateValue } from "@/Components/tracking/lib/utils";
+import {
+  toDateTimeLocalValue,
+  toDateValue,
+} from "@/Components/tracking/lib/utils";
 
 interface EditEventModalProps {
   event: any;
@@ -39,14 +42,13 @@ export default function EditEventModal({
 
   const [fields, setFields] = useState({
   dateMode: initDateMode,
-
   eta: event.eta
-    ? new Date(event.eta).toISOString().slice(0, 16)
-    : "",
+  ? toDateTimeLocalValue(event.eta)
+  : "",
 
-  actualDeparture: event.actualDeparture
-    ? new Date(event.actualDeparture).toISOString().slice(0, 16)
-    : "",
+actualDeparture: event.actualDeparture
+  ? toDateTimeLocalValue(event.actualDeparture)
+  : "",
 
   location: event.location || "",
   remarks: event.remarks || "",

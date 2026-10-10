@@ -60,14 +60,14 @@ function fmt(date: string | Date | null | undefined): string {
     const d = new Date(raw + "T00:00");
     if (isNaN(d.getTime())) return "—";
     return new Intl.DateTimeFormat("en-IN", {
-      day: "numeric", month: "long", year: "numeric",
+      day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata",
     }).format(d);
   }
   const d = new Date(date as string);
   if (isNaN(d.getTime())) return "—";
   return new Intl.DateTimeFormat("en-IN", {
     day: "numeric", month: "long", year: "numeric",
-    hour: "2-digit", minute: "2-digit", hour12: true,
+    hour: "2-digit", minute: "2-digit", hour12: true,timeZone: "Asia/Kolkata",
   }).format(d);
 }
 
