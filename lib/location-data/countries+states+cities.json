@@ -526448,6 +526448,13 @@
                         "latitude": "-1.28333000",
                         "longitude": "36.85000000",
                         "timezone": "Africa\/Nairobi"
+                    },
+                    {
+                        "id": 648621,
+                        "name": "Embakasi",
+                        "latitude": "-1.3000000",
+                        "longitude": "36.55000000",
+                        "timezone": "Africa\/Nairobi"
                     }
                 ]
             },
