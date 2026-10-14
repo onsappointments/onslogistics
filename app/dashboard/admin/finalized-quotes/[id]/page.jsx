@@ -127,6 +127,11 @@
                     {clientQuote.shipmentType}
                   </span>
                 )}
+                {clientQuote?.source && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border bg-indigo-50 text-indigo-700 border-indigo-200 capitalize">
+                    {clientQuote.source}
+                  </span>
+                )}
               </div>
 
               <p className="text-gray-600 mt-3">
@@ -183,7 +188,11 @@
         {/* Client Quote */}
         <Card title="Client Quote" subtitle="Client details and shipment info">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Info label="Quotation Number" value={clientQuote.quoteNo} />
+            <Info label="Created By " value={clientQuote.assignedToName} />
+            <Info label="Created At " value={formatDate(clientQuote.createdAt)} />
             <Info label="Company" value={clientQuote.company} />
+            <Info label="Commodity" value={clientQuote.item} />
             <Info label="Email" value={clientQuote.email} />
             <Info label="Shipment Type" value={clientQuote.shipmentType} />
             <Info label="From" value={clientQuote.fromCity} />
@@ -389,3 +398,17 @@
     const num = Number(n || 0);
     return `₹${num.toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`;
   }
+  
+  function formatDate(date) {
+  if (!date) return "—";
+
+  const parsedDate = new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) return "—";
+
+  return parsedDate.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}

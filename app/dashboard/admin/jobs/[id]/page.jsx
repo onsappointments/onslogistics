@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import mongoose from "mongoose";
 import { getCycleStep } from "@/lib/shipmentCycles";
+import User from "@/models/User";
 
 export default async function JobDetails({ params }) {
   const { id } = await params;
@@ -31,8 +32,58 @@ export default async function JobDetails({ params }) {
     );
   }
 
+
   await connectDB();
-  const job = await Job.findById(id).lean();
+
+  const session = await getServerSession(authOptions);
+ 
+  let currentUser = null;
+
+if (session?.user?.email) {
+  currentUser = await User.findOne({
+    email: session.user.email,
+  })
+    .select("_id adminType")
+    .lean();
+}
+
+const adminType = currentUser?.adminType || null;
+const currentUserId = currentUser?._id?.toString() || null;
+
+const isSuperAdmin = adminType === "super_admin";
+const isManager = adminType === "manager";
+
+const job = await Job.findById(id)
+  .populate({
+    path: "createdBy",
+    select: "name email",
+  })
+  .populate({
+    path: "quoteId",
+    select: "_id quoteNo createdBy",
+    populate: {
+      path: "createdBy",
+      select: "_id name email adminType",
+    },
+  })
+  .lean();
+ 
+  
+
+
+  const quoteCreatorId =
+  job?.quoteId?.createdBy?._id?.toString() || null;
+
+
+  const isQuoteCreator =
+  !!currentUserId &&
+  !!quoteCreatorId &&
+  currentUserId === quoteCreatorId;
+
+  const canViewFinalizedQuote =
+  isSuperAdmin ||
+  isManager ||
+  isQuoteCreator;
 
   if (!job) {
     return (
@@ -51,6 +102,7 @@ export default async function JobDetails({ params }) {
   }
 
   const plainJob = JSON.parse(JSON.stringify(job));
+  const isCompleted = plainJob.status === "completed";
   const latestTrackingEvent =
   plainJob.containers
     ?.flatMap((container) =>
@@ -78,9 +130,9 @@ export default async function JobDetails({ params }) {
 
       return bTime - aTime;
     })[0] || null;
-  const session = await getServerSession(authOptions);
-  const isSuperAdmin = session?.user?.adminType === "super_admin";
-  const isCompleted = plainJob.status === "completed";
+
+
+  
 
   const shipmentType =
   (
@@ -394,11 +446,61 @@ const latestCycleStep = latestTrackingEvent
           <p className="text-sm text-gray-600 mt-1">Key shipment and customs fields for this job.</p>
         </div>
 
+       
+
         <div className="p-8 space-y-8">
+           <Group title="Internal References">
+
+  {canViewFinalizedQuote && plainJob.technicalQuoteId && (
+    <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        Finalized Quotation
+      </p>
+
+      <Link
+        href={`/dashboard/admin/finalized-quotes/${plainJob.technicalQuoteId}`}
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline mt-1"
+      >
+        View Finalized Quote
+
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M14 5l7 7m0 0l-7 7m7-7H3"
+          />
+        </svg>
+      </Link>
+    </div>
+  )}
+
+    <Field
+    label="Quotation Number"
+    value={job?.quoteId?.quoteNo}
+  />
+
+  <Field
+    label="Created By"
+    value={plainJob.createdBy?.name}
+  />
+
+
+  <Field
+    label="Created On"
+    value={formatDate(plainJob.createdAt)}
+  />
+</Group>
           <Group title="Basic">
             <Field label="Job ID" value={plainJob.jobId} />
             <Field label="Stage" value={plainJob.stage} />
             <Field label="Company" value={plainJob.company} />
+            <Field label="Assigned To" value={plainJob.assignedToName} />
           </Group>
            
            <Group title="Booking and Invoice Numbers ">
