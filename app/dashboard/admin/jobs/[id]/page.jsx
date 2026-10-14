@@ -10,6 +10,7 @@ import { authOptions } from "@/lib/authOptions";
 import mongoose from "mongoose";
 import { getCycleStep } from "@/lib/shipmentCycles";
 import User from "@/models/User";
+import Quote from "@/models/Quote";
 
 export default async function JobDetails({ params }) {
   const { id } = await params;
@@ -60,9 +61,11 @@ const job = await Job.findById(id)
   })
   .populate({
     path: "quoteId",
+    model: Quote,
     select: "_id quoteNo createdBy",
     populate: {
       path: "createdBy",
+       model: User,
       select: "_id name email adminType",
     },
   })
