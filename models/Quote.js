@@ -58,6 +58,16 @@ const QuoteSchema = new mongoose.Schema(
 
         clientUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
 
+    serviceScope: {
+  type: String,
+  enum: [
+    "CUSTOMS",
+    "FREIGHT_FORWARDING",
+    "CUSTOMS_AND_FREIGHT_FORWARDING",
+  ],
+  default: null,
+},
+
 leadStatus: {
   type: String,
   enum: ["lead", "otp_sent", "verified", "converted"],
