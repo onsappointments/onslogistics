@@ -57,7 +57,7 @@ const isManager = adminType === "manager";
 const job = await Job.findById(id)
   .populate({
     path: "createdBy",
-    select: "name email",
+    select: "fullName email",
   })
   .populate({
     path: "quoteId",
@@ -490,7 +490,7 @@ const latestCycleStep = latestTrackingEvent
 
   <Field
     label="Created By"
-    value={plainJob.createdBy?.name}
+    value={plainJob.createdBy?.fullName}
   />
 
 
