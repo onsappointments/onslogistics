@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import User from "@/models/User";
+import FinalizedQuotesPagination from "@/Components/FinalizedQuotesPagination.jsx";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -48,6 +49,22 @@ export default async function FinalizedQuotesPage({ searchParams }) {
   const status = params?.status || null;
   const show = params?.show || null;
   const search = params?.search?.trim() || "";
+
+  // Pagination
+const requestedPage = Number.parseInt(params?.page, 10);
+const page = Number.isSafeInteger(requestedPage) && requestedPage > 0
+  ? requestedPage
+  : 1;
+
+const allowedPageSizes = [10, 20, 30, 40, 50];
+const requestedPageSize = params?.pageSize || "10";
+
+const pageSize =
+  requestedPageSize === "all"
+    ? "all"
+    : allowedPageSizes.includes(Number(requestedPageSize))
+      ? Number(requestedPageSize)
+      : 10;
 
   let matchStage = {};
 
@@ -162,8 +179,42 @@ const pipeline = [
   { $sort: { createdAt: -1 } },
 ];
 
-  const quotes = await TechnicalQuote.aggregate(pipeline);
-  const count = quotes.length;
+
+const countPipeline = [
+  ...pipeline,
+  { $count: "total" },
+];
+
+const countResult = await TechnicalQuote.aggregate(countPipeline);
+const totalQuotes = countResult[0]?.total || 0;
+
+const effectivePageSize =
+  pageSize === "all" ? Math.max(totalQuotes, 1) : pageSize;
+
+const totalPages =
+  pageSize === "all"
+    ? 1
+    : Math.max(1, Math.ceil(totalQuotes / effectivePageSize));
+
+const currentPage = Math.min(page, totalPages);
+const skip = (currentPage - 1) * effectivePageSize;
+
+const quotes =
+  totalQuotes === 0
+    ? []
+    : await TechnicalQuote.aggregate([
+        ...pipeline,
+        ...(pageSize === "all"
+          ? []
+          : [
+              { $skip: skip },
+              { $limit: effectivePageSize },
+            ]),
+      ]);
+
+const count = quotes.length;
+const showingFrom = totalQuotes === 0 ? 0 : skip + 1;
+const showingTo = skip + count;
 
   return (
     <div className="max-w-7xl mx-auto p-10 space-y-8">
@@ -194,7 +245,7 @@ const pipeline = [
                     d="M3 7h18M3 12h18M3 17h18"
                   />
                 </svg>
-                Showing: {count}
+                Showing: {showingFrom}–{showingTo} of {totalQuotes}
               </span>
 
               {show === "active_jobs" ? (
@@ -230,6 +281,17 @@ const pipeline = [
 
       {/* Table card */}
       <section className="bg-white/70 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.06)] border border-white/40 overflow-hidden">
+       {/* Top pagination */}
+<div className="bg-white border-b border-gray-100">
+  <FinalizedQuotesPagination
+    page={currentPage}
+    pageSize={pageSize}
+    totalPages={totalPages}
+    totalQuotes={totalQuotes}
+    showingFrom={showingFrom}
+    showingTo={showingTo}
+  />
+</div>
         <div className="px-8 py-6 border-b border-white/40 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900">Quotes</h2>
@@ -400,6 +462,15 @@ const pipeline = [
             </div>
           </div>
         )}
+
+        <FinalizedQuotesPagination
+          page={currentPage}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          totalQuotes={totalQuotes}
+          showingFrom={showingFrom}
+          showingTo={showingTo}
+        />
       </section>
     </div>
   );
