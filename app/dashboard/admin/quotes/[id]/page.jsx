@@ -87,6 +87,18 @@ console.log("🚀 ~ file: page.jsx:47 ~ QuoteDetails ~ technicalQuote:", technic
              </span>{" "}
              <span className="font-mono text-blue-700">
                {quote.quoteNo}
+             </span>{" "}
+              <span className="font-medium text-gray-800">
+               Source: 
+             </span>{" "}
+             <span className="font-mono text-blue-700">
+               {quote.source}
+             </span>{" "}
+              <span className="font-medium text-gray-800">
+               Sales Person : 
+             </span>{" "}
+             <span className="font-mono text-blue-700">
+               {quote.assignedToName}
              </span>
            </p>
           )}
