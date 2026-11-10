@@ -116,11 +116,10 @@ export async function POST(req) {
 
     const emailResponse = await sendClientEmail({
         to: recipientEmail,
-        cc: salesPersonEmail
-          ? [salesPersonEmail]
-          : [],
-
-        bcc: additionalRecipients,
+        cc: [
+    ...(salesPersonEmail ? [salesPersonEmail] : []),
+    ...additionalRecipients,
+  ],
         subject,
         html,
         shipmentType,
