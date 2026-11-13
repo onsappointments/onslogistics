@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 
 import TrackingDrawer from "./TrackingDrawer";
+
+import ReportSearch from "./components/ReportSearch";
 
 /* ─────────────────────────────────────────────────────────────
    HELPERS
@@ -35,6 +37,232 @@ function formatDate(value) {
     year: "numeric",
   });
 }
+
+/* ─────────────────────────────────────────────────────────────
+   REPORT EXPORT HELPERS
+───────────────────────────────────────────────────────────── */
+
+const REPORT_EXPORT_FIELDS = [
+  ["Job ID", row => row.jobId],
+  ["Job Number", row => row.jobNumber],
+  ["Shipment Type", row => row.shipmentType],
+  ["Status", row => row.status],
+  ["Service Scope", row => row.serviceScope?.label],
+  ["Sales Person", row => row.salesPerson],
+  ["Accounts Person", row => row.accountsPerson],
+  ["Company", row => row.company],
+  ["Customer Name", row => row.customerName],
+  ["Shipper", row => row.shipper],
+  ["Consignee", row => row.consignee],
+
+  ["Booking Number", row => row.booking?.number],
+  ["Booking Date", row => row.booking?.date],
+
+  ["Invoice Number", row => row.invoice?.number],
+  ["Invoice Date", row => row.invoice?.date],
+
+  ["MBL Number", row => row.billOfLading?.mblNumber],
+  ["MBL Date", row => row.billOfLading?.mblDate],
+  ["HBL Number", row => row.billOfLading?.hblNumber],
+  ["HBL Date", row => row.billOfLading?.hblDate],
+  ["AWB Number", row => row.billOfLading?.awbNumber],
+  ["AWB Date", row => row.billOfLading?.awbDate],
+
+  ["Bill of Entry Number", row => row.customs?.billOfEntry?.number],
+  ["Bill of Entry Date", row => row.customs?.billOfEntry?.date],
+
+  [
+    "Shipping Bill Numbers",
+    row => (row.customs?.shippingBill?.bills || [])
+      .map(bill => bill.number)
+      .filter(Boolean)
+      .join("; "),
+  ],
+  [
+    "Shipping Bill Dates",
+    row => (row.customs?.shippingBill?.bills || [])
+      .map(bill => bill.date)
+      .filter(Boolean)
+      .join("; "),
+  ],
+
+  ["Assessable Value", row => row.customs?.assessableValue],
+  ["Customs Reference Number", row => row.customs?.referenceNumber],
+  ["GIGAM Number", row => row.customs?.gigam?.number],
+  ["GIGAM Date", row => row.customs?.gigam?.date],
+  ["LIGN Number", row => row.customs?.lign?.number],
+  ["LIGN Date", row => row.customs?.lign?.date],
+
+  ["Port of Loading", row => row.route?.pol],
+  ["Port of Discharge", row => row.route?.pod],
+  ["Clearance At", row => row.route?.clearanceAt],
+
+  ["Mode of Shipment", row => row.shipment?.modeOfShipment],
+  ["Mode of Transport", row => row.shipment?.modeOfTransport],
+  ["FCL/LCL", row => row.shipment?.fclLcl],
+  ["Shipping Line", row => row.shipment?.carrier],
+
+  ["Packages", row => row.cargo?.packages],
+  ["Gross Weight", row => row.cargo?.grossWeight],
+  ["CBM", row => row.cargo?.cbm],
+  ["Commodity", row => row.cargo?.commodity],
+
+  ["Container Number", row => row.container?.containerNumber],
+  ["Container Size/Type", row => row.container?.sizeType],
+  ["Seal Number", row => row.container?.sealNumber],
+  ["Vessel Name", row => row.container?.vesselName],
+  ["Voyage", row => row.container?.voyage],
+  ["Train Number", row => row.container?.trainNumber],
+  ["Wagon Number", row => row.container?.wagonNumber],
+
+  ["Stuffing Date", row => row.container?.milestones?.stuffing],
+  ["Vessel Planning Date", row => row.container?.milestones?.vesselPlanning],
+  ["Shipped On Board Date", row => row.container?.milestones?.shippedOnBoard],
+  ["Vessel Arrival Date", row => row.container?.milestones?.vesselArrival],
+  ["Railment Date", row => row.container?.milestones?.railment],
+  ["Local ICD Arrival Date", row => row.container?.milestones?.localIcd],
+  ["Final Milestone Date", row => row.container?.milestones?.final],
+
+  ["Latest Event", row => row.container?.currentEvent?.cycleStep],
+  ["Latest Event Status", row => row.container?.currentEvent?.status],
+  ["Latest Event Type", row => row.container?.currentEvent?.eventType],
+  ["Latest Event Date", row => row.container?.currentEvent?.date],
+
+  ["Created At", row => row.createdAt],
+  ["Updated At", row => row.updatedAt],
+];
+
+function csvEscape(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  let text = String(value);
+
+  // Prevent spreadsheet formula injection from text fields.
+  if (/^[\s]*[=+\-@]/.test(text)) {
+    text = "'" + text;
+  }
+
+  // Escape double quotes and wrap fields containing CSV syntax.
+  return /[",\r\n]/.test(text)
+    ? `"${text.replace(/"/g, '""')}"`
+    : text;
+}
+
+
+async function downloadReportFile({
+  rows,
+  shipmentType,
+  month,
+  format,
+}) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return;
+  }
+
+  const filename =
+    `ONS_Logistics_${shipmentType}_Report_${month}`;
+
+  if (format === "excel") {
+    const XLSX = await import("xlsx");
+
+    const headers = REPORT_EXPORT_FIELDS.map(
+      ([label]) => label
+    );
+
+    const records = rows.map((row) =>
+      REPORT_EXPORT_FIELDS.map(([, getValue]) => {
+        const value = getValue(row);
+
+        return value === null || value === undefined
+          ? ""
+          : value;
+      })
+    );
+
+    const worksheet = XLSX.utils.aoa_to_sheet([
+      headers,
+      ...records,
+    ]);
+
+    // Set readable column widths.
+    worksheet["!cols"] = headers.map((header) => ({
+      wch: Math.min(Math.max(header.length + 4, 16), 30),
+    }));
+
+    // Enable filtering on all exported columns.
+    worksheet["!autofilter"] = {
+      ref: worksheet["!ref"],
+    };
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Shipment Report"
+    );
+
+    workbook.Props = {
+      Title: `${shipmentType} Shipment Report`,
+      Subject: `ONS Logistics Report - ${month}`,
+      Author: "ONS Logistics ERP",
+    };
+
+    XLSX.writeFile(
+      workbook,
+      `${filename}.xlsx`
+    );
+
+    return;
+  }
+
+  let content;
+  let mimeType;
+  let extension;
+
+  if (format === "json") {
+    content = JSON.stringify(rows, null, 2);
+    mimeType = "application/json;charset=utf-8;";
+    extension = "json";
+  } else {
+    const headers = REPORT_EXPORT_FIELDS.map(
+      ([label]) => csvEscape(label)
+    );
+
+    const records = rows.map((row) =>
+      REPORT_EXPORT_FIELDS.map(([, getValue]) =>
+        csvEscape(getValue(row))
+      ).join(",")
+    );
+
+    content = "\uFEFF" + [
+      headers.join(","),
+      ...records,
+    ].join("\r\n");
+
+    mimeType = "text/csv;charset=utf-8;";
+    extension = "csv";
+  }
+
+  const blob = new Blob([content], {
+    type: mimeType,
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `${filename}.${extension}`;
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 
 function shippingBillValues(bills = []) {
   if (!Array.isArray(bills) || !bills.length) {
@@ -520,6 +748,15 @@ export default function ReportPage() {
 
   const [shipmentType, setShipmentType] =
     useState("import");
+  const [modeFilter, setModeFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
+const reportAbortRef = useRef(null);
+const reportRequestIdRef = useRef(0);
+const horizontalViewportRef = useRef(null);
+const horizontalTableRef = useRef(null);
+const [horizontalScrollPosition, setHorizontalScrollPosition] =
+  useState(0);
 
   const [rows, setRows] = useState([]);
 
@@ -540,74 +777,135 @@ export default function ReportPage() {
 
   const [totalJobs, setTotalJobs] =
   useState(0);
+ 
 
-  async function loadReport( type,
-  selectedMonth = month) {
-    try {
-      setLoading(true);
-      setError("");
+const [exporting, setExporting] = useState(false);
 
-      const response = await fetch(
-        `/api/admin/report?shipmentType=${type}&month=${selectedMonth}`,
-        {
-          cache: "no-store",
-        }
-      );
+async function handleReportDownload(format) {
+  if (!rows.length || loading || exporting) return;
 
-      const data =
-        await response.json();
+  try {
+    setExporting(true);
 
-      if (!response.ok) {
-        throw new Error(
-          data?.error ||
-            "Failed to load report"
-        );
+    await downloadReportFile({
+      rows,
+      shipmentType,
+      month,
+      format,
+    });
+  } catch (error) {
+    console.error("Report export error:", error);
+    alert("Unable to export report. Please try again.");
+  } finally {
+    setExporting(false);
+  }
+}
+
+  async function loadReport(
+  type,
+  selectedMonth = month,
+  selectedMode = modeFilter,
+  selectedSearch = searchTerm
+) {
+  const requestId = ++reportRequestIdRef.current;
+
+  // Cancel the previous request if it is still running.
+  reportAbortRef.current?.abort();
+
+  const controller = new AbortController();
+  reportAbortRef.current = controller;
+
+  try {
+    setLoading(true);
+    setError("");
+
+    const params = new URLSearchParams({
+      shipmentType: type,
+      month: selectedMonth,
+      mode: selectedMode,
+      search: selectedSearch,
+    });
+
+    const response = await fetch(
+      `/api/admin/report?${params.toString()}`,
+      {
+        cache: "no-store",
+        signal: controller.signal,
       }
+    );
 
-      setRows(
-        Array.isArray(data.rows)
-          ? data.rows
-          : []
-      );
-      setTotalJobs(
-  data.report?.totalJobs || 0
-);
+    const data = await response.json();
 
-      setGeneratedAt(
-        data.report?.generatedAt ||
-          null
+    if (!response.ok) {
+      throw new Error(
+        data?.error || "Failed to load report"
       );
-    } catch (err) {
-      console.error(
-        "Report loading error:",
-        err
-      );
+    }
 
-      setRows([]);
+    // Do not allow an older request to overwrite newer results.
+    if (requestId !== reportRequestIdRef.current) {
+      return;
+    }
 
-      setError(
-        err?.message ||
-          "Failed to load report"
-      );
-    } finally {
+    setRows(
+      Array.isArray(data.rows) ? data.rows : []
+    );
+
+    setTotalJobs(data.report?.totalJobs || 0);
+
+    setGeneratedAt(
+      data.report?.generatedAt || null
+    );
+  } catch (err) {
+    if (err.name === "AbortError") {
+      return;
+    }
+
+    if (requestId !== reportRequestIdRef.current) {
+      return;
+    }
+
+    console.error("Report loading error:", err);
+
+    setRows([]);
+
+    setError(
+      err?.message || "Failed to load report"
+    );
+  } finally {
+    if (requestId === reportRequestIdRef.current) {
       setLoading(false);
     }
   }
+}
 
   useEffect(() => {
   loadReport(
     shipmentType,
-    month
+    month,
+    modeFilter,
+    searchTerm
   );
-}, [shipmentType, month]);
+}, [
+  shipmentType,
+  month,
+  modeFilter,
+  searchTerm,
+]);
 
-  const columns = useMemo(
-    () =>
-      shipmentType === "import"
-        ? IMPORT_COLUMNS
-        : EXPORT_COLUMNS,
-    [shipmentType]
-  );
+useEffect(() => {
+  return () => {
+    reportAbortRef.current?.abort();
+  };
+}, []);
+
+const columns = useMemo(
+  () =>
+    shipmentType === "import"
+      ? IMPORT_COLUMNS
+      : EXPORT_COLUMNS,
+  [shipmentType]
+);
 
   const title =
     shipmentType === "import"
@@ -620,7 +918,7 @@ export default function ReportPage() {
       : "Export shipment and container operations report";
 
   return (
-    <main className="min-h-screen bg-[#f5f7fa]">
+    <main className="min-h-screen w-full min-w-0 bg-[#f5f7fa]">
       {/* ─────────────────────────────────────────────
           HEADER
       ───────────────────────────────────────────── */}
@@ -732,14 +1030,50 @@ export default function ReportPage() {
       Exports
     </button>
   </div>
+  {/* Mode of Shipment */}
+<div className="flex items-center gap-3">
+  <label
+    htmlFor="report-mode"
+    className="text-sm font-semibold text-gray-700"
+  >
+    Mode
+  </label>
+
+  <select
+    id="report-mode"
+    value={modeFilter}
+    onChange={(event) =>
+      setModeFilter(event.target.value)
+    }
+    className={[
+      "h-10 px-3",
+      "rounded-lg",
+      "border border-gray-200",
+      "bg-white",
+      "text-sm text-gray-800",
+      "outline-none",
+      "focus:border-blue-400",
+      "focus:ring-2 focus:ring-blue-100",
+    ].join(" ")}
+  >
+    <option value="all">All</option>
+    <option value="air">Air</option>
+    <option value="sea">Sea</option>
+    <option value="cou">Courier</option>
+  </select>
 </div>
+</div>
+
         </div>
+        
       </div>
+
+    
 
       {/* ─────────────────────────────────────────────
           CONTENT
       ───────────────────────────────────────────── */}
-      <div className="p-6">
+      <div className="w-full min-w-0 p-6">
         {error && (
           <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             <div className="font-semibold mb-1">
@@ -759,13 +1093,92 @@ export default function ReportPage() {
             </button>
           </div>
         )}
+   <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+  {/* Export button — left */}
+  <button
+    type="button"
+    onClick={() => handleReportDownload("excel")}
+    disabled={loading || exporting || rows.length === 0}
+    className="
+      inline-flex h-10 shrink-0 items-center justify-center gap-2
+      rounded-lg border border-emerald-200
+      bg-emerald-50 px-4
+      text-sm font-semibold text-emerald-700
+      transition-colors hover:bg-emerald-100
+      disabled:cursor-not-allowed
+      disabled:opacity-50
+      whitespace-nowrap
+    "
+  >
+    {exporting ? (
+      <>
+        <span className="animate-spin">⏳</span>
+        Exporting...
+      </>
+    ) : (
+      <>
+        <span>↓</span>
+        Export Excel
+      </>
+    )}
+  </button>
 
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+  {/* Search bar — right */}
+  <div className="min-w-0 flex-1">
+    <ReportSearch
+      onSearch={setSearchTerm}
+      loading={loading}
+    />
+  </div>
+</div>
+
+        <div className="w-full min-w-0 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           {/* ─────────────────────────────────────────
               TABLE
           ───────────────────────────────────────── */}
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-max border-collapse">
+    
+<div
+  className="
+    report-table-scroll
+    relative
+    w-full
+    min-w-0
+    h-[calc(100dvh-430px)]
+    min-h-[220px]
+    max-h-[650px]
+    overflow-x-hidden
+    overflow-y-scroll
+    overscroll-contain
+  "
+  style={{
+    direction: "rtl",
+    scrollbarGutter: "stable",
+    WebkitOverflowScrolling: "touch",
+  }}
+>
+ <div
+  ref={horizontalViewportRef}
+  className="report-table-viewport w-full min-w-0 overflow-x-auto"
+  style={{ direction: "ltr" }}
+  onScroll={(event) => {
+    const element = event.currentTarget;
+    const maxScroll = Math.max(
+      0,
+      element.scrollWidth - element.clientWidth
+    );
+
+    setHorizontalScrollPosition(
+      maxScroll > 0
+        ? Math.round(
+            (element.scrollLeft / maxScroll) * 1000
+          )
+        : 0
+    );
+  }}
+>
+  <table className="w-max min-w-[2600px] border-separate border-spacing-0">
+      {/* Keep your existing thead and tbody here */}
+
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   {columns.map(
@@ -773,15 +1186,18 @@ export default function ReportPage() {
                       <th
                         key={column}
                         className={[
-                          "px-4 py-3",
-                          "text-left",
-                          "text-[10px]",
-                          "font-bold",
-                          "uppercase",
-                          "tracking-wider",
-                          "text-gray-500",
-                          "whitespace-nowrap",
-                        ].join(" ")}
+                            "sticky top-0 z-10",
+                           "bg-gray-50",
+                            "px-4 py-3",
+                            "text-left",
+                            "text-[10px]",
+                            "font-bold",
+                            "uppercase",
+                            "tracking-wider",
+                            "text-gray-500",
+                            "whitespace-nowrap",
+                            "border-b border-gray-200",
+                          ].join(" ")}
                       >
                         {column}
                       </th>
@@ -852,6 +1268,50 @@ export default function ReportPage() {
               </tbody>
             </table>
           </div>
+          </div>
+          {/* Dedicated horizontal scrollbar */}
+
+{/* Dedicated horizontal table scrollbar */}
+<div className="report-horizontal-slider flex items-center gap-3 px-4 py-3 border-t border-gray-200 bg-gray-50">
+  <span className="text-xs font-medium text-gray-500 whitespace-nowrap">
+    Scroll columns
+  </span>
+
+  <input
+    type="range"
+    min="0"
+    max="1000"
+    step="1"
+    value={horizontalScrollPosition}
+    aria-label="Scroll report table horizontally"
+    onChange={(event) => {
+  const value = Number(event.target.value);
+
+  const element = horizontalViewportRef.current;
+
+  if (!element) return;
+
+  const maxScroll = Math.max(
+    0,
+    element.scrollWidth - element.clientWidth
+  );
+
+  const targetPosition = (value / 1000) * maxScroll;
+
+  element.scrollTo({
+    left: targetPosition,
+    behavior: "instant",
+  });
+
+  setHorizontalScrollPosition(value);
+}}
+    className="report-horizontal-range"
+  />
+
+  <span className="text-xs text-gray-500 whitespace-nowrap">
+   
+  </span>
+</div>
 
           {/* ─────────────────────────────────────────
               FOOTER

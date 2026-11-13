@@ -207,3 +207,100 @@ form section:last-child {
     @apply py-3 text-base;
   }
 }
+
+/* Reports table: visible horizontal and vertical scrollbars */
+.report-table-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: #9ca3af #f1f5f9;
+}
+
+/* Chrome, Edge and Safari */
+.report-table-scroll::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+.report-table-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.report-table-scroll::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border: 3px solid #f1f5f9;
+  border-radius: 8px;
+}
+
+.report-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+.report-table-scroll::-webkit-scrollbar-corner {
+  background: #f1f5f9;
+}
+
+/* Hide native horizontal scrollbar on the table.
+   The dedicated range slider below controls horizontal movement. */
+.report-table-viewport {
+  scrollbar-width: none;
+}
+
+.report-table-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+/* Always-visible horizontal slider */
+.report-horizontal-slider {
+  direction: ltr;
+}
+
+.report-horizontal-range {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Slider track */
+.report-horizontal-range::-webkit-slider-runnable-track {
+  height: 9px;
+  background: #d1d5db;
+  border-radius: 999px;
+}
+
+.report-horizontal-range::-moz-range-track {
+  height: 9px;
+  background: #d1d5db;
+  border-radius: 999px;
+}
+
+/* Draggable thumb */
+.report-horizontal-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 34px;
+  height: 18px;
+  margin-top: -4.5px;
+  border-radius: 999px;
+  background: #2563eb;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.report-horizontal-range::-moz-range-thumb {
+  width: 30px;
+  height: 14px;
+  border-radius: 999px;
+  background: #2563eb;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.report-horizontal-range:focus-visible::-webkit-slider-thumb {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+

@@ -8,6 +8,7 @@ import TechnicalQuote from "@/models/TechnicalQuote";
 import { authOptions } from "@/lib/authOptions";
 import { PRE_CONTAINER_SENTINEL } from "@/models/Job";
 
+
 export const runtime = "nodejs";
 
 /* ─────────────────────────────────────────────────────────────
@@ -549,6 +550,43 @@ function normalizeReportRow({
     ),
   };
 }
+function documentMatchesSearch(value, query) {
+  if (value === null || value === undefined) {
+    return false;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString().toLowerCase().includes(query);
+  }
+
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "bigint"
+  ) {
+    return String(value).toLowerCase().includes(query);
+  }
+
+  // MongoDB ObjectId
+  if (typeof value.toHexString === "function") {
+    return value.toHexString().toLowerCase().includes(query);
+  }
+
+  if (Array.isArray(value)) {
+    return value.some((item) =>
+      documentMatchesSearch(item, query)
+    );
+  }
+
+  if (typeof value === "object") {
+    return Object.values(value).some((item) =>
+      documentMatchesSearch(item, query)
+    );
+  }
+
+  return false;
+}
 
 /* ─────────────────────────────────────────────────────────────
    GET REPORT
@@ -602,6 +640,27 @@ export async function GET(req) {
     const month =
      searchParams.get("month")?.trim() || null;
 
+    const mode = String(
+  searchParams.get("mode") || "all"
+).trim().toLowerCase();
+
+const allowedModes = ["all", "air", "sea", "cou"];
+
+if (!allowedModes.includes(mode)) {
+  return NextResponse.json(
+    {
+      error: "mode must be all, air, sea, or cou",
+    },
+    { status: 400 }
+  );
+}
+const searchTerm = String(
+  searchParams.get("search") || ""
+)
+  .trim()
+  .slice(0, 100)
+  .toLowerCase();
+
      if (
   month &&
   !/^\d{4}-(0[1-9]|1[0-2])$/.test(month)
@@ -640,46 +699,65 @@ if (month) {
   };
 }
 
-    const jobs = await Job.find({...dateFilter,})
-  .populate({
-    path: "quoteId",
-    model: Quote,
-    select: [
-      "fromCountry",
-      "toCountry",
-      "fromCity",
-      "toCity",
-      "fromLocationType",
-      "toLocationType",
-      "fromICD",
-      "toICD",
-      "item",
-      "modeOfTransport",
-      "estimatedShippingDate",
-      "freightTerms",
-      "containerType",
-      "modeOfShipment",
-      "shipmentType",
-      "serviceScope",
-      "company",
-      "assignedToName" ,
-    ].join(" "),
-  })
-  .populate({
-    path: "technicalQuoteId",
-    model: TechnicalQuote,
-    select: [
-      "shipmentType",
-      "jobMeta",
-      "shipmentDetails",
-    ].join(" "),
-  })
-  .sort({
-    createdAt: -1,
-  })
+  const jobsQuery = Job.find({
+  ...dateFilter,
+});
+
+if (searchTerm) {
+  // Populate complete related documents only during search.
+  jobsQuery
+    .populate({
+      path: "quoteId",
+      model: Quote,
+    })
+    .populate({
+      path: "technicalQuoteId",
+      model: TechnicalQuote,
+    });
+} else {
+  // Keep the existing lightweight population for normal reports.
+  jobsQuery
+    .populate({
+      path: "quoteId",
+      model: Quote,
+      select: [
+        "fromCountry",
+        "toCountry",
+        "fromCity",
+        "toCity",
+        "fromLocationType",
+        "toLocationType",
+        "fromICD",
+        "toICD",
+        "item",
+        "modeOfTransport",
+        "estimatedShippingDate",
+        "freightTerms",
+        "containerType",
+        "modeOfShipment",
+        "shipmentType",
+        "serviceScope",
+        "company",
+        "assignedToName",
+      ].join(" "),
+    })
+    .populate({
+      path: "technicalQuoteId",
+      model: TechnicalQuote,
+      select: [
+        "shipmentType",
+        "jobMeta",
+        "shipmentDetails",
+      ].join(" "),
+    });
+}
+
+const jobs = await jobsQuery
+  .sort({ createdAt: -1 })
   .lean();
 
-    const rows = [];
+   const rows = [];
+let matchedJobCount = 0;
 
 for (const job of jobs) {
   const quote =
@@ -705,6 +783,43 @@ for (const job of jobs) {
   if (jobShipmentType !== shipmentType) {
     continue;
   }
+  // Filter by the first three characters of the job number or job ID.
+if (mode !== "all") {
+  const jobIdentifiers = [
+    job.jobNumber,
+    job.jobId,
+  ]
+    .filter(Boolean)
+    .map((value) =>
+      String(value).trim().toUpperCase()
+    );
+
+  const matchesMode = jobIdentifiers.some(
+    (identifier) =>
+      identifier.startsWith(`${mode.toUpperCase()}-`)
+  );
+
+  if (!matchesMode) {
+    continue;
+  }
+}
+// Search only after the existing shipment and mode filters.
+if (searchTerm) {
+  const matchesSearch = [
+    job,
+    quote,
+    technicalQuote,
+  ].some((document) =>
+    documentMatchesSearch(document, searchTerm)
+  );
+
+  if (!matchesSearch) {
+    continue;
+  }
+}
+
+// Count matching jobs, not individual container rows.
+matchedJobCount++;
 
   const containers =
     Array.isArray(job.containers)
@@ -759,10 +874,12 @@ for (const job of jobs) {
       report: {
         shipmentType,
         month,
+        mode,
+        search: searchTerm,
         generatedAt:
           new Date().toISOString(),
 
-        totalJobs: jobs.length,
+        totalJobs: matchedJobCount,
 
         totalRows: rows.length,
       },
