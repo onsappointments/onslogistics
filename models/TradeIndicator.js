@@ -32,6 +32,7 @@ const TradeIndicatorSchema = new mongoose.Schema(
         "trade-volume",
         "trade-value",
         "commodity-price",
+        "commodity-index",
         "freight-rate",
         "economic",
         "port-activity",

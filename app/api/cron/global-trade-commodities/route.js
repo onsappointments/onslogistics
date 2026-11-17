@@ -37,7 +37,7 @@ export async function GET(request) {
 
     return NextResponse.json({
       success: true,
-      message: "World Bank commodity prices ingested successfully.",
+      message: "World Bank commodity prices and group indices ingested successfully.",
       ...result,
       completedAt: new Date().toISOString(),
     });
