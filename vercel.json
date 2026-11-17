@@ -1,3 +1,14 @@
+
 {
-  "version": 2
+  "version": 2,
+  "crons": [
+    {
+      "path": "/api/cron/global-trade-commodities",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/global-trade-news",
+      "schedule": "0 8 * * *"
+    }
+  ]
 }
