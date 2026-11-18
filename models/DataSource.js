@@ -1,6 +1,75 @@
 
 import mongoose from "mongoose";
 
+const PeriodFlowCoverageSchema = new mongoose.Schema(
+  {
+    period: {
+      type: String,
+      required: true,
+    },
+    importsAvailable: {
+      type: Boolean,
+      default: false,
+    },
+    exportsAvailable: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { _id: false }
+);
+
+const TradeCoverageSchema = new mongoose.Schema(
+  {
+    requestedPeriods: {
+      type: [String],
+      default: [],
+    },
+
+    availablePeriods: {
+      type: [String],
+      default: [],
+    },
+
+    missingPeriods: {
+      type: [String],
+      default: [],
+    },
+
+    incompletePeriods: {
+      type: [String],
+      default: [],
+    },
+
+    periodFlowCoverage: {
+      type: [PeriodFlowCoverageSchema],
+      default: [],
+    },
+
+    coverageStatus: {
+      type: String,
+      enum: ["complete", "partial", "empty", "unknown"],
+      default: "unknown",
+    },
+
+    firstAvailablePeriod: {
+      type: String,
+      default: null,
+    },
+
+    latestAvailablePeriod: {
+      type: String,
+      default: null,
+    },
+
+    coverageUpdatedAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  { _id: false }
+);
+
 const DataSourceSchema = new mongoose.Schema(
   {
     key: {
@@ -126,6 +195,11 @@ const DataSourceSchema = new mongoose.Schema(
         type: Number,
         default: 0,
         min: 0,
+      },
+
+      coverage: {
+        type: TradeCoverageSchema,
+        default: () => ({}),
       },
     },
   },
