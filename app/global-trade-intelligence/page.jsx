@@ -39,8 +39,8 @@ const sections = [
       "Explore India's import and export activity, trade balances and monthly trade performance.",
     href: "/global-trade-intelligence/trade-flows",
     icon: BarChart3,
-    status: "Coming soon",
-    available: false,
+    status: "Avalaible",
+    available: true,
   },
   {
     title: "Country Intelligence",
